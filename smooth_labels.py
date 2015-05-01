@@ -21,7 +21,7 @@ Dates
 
 License
 ----
-This file is part of mrgaze.
+This file is part of atlaskit.
 
     atlaskit is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -34,7 +34,7 @@ This file is part of mrgaze.
     GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
-along with mrgaze.  If not, see <http://www.gnu.org/licenses/>.
+along with atlaskit.  If not, see <http://www.gnu.org/licenses/>.
 
 Copyright
 ----

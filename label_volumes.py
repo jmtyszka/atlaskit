@@ -1,16 +1,15 @@
 #!/opt/local/Library/Frameworks/Python.framework/Versions/2.7/Resources/Python.app/Contents/MacOS/Python
 """
-Estimate label volumes for an individual using the atlas label volume and
-local jacobian determinant of the template to individual mapping.
+Output volumes of each label in an atlas in microliters.
 
 Usage
 ----
-label_ind_vol.py <atlas> <individual jacobian map>
-label_ind_vol.py -h
+label_volumes.py <atlas_file>
+label_volumes.py -h
 
 Example
 ----
->>> label_ind_vol.py atlas.nii.gz 105014_temp2ind_detjac.nii.gz
+>>> label_volumes.py atlas.nii.gz
 
 Authors
 ----
@@ -18,7 +17,7 @@ Mike Tyszka, Caltech Brain Imaging Center
 
 Dates
 ----
-2015-04-13 JMT From scratch
+2015-05-01 JMT From scratch
 
 License
 ----
@@ -53,55 +52,38 @@ import numpy as np
 def main():
     
     # Parse command line arguments
-    parser = argparse.ArgumentParser(description='Individual atlas label volumes')
+    parser = argparse.ArgumentParser(description='Atlas label volumes in microliters')
     parser.add_argument('atlas_file', help="source atlas labels filename")
-    parser.add_argument('jacobian_file', help="local jacobian determinant map")
-    parser.add_argument('csv_file', help="individual label volumes CSV file")
 
     args = parser.parse_args()
 
     atlas_file = args.atlas_file
-    jac_file = args.jacobian_file
-    csv_file = args.csv_file
         
     # Load the source atlas image
     print('Loading atlas labels from %s' % atlas_file)
     atlas_nii = nib.load(atlas_file)
     atlas_labels = atlas_nii.get_data()
     
-    # Atlas voxel volum in mm^3 (microliters)
+    # Atlas voxel volume in mm^3 (microliters)
     atlas_vox_vol_ul = np.array(atlas_nii.header.get_zooms()).prod()
     
     print('Atlas voxel volume : %0.5f ul' % atlas_vox_vol_ul)
     
     # Create list of label values (not necessarily contiguous)
-    max_l = atlas_labels.max()
+    max_l = np.int(atlas_labels.max())
     labels = range(0, max_l+1)        
     
-    # Load jacobian image
-    print('Loading Jacobian image from %s' % jac_file)
-    jac_nii = nib.load(jac_file)
-    jac_img = jac_nii.get_data()
-    
-    # Make space for label volumes
-    label_vol_ul = np.zeros([max_l+1], dtype=int)
-
     for label in labels:
 
         # Extract target label as a boolean mask        
         label_mask = (atlas_labels == label)
 
-        # Integrate local Jacobian determinant over mask
-        total_jac = jac_img[label_mask].sum()
-        label_vol_ul[label] = total_jac * atlas_vox_vol_ul
+        # Integrate volume of current label
+        label_vol_ul = np.sum(label_mask) * atlas_vox_vol_ul
         
-        print('  Label %03d  : %0.1f ul' % (label, label_vol_ul[label])) 
-    
-    # Save label volumes to CSV text file
-    print('Saving label volumes to %s' % csv_file)
-    np.savetxt(csv_file, label_vol_ul, delimiter=',', fmt='%0.1f')
-    
-    print('Done')
+        # Only output if volume > 0
+        if label_vol_ul > 0.0:
+          print('%03d,%0.3f' % (label, label_vol_ul)) 
     
     # Clean exit
     sys.exit(0)
