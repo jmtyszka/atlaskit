@@ -60,14 +60,11 @@ def main():
     atlas_file = args.atlas_file
         
     # Load the source atlas image
-    print('Loading atlas labels from %s' % atlas_file)
     atlas_nii = nib.load(atlas_file)
     atlas_labels = atlas_nii.get_data()
     
     # Atlas voxel volume in mm^3 (microliters)
     atlas_vox_vol_ul = np.array(atlas_nii.header.get_zooms()).prod()
-    
-    print('Atlas voxel volume : %0.5f ul' % atlas_vox_vol_ul)
     
     # Create list of label values (not necessarily contiguous)
     max_l = np.int(atlas_labels.max())
@@ -75,15 +72,18 @@ def main():
     
     for label in labels:
 
-        # Extract target label as a boolean mask        
-        label_mask = (atlas_labels == label)
+        # Skip label 0 (background)
+	if label > 0:
 
-        # Integrate volume of current label
-        label_vol_ul = np.sum(label_mask) * atlas_vox_vol_ul
+          # Extract target label as a boolean mask        
+          label_mask = (atlas_labels == label)
+
+          # Integrate volume of current label
+          label_vol_ul = np.sum(label_mask) * atlas_vox_vol_ul
         
-        # Only output if volume > 0
-        if label_vol_ul > 0.0:
-          print('%03d,%0.3f' % (label, label_vol_ul)) 
+          # Only output non-empty labels with index > 0
+          if label_vol_ul > 0.0:
+            print('%03d %0.3f' % (label, label_vol_ul)) 
     
     # Clean exit
     sys.exit(0)
