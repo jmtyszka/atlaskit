@@ -1,15 +1,15 @@
-#!/opt/local/Library/Frameworks/Python.framework/Versions/2.7/Resources/Python.app/Contents/MacOS/Python
+#!/opt/local/bin/python
 """
 Calculate Dice, Jaquard and related stats for inter and intra-observer labeling comparisons
 
 Usage
 ----
-dice.py <labels_A> <labels_B>
+dice.py <labelsA> <labelsB>
 dice.py -h
 
 Example
 ----
->>> dice.py labels_A.nii.gz labels_B.nii.gz
+>>> dice.py labelsA.nii.gz labelsB.nii.gz
 
 Authors
 ----
@@ -41,7 +41,7 @@ Copyright
 2015 California Institute of Technology.
 """
 
-__version__ = '0.1.0'
+__version__ = '0.2.0'
 
 import sys
 import argparse
@@ -53,38 +53,37 @@ def main():
     
     # Parse command line arguments
     parser = argparse.ArgumentParser(description='Similarity metrics for labeled volumes')
-    parser.add_argument('labels_A', help="Labeled volume A")
-    parser.add_argument('labels_B', help="Labeled volume B")
+    parser.add_argument('labelsA', help="Labeled volume A")
+    parser.add_argument('labelsB', help="Labeled volume B")
+
 
     # Parse command line arguments
     args = parser.parse_args()
-    labels_A = args.labels_A
-    labels_B = args.labels_B
+    labelsA, labelsB = args.labelsA, args.labelsB
         
     # Load labeled volumes
-    A_nii, B_nii = nib.load(labels_A), nib.load(labels_B)
+    A_nii, B_nii = nib.load(labelsA), nib.load(labelsB)
     A_labels, B_labels = A_nii.get_data(), B_nii.get_data()
     
     # Voxel volume in mm^3 (microliters) (from volume A)
     atlas_vox_vol_ul = np.array(A_nii.header.get_zooms()).prod()
-    
-    # Create list of possible label values from volume A
-    max_l = np.int(A_labels.max())
-    labels = range(0, max_l+1)
 
     # Colume headers
     print('%8s %8s %8s %10s %10s %10s %10s' %
         ('Label', 'nA', 'nB', 'vA_ul', 'vB_ul', 'Jaccard', 'Dice')) 
     
-    for label in labels:
+    # Construct list of unique label values in image
+    unique_labels = np.unique(A_labels)
 
-        # Skip label 0 (background)
+    # loop over each unique label value
+    for label in unique_labels:
+        
         if label > 0:
-     
+
             # Create label mask from A and B volumes
             A_mask = (A_labels == label)
             B_mask = (B_labels == label)
-
+    
             # Count voxels in each mask
             nA, nB = np.sum(A_mask), np.sum(B_mask)
             

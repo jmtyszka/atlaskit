@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/opt/local/bin/python
 
 """
 Write separate volume for each label found in the input image
@@ -19,6 +19,7 @@ Wolfgang M. Pauli, Caltech, Division of Humaninities and Social Sciences
 Dates
 ----
 2015-05-02 WMP From scratch
+2015-07-29 JMT Speed up mask generation, use zero-padded output indexing
 
 License
 ----
@@ -42,11 +43,11 @@ Copyright
 2015 California Institute of Technology.
 """
 
-__version__ = '0.1.0'
+__version__ = '0.2.0'
 
+import os
 import sys
 import argparse
-from scipy.ndimage.filters import gaussian_filter
 import nibabel as nib
 import numpy as np
 
@@ -61,28 +62,34 @@ def main():
     
     in_file = args.in_file
     
+    # Convert relative to absolute path
+    in_file = os.path.abspath(in_file)
+    
     # Load the source atlas image
     print('Opening %s' % in_file)
     in_nii = nib.load(in_file)
     
     # Load label image
     src_labels = in_nii.get_data()
-    
+
+    # Construct list of unique label values in image
     unique_labels = np.unique(src_labels)
 
-    for label in unique_labels[1:len(unique_labels)]:
-        out_labels = np.zeros_like(src_labels)
-
-        ind = np.where(src_labels == label)
+    # loop over each unique label value
+    for label in unique_labels:
         
-        out_labels[ind] = 1
+        if label > 0:
         
-        out_file = in_file.strip('.nii.gz') + '_' + str(int(label)) + '.nii.gz'
-        
-        # Save smoothed labels image
-        print('Saving label %s to %s' % (str(int(label)), out_file))
-        out_nii = nib.Nifti1Image(out_labels, in_nii.get_affine())
-        out_nii.to_filename(out_file)
+            # Create mask for current label value
+            out_mask = (src_labels == label).astype(int)
+            
+            # Construct output filename. Use zero-padded indexing
+            out_file = in_file.strip('.nii.gz') + '_' + '{0:04d}'.format(label) + '.nii.gz'
+            
+            # Save smoothed labels image
+            print('Saving label %d to %s' % (label, out_file))
+            out_nii = nib.Nifti1Image(out_mask, in_nii.get_affine())
+            out_nii.to_filename(out_file)
     
     print('Done')
     
