@@ -45,7 +45,6 @@ __version__ = '0.1.0'
 
 import sys
 import argparse
-from scipy.ndimage.filters import gaussian_filter
 import nibabel as nib
 import numpy as np
 

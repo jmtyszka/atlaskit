@@ -69,7 +69,7 @@ def main():
     atlas_vox_vol_ul = np.array(A_nii.header.get_zooms()).prod()
 
     # Colume headers
-    print('%8s %8s %8s %10s %10s %10s %10s' %
+    print('%8s,%8s,%8s,%10s,%10s,%10s,%10s,' %
         ('Label', 'nA', 'nB', 'vA_ul', 'vB_ul', 'Jaccard', 'Dice')) 
     
     # Construct list of unique label values in image
@@ -105,7 +105,7 @@ def main():
                 A_vol_ul = np.sum(A_mask) * atlas_vox_vol_ul
                 B_vol_ul = np.sum(B_mask) * atlas_vox_vol_ul
     
-                print('%8d %8d %8d %10.3f %10.3f %10.3f %10.3f' %
+                print('%8d,%8d,%8d,%10.3f,%10.3f,%10.3f,%10.3f,' %
                     (label, nA, nB, A_vol_ul, B_vol_ul, Jaccard, Dice)) 
     
     # Clean exit
