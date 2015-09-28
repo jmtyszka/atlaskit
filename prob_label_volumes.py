@@ -87,7 +87,10 @@ def main():
             for t in range(0,nt):
 
                 V = np.sum(p[:,:,:,t]) * atlas_vox_vol_ul
-                print('%0.3f' % V),            
+                print('%0.3f' % V),
+
+            # Final newline
+            print          
     
     # Clean exit
     sys.exit(0)
