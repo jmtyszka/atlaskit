@@ -1,17 +1,16 @@
 # /opt/local/bin/python
 """
-Create a skin surrounding multiple manually labeled sections
-- Allows convex labels to be defined with fewer sections
-- 
+Interpolate label between sparse sections
+- Speeds up manual labeling for larger label volumes
 
 Usage
 ----
-skin_labels.py <label image> <index list>
-skin_labels.py -h
+interp_labels.py <label image> <index list>
+interp_labels.py -h
 
 Example
 ----
->>> skin_labels.py labels.nii.gz 1 3 4
+>>> interp_labels.py labels.nii.gz 1 3 4
 
 Authors
 ----
@@ -49,15 +48,14 @@ import sys
 import argparse
 import nibabel as nib
 import numpy as np
-import skimage as sk
-import scipy as sp
+from scipy.interpolate import Rbf
 
 def main():
     
     # Parse command line arguments
-    parser = argparse.ArgumentParser(description='Skin labels')
+    parser = argparse.ArgumentParser(description='Interpolate labels')
     parser.add_argument('label_image', help="Labeled volume")
-    parser.add_argument('labels', help="Label numbers to skin")
+    parser.add_argument('labels', help="Label numbers to interpolate")
 
     # Parse command line arguments
     args = parser.parse_args()
@@ -78,33 +76,23 @@ def main():
         
         if label > 0:
 
-            # Create label mask from A and B volumes
-            A_mask = (A_labels == label)
-            B_mask = (B_labels == label)
-    
-            # Count voxels in each mask
-            nA, nB = np.sum(A_mask), np.sum(B_mask)
+            # Extract current label
+            L = int(labels == label)
             
-            # Only calculate stats if labels present in A or B
-            if nA > 0 or nB > 0:
-                
-                # Find intersection and union of A and B masks
-                AandB = np.logical_and(A_mask, B_mask)
-                AorB = np.logical_or(A_mask, B_mask)
+            # Find coordinates of all True voxels
+            x, y, z = np.where(L)
             
-                # Count voxels in intersection and union
-                nAandB, nAorB = np.sum(AandB), np.sum(AorB)
-              
-                # Similarity coefficients
-                Jaccard = nAandB / float(nAorB)
-                Dice = 2.0 * nAandB / float(nA + nB)
-                
-                # Absolute volumes of label in A and B
-                A_vol_ul = np.sum(A_mask) * atlas_vox_vol_ul
-                B_vol_ul = np.sum(B_mask) * atlas_vox_vol_ul
+            # Count number of voxels in label
+            nvox = np.sum(L)
+            
+            # All node values are one
+            d = np.ones([nvox])
+            
+            # RBF interpolate
+            rbf = Rbf(x,y,z,d)
     
-                print('%8d %8d %8d %10.3f %10.3f %10.3f %10.3f' %
-                    (label, nA, nB, A_vol_ul, B_vol_ul, Jaccard, Dice)) 
+            # Interpolated label
+            Li = rbf(xi,yi,zi)
     
     # Clean exit
     sys.exit(0)
