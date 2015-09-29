@@ -1,5 +1,5 @@
-# /opt/local/bin/python
-"""
+#!/opt/local/bin/python
+'''
 Interpolate label between sparse sections
 - Speeds up manual labeling for larger label volumes
 
@@ -40,7 +40,7 @@ along with atlaskit.  If not, see <http://www.gnu.org/licenses/>.
 Copyright
 ----
 2015 California Institute of Technology.
-"""
+'''
 
 __version__ = '0.1.0'
 
@@ -54,12 +54,12 @@ def main():
     
     # Parse command line arguments
     parser = argparse.ArgumentParser(description='Interpolate labels')
-    parser.add_argument('label_image', help="Labeled volume")
-    parser.add_argument('labels', help="Label numbers to interpolate")
+    parser.add_argument('-i','--input', help="Labeled volume")
+    parser.add_argument('-l','--labels', help="Label numbers to interpolate")
 
     # Parse command line arguments
     args = parser.parse_args()
-    label_fname = args.label_image
+    label_fname = args.input
 
     # Load labeled volume
     label_nii = nib.load(label_fname)
@@ -70,17 +70,25 @@ def main():
     else:
         # Construct list of unique label values in image
         label_nos = np.unique(labels)
+        
+    # Voxel mesh grids for interpolation                
+    nx, ny, nz = labels.shape
+    xx, yy, zz = np.arange(nx), np.arange(ny), np.arange(nz)
+    xi,yi,zi = np.meshgrid(xx,yy,zz)
 
     # loop over each unique label value
     for label in label_nos:
         
         if label > 0:
+            
+            print('Interpolating label %d' % label)
 
             # Extract current label
-            L = int(labels == label)
+            L = (labels == label)
             
-            # Find coordinates of all True voxels
-            x, y, z = np.where(L)
+            # Find coordinates of all True voxels (n x 3)
+            xyz = np.where(L)
+            x, y, z = xyz[:,0], xyz[:,1], xyz[:,2]
             
             # Count number of voxels in label
             nvox = np.sum(L)
