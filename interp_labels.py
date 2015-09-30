@@ -124,9 +124,12 @@ def main():
             hy = points[hull.vertices,1]
             hz = points[hull.vertices,2]
             cx, cy, cz = hx.mean(), hy.mean(), hz.mean()
-            dx, dy, dz = hx-cx, hy-cy, hz-cz
             
-            # Inflate hull by 10%
+            # Inflation vector for each node
+            dx, dy, dz = hx-cx, hy-cy, hz-cz
+            r = np.sqrt(dx**2 + dy**2 + dz**2)
+            
+            # Inflate hull by n-voxels
             hxi = hx + dx * 1.1
             hyi = hy + dy * 1.1
             hzi = hz + dz * 1.1
