@@ -44,11 +44,13 @@ Copyright
 
 __version__ = '0.1.0'
 
+import os
 import sys
 import argparse
 import nibabel as nib
 import numpy as np
 from scipy.interpolate import Rbf
+from scipy.spatial import ConvexHull
 
 def main():
     
@@ -61,20 +63,31 @@ def main():
     args = parser.parse_args()
     label_fname = args.input
 
+    # Construct output filename    
+    out_stub, out_ext = os.path.splitext(label_fname)
+    if out_ext == '.gz':
+        out_stub, _ = os.path.splitext(out_stub)
+    out_fname = out_stub + '_interp.nii.gz'
+
     # Load labeled volume
     label_nii = nib.load(label_fname)
     labels = label_nii.get_data()
+    
+    # Destination label volume
+    new_labels = np.zeros_like(labels, dtype='float')
+
+    # Boundary condition points and values
+    nx, ny, nz = labels.shape
+    x0 = np.array([ 0, 0, 0, 0,nx,nx,nx,nx])
+    y0 = np.array([ 0, 0,ny,ny, 0, 0,ny,ny])
+    z0 = np.array([ 0,nz, 0,nz, 0,nz, 0,nz])
+    d0 = np.array([ 0, 0, 0, 0, 0, 0, 0, 0])
     
     if args.labels:
         label_nos = args.labels
     else:
         # Construct list of unique label values in image
         label_nos = np.unique(labels)
-        
-    # Voxel mesh grids for interpolation                
-    nx, ny, nz = labels.shape
-    xx, yy, zz = np.arange(nx), np.arange(ny), np.arange(nz)
-    xi,yi,zi = np.meshgrid(xx,yy,zz)
 
     # loop over each unique label value
     for label in label_nos:
@@ -84,23 +97,55 @@ def main():
             print('Interpolating label %d' % label)
 
             # Extract current label
-            L = (labels == label)
+            mask = (labels == label)
             
             # Find coordinates of all True voxels (n x 3)
-            xyz = np.where(L)
-            x, y, z = xyz[:,0], xyz[:,1], xyz[:,2]
+            print('  Locating label voxels')
+            points = np.where(mask)
+            x, y, z = points
+            
+            # Create bounding box for label
+            # Make upper bound inclusive
+            xmin, xmax = x.min(), x.max()+1
+            ymin, ymax = y.min(), y.max()+1
+            zmin, zmax = z.min(), z.max()+1
+            print('  Bounding box : (%d, %d, %d) : (%d, %d, %d)' % (xmin, ymin, zmin, xmax, ymax, zmax))
+            
+            # Construct voxel coordinate mesh within BB. Note ij indexing to match np.where, etc
+            print('  Creating interpolation mesh')
+            xx, yy, zz = np.arange(xmin, xmax), np.arange(ymin, ymax), np.arange(zmin, zmax)
+            xi,yi,zi = np.meshgrid(xx,yy,zz, indexing='ij')
             
             # Count number of voxels in label
-            nvox = np.sum(L)
+            nvox = np.sum(mask)
+            print('  Label volume : %d voxels' % nvox)
             
             # All node values are one
-            d = np.ones([nvox])
+            d = np.ones_like(x, dtype='float')
+            
+            # Append boundary conditions
+            x = np.append(x, x0)
+            y = np.append(y, y0)
+            z = np.append(z, z0)
+            d = np.append(d, d0)
             
             # RBF interpolate
-            rbf = Rbf(x,y,z,d)
+            print('  Constructing RBF interpolant')
+            rbf = Rbf(x, y, z, d)
     
-            # Interpolated label
+            # Interpolate label only within BB
+            print('  Interpolating label')
             Li = rbf(xi,yi,zi)
+            
+            # Update label volume
+            new_labels[xmin:xmax,ymin:ymax,zmin:zmax] = Li
+            
+    
+    # Save interpolated label volume
+    print('Saving interpolated labels to %s' % out_fname)
+    out_nii = nib.Nifti1Image(new_labels, label_nii.get_affine())
+    out_nii.to_filename(out_fname)
+        
     
     # Clean exit
     sys.exit(0)
