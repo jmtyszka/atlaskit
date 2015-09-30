@@ -75,13 +75,6 @@ def main():
     
     # Destination label volume
     new_labels = np.zeros_like(labels, dtype='float')
-
-    # Boundary condition points and values
-    nx, ny, nz = labels.shape
-    x0 = np.array([ 0, 0, 0, 0,nx,nx,nx,nx])
-    y0 = np.array([ 0, 0,ny,ny, 0, 0,ny,ny])
-    z0 = np.array([ 0,nz, 0,nz, 0,nz, 0,nz])
-    d0 = np.array([ 0, 0, 0, 0, 0, 0, 0, 0])
     
     if args.labels:
         label_nos = args.labels
@@ -123,11 +116,26 @@ def main():
             # All node values are one
             d = np.ones_like(x, dtype='float')
             
+            # Find convex hull
+            hull = ConvexHull(points)
+            
+            # Center of mass of hull
+            hx = points[hull.vertices,0]
+            hy = points[hull.vertices,1]
+            hz = points[hull.vertices,2]
+            cx, cy, cz = hx.mean(), hy.mean(), hz.mean()
+            dx, dy, dz = hx-cx, hy-cy, hz-cz
+            
+            # Inflate hull by 10%
+            hxi = hx + dx * 1.1
+            hyi = hy + dy * 1.1
+            hzi = hz + dz * 1.1
+            
             # Append boundary conditions
-            x = np.append(x, x0)
-            y = np.append(y, y0)
-            z = np.append(z, z0)
-            d = np.append(d, d0)
+            x = np.append(x, hxi)
+            y = np.append(y, hyi)
+            z = np.append(z, hzi)
+            d = np.append(d, np.zeros_like(hxi))
             
             # RBF interpolate
             print('  Constructing RBF interpolant')
