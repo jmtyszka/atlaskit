@@ -50,7 +50,8 @@ import argparse
 import nibabel as nib
 import numpy as np
 from scipy.interpolate import Rbf
-from scipy.spatial import ConvexHull
+from scipy.spatial import ConvexHull, Delaunay
+from scipy.signal import medfilt
 
 def main():
     
@@ -73,6 +74,9 @@ def main():
     label_nii = nib.load(label_fname)
     labels = label_nii.get_data()
     
+    # Size of image space
+    nx, ny, nz = labels.shape
+    
     # Destination label volume
     new_labels = np.zeros_like(labels, dtype='float')
     
@@ -81,7 +85,7 @@ def main():
     else:
         # Construct list of unique label values in image
         label_nos = np.unique(labels)
-
+        
     # loop over each unique label value
     for label in label_nos:
         
@@ -90,67 +94,20 @@ def main():
             print('Interpolating label %d' % label)
 
             # Extract current label
-            mask = (labels == label)
+            L = (labels == label)
             
-            # Find coordinates of all True voxels (n x 3)
-            print('  Locating label voxels')
-            points = np.where(mask)
-            x, y, z = points
+            # Extract minimum subvolume containing label
+            Lsub, bb = ExtractMinVol(L)
             
-            # Create bounding box for label
-            # Make upper bound inclusive
-            xmin, xmax = x.min(), x.max()+1
-            ymin, ymax = y.min(), y.max()+1
-            zmin, zmax = z.min(), z.max()+1
-            print('  Bounding box : (%d, %d, %d) : (%d, %d, %d)' % (xmin, ymin, zmin, xmax, ymax, zmax))
+            # Find locations of single labeled slices in each axis
+            slices = FindSlices(Lsub)
             
-            # Construct voxel coordinate mesh within BB. Note ij indexing to match np.where, etc
-            print('  Creating interpolation mesh')
-            xx, yy, zz = np.arange(xmin, xmax), np.arange(ymin, ymax), np.arange(zmin, zmax)
-            xi,yi,zi = np.meshgrid(xx,yy,zz, indexing='ij')
+            # Construct point value lists over all slices
+            nodes, vals = InsideOutside(Lsub, slices)
             
-            # Count number of voxels in label
-            nvox = np.sum(mask)
-            print('  Label volume : %d voxels' % nvox)
-            
-            # All node values are one
-            d = np.ones_like(x, dtype='float')
-            
-            # Find convex hull
-            hull = ConvexHull(points)
-            
-            # Center of mass of hull
-            hx = points[hull.vertices,0]
-            hy = points[hull.vertices,1]
-            hz = points[hull.vertices,2]
-            cx, cy, cz = hx.mean(), hy.mean(), hz.mean()
-            
-            # Inflation vector for each node
-            dx, dy, dz = hx-cx, hy-cy, hz-cz
-            r = np.sqrt(dx**2 + dy**2 + dz**2)
-            
-            # Inflate hull by n-voxels
-            hxi = hx + dx * 1.1
-            hyi = hy + dy * 1.1
-            hzi = hz + dz * 1.1
-            
-            # Append boundary conditions
-            x = np.append(x, hxi)
-            y = np.append(y, hyi)
-            z = np.append(z, hzi)
-            d = np.append(d, np.zeros_like(hxi))
-            
-            # RBF interpolate
-            print('  Constructing RBF interpolant')
-            rbf = Rbf(x, y, z, d)
-    
-            # Interpolate label only within BB
-            print('  Interpolating label')
-            Li = rbf(xi,yi,zi)
-            
-            # Update label volume
-            new_labels[xmin:xmax,ymin:ymax,zmin:zmax] = Li
-            
+            # RBF Interpolate values within subvolume
+            Lsubi = RBFInterpolate(Lsub, nodes, vals)
+
     
     # Save interpolated label volume
     print('Saving interpolated labels to %s' % out_fname)
@@ -161,7 +118,178 @@ def main():
     # Clean exit
     sys.exit(0)
 
+    
+def ExtractMinVol(label):
+    '''
+    Extract minimum subvolume containing label voxels
+    '''
+    
+    ii = np.argwhere(label)    
+    
+    xmin, xmax = ii[:,0].min(), ii[:,0].max()+1
+    ymin, ymax = ii[:,1].min(), ii[:,1].max()+1
+    zmin, zmax = ii[:,2].min(), ii[:,2].max()+1
+    
+    bb = (xmin, xmax), (ymin, ymax), (zmin, zmax)
+    
+    subvol = label[xmin:xmax, ymin:ymax, zmin:zmax]
+    
+    return subvol, bb
+    
+    
+def FindSlices(label):
+    '''
+    Locate likely isolated slices in each axis
+    '''
+    
+    # Integral over volume
+    ii = float(label.ravel().sum())
+    
+    # Project onto each axis
+    Px = np.sum(np.sum(label,axis=2), axis=1) / ii
+    Py = np.sum(np.sum(label,axis=2), axis=0) / ii
+    Pz = np.sum(np.sum(label,axis=1), axis=0) / ii
+    
+    # Subtract median filtered baseline estimate (k = 3)
+    # Retains only spikes
+    Dx = Px - medfilt(Px)
+    Dy = Py - medfilt(Py)
+    Dz = Pz - medfilt(Pz)
+    
+    # Locate spikes in residual
+    Dmin = 0.1
+    Sx = np.where(Dx > Dmin)
+    Sy = np.where(Dy > Dmin)
+    Sz = np.where(Dz > Dmin)
+    
+    return Sx, Sy, Sz
+    
+    
+def InsideOutside3D(vol, slices):
+    '''
+    '''
+    
+    nodes = np.array([])
+    vals = np.array([])
+
+    # X, Y and Z slice lists
+    Sx, Sy, Sz = slices
+    
+    # Volume dimensions
+    nx, ny, nz = vol.shape
+    xv, yv, zv = np.arange(0,nx), np.arange(0,ny), np.arange(0,nz)
+    
+    for x in Sx[0]:
+        
+        # Extract slice
+        Ixy = vol[x,:,:]
+    
+    for y in Sy[0]:
+        
+        # Extract slice
+        Ixy = vol[:,y,:]
+
+    for z in Sz[0]:
+        
+        # Extract slice
+        Ixy = vol[:,:,z]
+
+        # Slice coordinate mesh        
+        xym = np.meshgrid(xv, yv, indexing='ij')
+        nodes_xy = np.array(xym).transpose().reshape(-1,3)
+
+
+
+    # Append the nodes and values
+    nodes = np.append(nodes, nodes_xy, axis=0)
+    vals = np.append(vals, vals_xy, axis=0)
+        
+
+    return nodes, vals
+    
+
+def InsideOutside2D(img):
+    '''
+    '''
+    
+    # Generate whole slice coordinate mesh
+
+
+def RBFInterpolate(vol, nodes, vals):
+    '''
+    Interpolate binary values at nodes over the volume provided
+    '''
+    
+    voli = np.zeros_like(vol)
+    
+    return voli
+    
 
 # This is the standard boilerplate that calls the main() function.
 if __name__ == '__main__':
     main()
+    
+    
+#
+# Archive of older ideas
+#
+
+#            # Center of mass of hull
+#            hx = x[hull.vertices]
+#            hy = y[hull.vertices]
+#            hz = z[hull.vertices]
+#            cx, cy, cz = hx.mean(), hy.mean(), hz.mean()
+#            
+#            # Inflation scale factor for each node
+#            dx, dy, dz = hx-cx, hy-cy, hz-cz
+#            r = np.sqrt(dx**2 + dy**2 + dz**2)
+#            sf = (r + dr) / r
+#            
+#            # Inflate hull
+#            ihx = cx + dx * sf
+#            ihy = cy + dy * sf
+#            ihz = cz + dz * sf
+#            
+#            # Ensure all coordinates are within the image space
+#            ihx = np.clip(ihx, 0, nx-1)
+#            ihy = np.clip(ihy, 0, ny-1)
+#            ihz = np.clip(ihz, 0, nz-1)
+#            
+#            # Boundary value on inflated hull
+#            ihd = np.zeros_like(ihx, dtype='float')
+#            
+#            # Create N x 3 array of inflated hull points
+#            ihp = np.array([ihx,ihy,ihz]).transpose().reshape(-1,3)
+#            
+#            # Append boundary conditions
+#            x = np.append(x, ihx)
+#            y = np.append(y, ihy)
+#            z = np.append(z, ihz)
+#            d = np.append(d, ihd)
+#    
+#            # Construct RBF interpolator
+#            print('  Constructing RBF interpolant')
+#            rbf = Rbf(x, y, z, d, function='multiquadric')
+#            
+#            # Construct interpolation mesh within inflated hull
+#            xmin, xmax = np.ceil(ihx.min()), np.ceil(ihx.max())
+#            ymin, ymax = np.ceil(ihy.min()), np.ceil(ihy.max())
+#            zmin, zmax = np.ceil(ihz.min()), np.ceil(ihz.max())
+#            xiv = np.arange(xmin, xmax)
+#            yiv = np.arange(ymin, ymax)
+#            ziv = np.arange(zmin, zmax)
+#            pim = np.meshgrid(xiv, yiv, ziv, indexing='ij')
+#            pim = np.array(pim).transpose().reshape(-1,3)
+#            
+#            # Create mask for points within inflated hull
+#            del_hull = Delaunay(ihp)
+#            mask = del_hull.find_simplex(pim) >= 0
+#            
+#            # Extract x, y, z coordinates of mesh points inside inflated hull
+#            xi, yi, zi = pim[mask,0], pim[mask,1], pim[mask,2]
+#            
+#            print('  Interpolating label')
+#            Li = rbf(xi,yi,zi)
+#            
+#            # Update label volume
+#            new_labels[xi.astype(int), yi.astype(int), zi.astype(int)] = Li
