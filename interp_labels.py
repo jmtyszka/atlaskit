@@ -10,7 +10,7 @@ interp_labels.py -h
 
 Example
 ----
->>> interp_labels.py labels.nii.gz 1 3 4
+>>> interp_labels.py -i labels.nii.gz -l 1,3,4
 
 Authors
 ----
@@ -58,7 +58,7 @@ def main():
     # Parse command line arguments
     parser = argparse.ArgumentParser(description='Interpolate labels')
     parser.add_argument('-i','--input', help="Labeled volume")
-    parser.add_argument('-l','--labels', help="Label numbers to interpolate")
+    parser.add_argument('-l','--labels', help="Label numbers to interpolate, separated by comma")
 
     # Parse command line arguments
     args = parser.parse_args()
@@ -81,11 +81,15 @@ def main():
     new_labels = np.zeros_like(labels, dtype='float')
     
     if args.labels:
-        label_nos = args.labels
+        sink = args.labels
+        sink = sink.split(',')
+        label_nos = []
+        for i in xrange(len(sink)):
+            label_nos.append(int(sink[i]))
     else:
         # Construct list of unique label values in image
         label_nos = np.unique(labels)
-        
+
     # loop over each unique label value
     for label in label_nos:
         
@@ -98,7 +102,7 @@ def main():
             
             # Extract minimum subvolume containing label
             Lsub, bb = ExtractMinVol(L)
-            
+
             # Find locations of single labeled slices in each axis
             slices = FindSlices(Lsub)
             
