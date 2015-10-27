@@ -102,22 +102,41 @@ def main():
             
             # Extract minimum subvolume containing label
             Lsub, bb = ExtractMinVol(L)
+            
+            print('  Label contains %d voxels' % np.sum(Lsub[:]))
 
             # Find locations of single labeled slices in each axis
             slices = FindSlices(Lsub)
             
-            # Construct point value lists over all slices
-            nodes, vals = NodeValues(Lsub, slices)
+            # Count slices
+            nSx = slices[0][0].size
+            nSy = slices[1][0].size
+            nSz = slices[2][0].size
             
-            # RBF Interpolate values within subvolume
-            # Returns thresholded integer volume
-            Lsubi = RBFInterpolate(Lsub, nodes, vals)
+            # Report number of slices detected
+            print('  X slices : %d' % nSx)
+            print('  Y slices : %d' % nSy)
+            print('  Z slices : %d' % nSz)
             
-            # Scale back to original label value
-            Lsubi *= label            
+            # Only interpolate if slice-like features found
+            if nSx > 1 or nSy > 1 or nSz > 1:
             
-            # Insert interpolated volume back into new label volume
-            new_labels = InsertSubVol(new_labels, Lsubi, bb)
+                # Construct point value lists over all slices
+                nodes, vals = NodeValues(Lsub, slices)
+                
+                # RBF Interpolate values within subvolume
+                # Returns thresholded integer volume
+                Lsubi = RBFInterpolate(Lsub, nodes, vals)
+                
+                # Scale interpolation back to original label value
+                Lsubi *= label
+                
+                # Insert interpolated volume back into new label volume
+                new_labels = InsertSubVol(new_labels, Lsubi, bb)
+                
+            else:
+                
+                print('Insufficient slice-like features found - skipping label')
 
     
     # Save interpolated label volume
@@ -200,11 +219,6 @@ def FindSlices(label):
     Sx = np.where(Dx > Dmin)
     Sy = np.where(Dy > Dmin)
     Sz = np.where(Dz > Dmin)
-    
-    # Report number of slices detected
-    print('  X slices : %d' % Sx[0].size)
-    print('  Y slices : %d' % Sy[0].size)
-    print('  Z slices : %d' % Sz[0].size)
     
     return Sx, Sy, Sz
     
