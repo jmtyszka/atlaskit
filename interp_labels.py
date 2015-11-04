@@ -57,11 +57,13 @@ def main():
     
     # Parse command line arguments
     parser = argparse.ArgumentParser(description='Interpolate labels')
-    parser.add_argument('-i','--input', help="Labeled volume")
+    parser.add_argument('-i','--input', required=True, help="Labeled volume")
     parser.add_argument('-l','--labels', help="Label numbers to interpolate, separated by comma")
 
     # Parse command line arguments
     args = parser.parse_args()
+
+    # Get mandatory filename argument
     label_fname = args.input
 
     # Construct output filename    
@@ -78,7 +80,7 @@ def main():
     nx, ny, nz = labels.shape
     
     # Destination label volume
-    new_labels = np.zeros_like(labels, dtype='float')
+    new_labels = labels.copy()
     
     if args.labels:
         sink = args.labels
