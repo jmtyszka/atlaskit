@@ -51,7 +51,8 @@ import nibabel as nib
 import numpy as np
 from scipy.interpolate import Rbf
 from scipy.signal import medfilt
-from scipy.ndimage.morphology import distance_transform_edt as DT
+from scipy.ndimage.morphology import distance_transform_edt as EDT
+from scipy.ndimage.morphology import binary_erosion, binary_dilation
 
 
 def main():
@@ -239,29 +240,62 @@ def NodeValues(vol, slices):
     # X, Y and Z slice lists
     Sx, Sy, Sz = slices
     
-    # Volume dimensions
-    nx, ny, nz = vol.shape
-    xv, yv, zv = np.arange(0,nx), np.arange(0,ny), np.arange(0,nz)
-    
     for x in Sx[0]:
         
         # Extract slice and remove singlet dimension
         v_yz = vol[x,:,:].squeeze()
         
         # Inside-outside values and nodes from slice
-        io_yz, yy, zz = InsideOutside(v_yz)
+        io_yz, yz = InsideOutside(v_yz)
+
+        # Construct 3D coordinate list
+        n = yz.shape[0]
+        xyz = np.zeros([n, 3])
+        xyz[:,0] = x
+        xyz[:,1] = yz[:,0]
+        xyz[:,2] = yz[:,1]
         
         # Append the nodes and values
-        nodes = _safe_append(nodes, new_nodes)
-        vals = _safe_append(vals, vv)
+        nodes = _safe_append(nodes, xyz)
+        vals = _safe_append(vals, io_yz)
     
     for y in Sy[0]:
         
-        # Do nothing for now
+        # Extract slice and remove singlet dimension
+        v_xz = vol[:,y,:].squeeze()
+        
+        # Inside-outside values and nodes from slice
+        io_xz, xz = InsideOutside(v_xz)
+        
+        # Construct 3D coordinate list
+        n = xz.shape[0]
+        xyz = np.zeros([n, 3])
+        xyz[:,0] = xz[:,0]
+        xyz[:,1] = y
+        xyz[:,2] = xz[:,1]
+        
+        # Append the nodes and values
+        nodes = _safe_append(nodes, xyz)
+        vals = _safe_append(vals, io_xz)
         
     for z in Sz[0]:
-
-        # Do nothing for now        
+        
+        # Extract slice and remove singlet dimension
+        v_xy = vol[:,:,z].squeeze()
+        
+        # Inside-outside values and nodes from slice
+        io_xy, xy = InsideOutside(v_xy)
+        
+        # Construct 3D coordinate list
+        n = xy.shape[0]
+        xyz = np.zeros([n, 3])
+        xyz[:,0] = xy[:,0]
+        xyz[:,1] = xy[:,1]
+        xyz[:,2] = z
+        
+        # Append the nodes and values
+        nodes = _safe_append(nodes, xyz)
+        vals = _safe_append(vals, io_xy)   
 
         
     # Remove duplicate locations
@@ -272,7 +306,8 @@ def NodeValues(vol, slices):
     print('  Using %d unique nodes' % vals.size)
 
     return nodes, vals
-    
+
+
 def InsideOutside(s):
     '''
     Create inside-outside function for slice and extract nodes, values
@@ -286,13 +321,20 @@ def InsideOutside(s):
     
     nx, ny = s.shape
 
-    # Boundary voxel mask (Canny edge detection)
+    # Create boundary layer mask from difference between dilation
+    # and erosion of label. The mask represents the layers of
+    # voxels immediately inside and outside the boundary.
+    bound_mask = binary_dilation(s) - binary_erosion(s)
     
-    # Inside-outside distance transform
+    # Inside-outside function from complement Euclidian distance transforms
     # Positive outside, negative inside
-    d = DT(1-s) - DT(s)
+    io = EDT(1-s) - EDT(s)
     
-    return d
+    # Extract x, y coordinates and IO function values boundary layers
+    xy = np.argwhere(bound_mask) # N x 2 coordinates of non-zero voxels
+    io_xy = io[xy[:,0], xy[:,1]] 
+    
+    return io_xy, xy
     
     
 
@@ -318,8 +360,8 @@ def RBFInterpolate(vol, nodes, vals, function='multiquadric', smooth=0.5):
     print('  Interpolating subvolume over %d voxels' % xi.size)
     voli = rbf(xi, yi, zi).reshape(nx,ny,nz)
     
-    # Threshold at 0.5
-    voli = (voli > 0.5).astype(int)
+    # IO function is zero on boundary, negative inside label
+    voli = (voli <= 0.0).astype(int)
     
     return voli
 
