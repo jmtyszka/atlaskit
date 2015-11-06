@@ -49,6 +49,7 @@ import sys
 import argparse
 import nibabel as nib
 import numpy as np
+import random
 from scipy.interpolate import Rbf
 from scipy.signal import medfilt
 from scipy.ndimage.morphology import distance_transform_edt as EDT
@@ -332,6 +333,13 @@ def InsideOutside(s):
     
     # Extract x, y coordinates and IO function values boundary layers
     xy = np.argwhere(bound_mask) # N x 2 coordinates of non-zero voxels
+    
+    # Random downsample by 3
+    # Every third point(ish) on boundary should be sufficient for accurate RBF
+    n = xy.shape[0]
+    samp = random.sample(np.arange(n), int(n/3.0))
+    xy = xy[samp,:]
+    
     io_xy = io[xy[:,0], xy[:,1]] 
     
     return io_xy, xy
@@ -361,7 +369,7 @@ def RBFInterpolate(vol, nodes, vals, function='multiquadric', smooth=0.5):
     voli = rbf(xi, yi, zi).reshape(nx,ny,nz)
     
     # IO function is zero on boundary, negative inside label
-    voli = (voli <= 0.0).astype(int)
+    voli = (voli < 0.0).astype(int)
     
     return voli
 
