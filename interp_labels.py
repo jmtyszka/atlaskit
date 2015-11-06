@@ -51,6 +51,7 @@ import nibabel as nib
 import numpy as np
 from scipy.interpolate import Rbf
 from scipy.signal import medfilt
+from scipy.ndimage.morphology import distance_transform_edt as DT
 
 
 def main():
@@ -244,45 +245,24 @@ def NodeValues(vol, slices):
     
     for x in Sx[0]:
         
-        # Extract slice and flatten
-        vv = vol[x,:,:].reshape(-1,1)
+        # Extract slice and remove singlet dimension
+        v_yz = vol[x,:,:].squeeze()
         
-        # Slice coordinate mesh with ij indexing
-        xm, ym, zm = np.meshgrid(x, yv, zv, indexing='ij', )
-        xm, ym, zm = xm.reshape(-1,1), ym.reshape(-1,1), zm.reshape(-1,1)
-        new_nodes = np.hstack([xm, ym, zm])
-
+        # Inside-outside values and nodes from slice
+        io_yz, yy, zz = InsideOutside(v_yz)
+        
         # Append the nodes and values
         nodes = _safe_append(nodes, new_nodes)
         vals = _safe_append(vals, vv)
     
     for y in Sy[0]:
         
-        # Extract slice and flatten
-        vv = vol[:,y,:].reshape(-1,1)
-        
-        # Slice coordinate mesh with ij indexing
-        xm, ym, zm = np.meshgrid(xv, y, zv, indexing='ij', )
-        xm, ym, zm = xm.reshape(-1,1), ym.reshape(-1,1), zm.reshape(-1,1)
-        new_nodes = np.hstack([xm, ym, zm])
-
-        # Append the nodes and values
-        nodes = _safe_append(nodes, new_nodes)
-        vals = _safe_append(vals, vv)
+        # Do nothing for now
         
     for z in Sz[0]:
-        
-        # Extract slice and flatten
-        vv = vol[:,:,z].reshape(-1,1)
 
-        # Slice coordinate mesh with ij indexing
-        xm, ym, zm = np.meshgrid(xv, yv, z, indexing='ij', )
-        xm, ym, zm = xm.reshape(-1,1), ym.reshape(-1,1), zm.reshape(-1,1)
-        new_nodes = np.hstack([xm, ym, zm])
+        # Do nothing for now        
 
-        # Append the nodes and values
-        nodes = _safe_append(nodes, new_nodes)
-        vals = _safe_append(vals, vv)
         
     # Remove duplicate locations
     rr = _unique_rows(nodes)
@@ -292,6 +272,28 @@ def NodeValues(vol, slices):
     print('  Using %d unique nodes' % vals.size)
 
     return nodes, vals
+    
+def InsideOutside(s):
+    '''
+    Create inside-outside function for slice and extract nodes, values
+    just inside, just outside and on the boundary
+    
+    Arguments
+    ----
+    s : 2D numpy integer array
+        Extracted slice of label volume
+    '''
+    
+    nx, ny = s.shape
+
+    # Boundary voxel mask (Canny edge detection)
+    
+    # Inside-outside distance transform
+    # Positive outside, negative inside
+    d = DT(1-s) - DT(s)
+    
+    return d
+    
     
 
 def RBFInterpolate(vol, nodes, vals, function='multiquadric', smooth=0.5):
