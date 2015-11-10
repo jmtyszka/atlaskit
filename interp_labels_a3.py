@@ -109,9 +109,12 @@ def EvalSliceDistance(slices):
     distances = []
     for a in xrange(len(slices)):
         s = slices[a][0]
-        dl = list(s[1:len(s)] - s[0:(len(s) - 1)])
-        for d in dl:
-            distances.append(d)
+        if len(s) > 1:
+            dl = list(s[1:len(s)] - s[0:(len(s) - 1)])
+            for d in dl:
+                distances.append(d)
+        else:
+            distances.append(3)
     return(np.median(distances))
 
 
@@ -199,7 +202,7 @@ def InsertSubVol(label, new_subvol, bb):
     return label
     
     
-def FindSlices(label):
+def FindSlices(label, n_slices):
     '''
     Locate likely isolated slices in each axis
     '''
@@ -219,11 +222,34 @@ def FindSlices(label):
     Dz = Pz - medfilt(Pz)
     
     # Locate spikes in residual
-    Dmin = 0.03
-    Sx = np.where(Dx > Dmin)
-    Sy = np.where(Dy > Dmin)
-    Sz = np.where(Dz > Dmin)
-    
+    Dmin_default = 0.1
+    if n_slices[0] != -1:    
+        Dmin = Dmin_default * 2
+        Sx = (np.array([]),1)
+        while Sx[0].shape[0] < n_slices[0] and Dmin >= 0.01:
+            Sx = np.where(Dx > Dmin)
+            Dmin -= Dmin * .1
+    else:
+        Sx = np.where(Dx > Dmin_default)
+
+    if n_slices[1] != -1:    
+        Dmin = Dmin_default * 2
+        Sy = (np.array([]),1)
+        while Sy[0].shape[0] < n_slices[1] and Dmin >= 0.01:
+            Sy = np.where(Dy > Dmin)
+            Dmin -= Dmin * .1
+    else:
+        Sy = np.where(Dy > Dmin_default)
+
+    if n_slices[2] != -1:    
+        Dmin = Dmin_default * 2
+        Sz = (np.array([]),1)
+        while Sz[0].shape[0] < n_slices[2] and Dmin >= 0.01:
+            Sz = np.where(Dz > Dmin)
+            Dmin -= Dmin * .1
+    else:
+        Sz = np.where(Dz > Dmin_default)
+
     return Sx, Sy, Sz
     
     
@@ -473,6 +499,8 @@ def main():
     parser.add_argument('-p', '--save-preproc', help="Save result of preprocessing", default=False, action='store_const', const=True, dest='save_preproc')
     parser.add_argument('-d', '--save-delaunay', help="Save result of Delaunay tesselation", default=False, action='store_const', const=True, dest='save_delaunay')
     parser.add_argument('-s', '--smooth-results', help="Smooth results of interpolation", default=False, action='store_const', const=True, dest='smooth_labels')
+    parser.add_argument('-sl','--slices', help="Label numbers to interpolate, separated by comma")
+
     # Parse command line arguments
     args = parser.parse_args()
 
@@ -489,6 +517,16 @@ def main():
     else:
         # Construct list of unique label values in image
         label_nos = np.unique(labels)
+
+    if args.slices:
+        sink = args.slices
+        sink = sink.split(',')
+        n_slices = []
+        for i in xrange(len(sink)):
+            n_slices.append(int(sink[i]))
+    else:
+        # Construct list of unique label values in image
+        n_slices = [-1,-1,-1]
 
     # loop over each unique label value
     for label in label_nos:
@@ -519,7 +557,7 @@ def main():
     Lsub, bb = ExtractMinVol(L)
 
     # Detect slices in segmentaion image
-    slices = FindSlices(Lsub)
+    slices = FindSlices(Lsub, n_slices)
     print "Number of slices, x: %s, y: %s, z: %s" % (slices[0][0].shape[0],slices[1][0].shape[0],slices[2][0].shape[0])
 
     # Reduce to segmentation within slices to contour lines to speed up processing
