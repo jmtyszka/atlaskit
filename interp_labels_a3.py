@@ -223,7 +223,7 @@ def FindSlices(label, n_slices):
     
     # Locate spikes in residual
     Dmin_default = 0.1
-    if n_slices[0] != -1:    
+    if n_slices[0] > 0:
         Dmin = Dmin_default * 2
         Sx = (np.array([]),1)
         while Sx[0].shape[0] < n_slices[0] and Dmin >= 0.01:
@@ -232,7 +232,7 @@ def FindSlices(label, n_slices):
     else:
         Sx = np.where(Dx > Dmin_default)
 
-    if n_slices[1] != -1:    
+    if n_slices[1] > 0:
         Dmin = Dmin_default * 2
         Sy = (np.array([]),1)
         while Sy[0].shape[0] < n_slices[1] and Dmin >= 0.01:
@@ -241,7 +241,7 @@ def FindSlices(label, n_slices):
     else:
         Sy = np.where(Dy > Dmin_default)
 
-    if n_slices[2] != -1:    
+    if n_slices[2] > 0:
         Dmin = Dmin_default * 2
         Sz = (np.array([]),1)
         while Sz[0].shape[0] < n_slices[2] and Dmin >= 0.01:
@@ -441,13 +441,13 @@ def save_to_nifti(vol, bb, hdr_nii, out_fname):
     @rtype: None
     """
     # Save interpolated label volume
-    tmp_vol = np.zeros_like(hdr_nii.get_data())
+    tmp_vol = hdr_nii.get_data().copy()
     tmp_vol = InsertSubVol(tmp_vol, vol, bb)
     out_nii = nib.Nifti1Image(tmp_vol, hdr_nii.get_affine())
     out_nii.to_filename(out_fname)
 
 
-def SetValsPoints(points, vals, hdr_nii):
+def SetValsPoints(points, vals, Lsub):
     """
     Construct a 3D array with vals at points
     
@@ -460,13 +460,10 @@ def SetValsPoints(points, vals, hdr_nii):
     @return: 3D np.array with vals at points
     @rtype: np.array
     """
-    tmp_vol = np.zeros_like(hdr_nii.get_data())
     #print new_labels.shape
     for i in xrange(len(vals)):
         point = points[i,:]
-        tmp_vol[point[0], point[1], point[2]] = vals[i]
-
-    return tmp_vol
+        Lsub[point[0], point[1], point[2]] = vals[i]
 
 
 def smooth_labels(vol):
@@ -526,7 +523,7 @@ def main():
             n_slices.append(int(sink[i]))
     else:
         # Construct list of unique label values in image
-        n_slices = [-1,-1,-1]
+        n_slices = [0,0,0]
 
     # loop over each unique label value
     for label in label_nos:
@@ -585,7 +582,7 @@ def main():
     # get coordinates of segmentation labels
     x,y,z = np.where(Lsub > 0)
     points = np.transpose(np.array((x,y,z)))
-
+    
     # perform Delaunay tesselation
     tri = Delaunay(points)
 
@@ -605,9 +602,10 @@ def main():
     if args.save_delaunay:
         vals = simplices_i.copy()
         vals[vals == -1] = 0.0
-        tmp_vol = SetValsPoints(new_points, vals, label_nii)
+        Lsub_tmp = Lsub.copy()
+        SetValsPoints(new_points, vals, Lsub_tmp)
         print('Saving result of Delaunay tesselation to %s' % (out_stub + '_delaunay.nii.gz'))
-        save_to_nifti(tmp_vol, bb, label_nii, out_stub + '_delaunay.nii.gz')
+        save_to_nifti(Lsub_tmp, bb, label_nii, out_stub + '_delaunay.nii.gz')
 
 
     # perform alpha shape 3 
@@ -626,14 +624,14 @@ def main():
     # create segmentation image of interpolation
     vals = np.zeros_like(simplices_i)
     vals[simplices_i > -1] = label
-    voli = SetValsPoints(new_points, vals, label_nii)
+    SetValsPoints(new_points, vals, Lsub)
 
     # smooth labels
     if args.smooth_labels:
-        smooth_labels(voli)
+        smooth_labels(Lsub)
 
     print('Saving result of interpolation to %s' % (out_stub + '_interp.nii.gz'))
-    save_to_nifti(voli, bb, label_nii, out_stub + '_interp.nii.gz')
+    save_to_nifti(Lsub, bb, label_nii, out_stub + '_interp.nii.gz')
 
     print('Total Processing Time: %s s' % (time.time() - start_time))
 
