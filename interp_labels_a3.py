@@ -587,7 +587,7 @@ def main():
 
     # create segmentation image of interpolation
     vals = np.zeros_like(simplices_i)
-    vals[simplices_i > -1] = 1.0
+    vals[simplices_i > -1] = label
     voli = SetValsPoints(new_points, vals, label_nii)
 
     # smooth labels
