@@ -503,7 +503,7 @@ def main():
 
     # Get mandatory filename argument
     label_fname = args.input
-    print label_fname
+    print(label_fname)
 
     if args.labels:
         sink = args.labels

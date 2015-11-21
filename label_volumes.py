@@ -66,24 +66,27 @@ def main():
     # Atlas voxel volume in mm^3 (microliters)
     atlas_vox_vol_ul = np.array(atlas_nii.header.get_zooms()).prod()
     
-    # Create list of label values (not necessarily contiguous)
-    max_l = np.int(atlas_labels.max())
-    labels = range(0, max_l+1)        
+    # Create list of unique label values
+    labels = np.unique(atlas_labels)
+
+    # Column headers
+    print('%6s %10s %10s' % ('Label', 'Voxels', 'ul'))
     
     for label in labels:
 
         # Skip label 0 (background)
-	if label > 0:
+        if label > 0:
 
-          # Extract target label as a boolean mask        
-          label_mask = (atlas_labels == label)
-
-          # Integrate volume of current label
-          label_vol_ul = np.sum(label_mask) * atlas_vox_vol_ul
-        
-          # Only output non-empty labels with index > 0
-          if label_vol_ul > 0.0:
-            print('%03d %0.3f' % (label, label_vol_ul)) 
+            # Extract target label as a boolean mask        
+            label_mask = (atlas_labels == label)
+            
+            # Integrate volume of current label
+            label_vol_vox = np.sum(label_mask)
+            label_vol_ul = label_vol_vox * atlas_vox_vol_ul
+            
+            # Only output non-empty labels with index > 0
+            if label_vol_ul > 0.0:
+                print('%6d %10d %10.1f' % (label, label_vol_vox, label_vol_ul))
     
     # Clean exit
     sys.exit(0)
