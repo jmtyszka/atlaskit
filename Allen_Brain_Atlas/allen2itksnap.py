@@ -44,9 +44,9 @@ Copyright
 
 __version__ = '0.1.0'
 
-import sys
 import argparse
-from bs4 import BeautifulSoup as bs
+from urllib.request import urlopen
+import xml.etree.cElementTree as ET
 
 def main():
     
@@ -56,16 +56,30 @@ def main():
     
     # Parse command line arguments
     args = parser.parse_args()
-    key_fname = args.key
     
-    # Allen Institute human brain ontology (10)
+    if args.key:
+        key_fname = args.key
+    else:
+        key_fname = 'Allen_Labels.txt'
+    
+    # Allen Brain Institute human brain ontology via their online API
     allen_url = 'http://api.brain-map.org/api/v2/structure_graph_download/10.xml'
     
-    soup = bs(allen_url)
-    
-    print(soup.find_all('amygdala'))
-    
+    # Download XML for Allen human brain ontology
+    print('Downloading ontology from %s' % allen_url)
+    xml_remote = urlopen(allen_url)
 
+    # Parse XML as a Document Object Model (DOM) 
+    print('Parsing XML tree')
+    tree = ET.parse(xml_remote)
+    root = tree.getroot()
+    
+    # Iterate over ontology printing structure names
+    for elem in tree.iterfind('structure/name'):
+        print(elem.tag)
+
+    # Done
+    print('Done')
 
 def SaveKey(key_fname, ontology):
     '''
