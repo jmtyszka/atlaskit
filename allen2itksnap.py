@@ -51,16 +51,16 @@ import xml.etree.cElementTree as ET
 def main():
     
     # Parse command line arguments
-    parser = argparse.ArgumentParser(description='Create ITK-SNAP label key from Allen Human Brain ontology')
-    parser.add_argument('-k','--key', help="ITK-SNAP label key file")
+    parser = argparse.ArgumentParser(description='Allen ontology to ITKSNAP labels')
+    parser.add_argument('-o','--output', help="Output ITKSNAP label key file")
     
     # Parse command line arguments
     args = parser.parse_args()
     
-    if args.key:
-        key_fname = args.key
+    if args.output:
+        itksnap_fname = args.output
     else:
-        key_fname = 'Allen_Labels.txt'
+        itksnap_fname = 'Allen_Labels.txt'
     
     # Allen Brain Institute human brain ontology via their online API
     allen_url = 'http://api.brain-map.org/api/v2/structure_graph_download/10.xml'
@@ -72,11 +72,24 @@ def main():
     # Parse XML as a Document Object Model (DOM) 
     print('Parsing XML tree')
     tree = ET.parse(xml_remote)
+    
+    print('Finding tree root')
     root = tree.getroot()
     
+    # Find basal nuclei root element
+    structure = 'BN'
+    
+    for structure in strucutres
+    
     # Iterate over ontology printing structure names
-    for elem in tree.iterfind('structure/name'):
-        print(elem.tag)
+    print('Iterating over tree')
+    for elem in root.iter():
+        if elem.tag == 'structure':
+            name = elem.findtext('name')
+            acronym = elem.findtext('acronym')
+            ID = elem.findtext('id')
+            rgb = elem.findtext('color-hex-triplet')
+            print('%s %s %s %s' % (name, acronym, ID, rgb))
 
     # Done
     print('Done')
