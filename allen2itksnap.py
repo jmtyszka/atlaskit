@@ -62,8 +62,10 @@ def main():
     else:
         itksnap_fname = 'Allen_Labels.txt'
     
-    # Allen Brain Institute human brain ontology via their online API
-    allen_url = 'http://api.brain-map.org/api/v2/structure_graph_download/10.xml'
+    # Allen Brain Institute Human, 34 years, Cortex Structure Graph
+    # Use developing rather than reference human brain atlas
+    # http://help.brain-map.org/display/api/Atlas+Drawings+and+Ontologies
+    allen_url = 'http://api.brain-map.org/api/v2/structure_graph_download/16.xml'
     
     # Download XML for Allen human brain ontology
     print('Downloading ontology from %s' % allen_url)
@@ -73,26 +75,56 @@ def main():
     print('Parsing XML tree')
     tree = ET.parse(xml_remote)
     
-    print('Finding tree root')
-    root = tree.getroot()
+    # Open output text file
+    out_file = open(itksnap_fname, "w")
+    print('Writing label key to %s' % itksnap_fname)
     
-    # Find basal nuclei root element
-    structure = 'BN'
+    # List of structures to expand
+    acronyms = ['"BN"','"MTg"','"AMY"','"ATA"','"FWM"']
     
-    for structure in strucutres
+    for acro in acronyms:
     
-    # Iterate over ontology printing structure names
-    print('Iterating over tree')
-    for elem in root.iter():
-        if elem.tag == 'structure':
-            name = elem.findtext('name')
-            acronym = elem.findtext('acronym')
-            ID = elem.findtext('id')
-            rgb = elem.findtext('color-hex-triplet')
-            print('%s %s %s %s' % (name, acronym, ID, rgb))
+        for struct in tree.iter(tag='structure'):
+            
+            if struct.find('acronym').text == acro:
+                
+                # Found structure with correct acronym
+                # Iterate into this structure, printing out info
+                
+                for substruct in struct.iter(tag='structure'):
+                    
+                    # sub_acro = substruct.find('acronym').text
+                    sub_name = substruct.find('name').text
+                    sub_id = int(substruct.find('id').text)
+                    sub_rgb = substruct.find('color-hex-triplet').text
+                    
+                    # Split hex triplet into decimal R, G and B
+                    R, G, B = Hex2RGB(sub_rgb)
+                    
+                    # Write line to output ITKSNAP label file
+                    if sub_id > 99999:
+                        print('%5d%6d%6d%6d%9d%3d%3d     %s' % (sub_id, R, G, B, 1, 1, 1, sub_name))
+                    else:
+                        out_file.write('%5d%6d%6d%6d%9d%3d%3d     %s\n' % (sub_id, R, G, B, 1, 1, 1, sub_name))
+              
 
-    # Done
+    # Clean up
+    out_file.close()
     print('Done')
+
+
+def Hex2RGB(sHex):
+    '''
+    Convert RGB hexadecimal triplet string into separate decimal values
+    '''
+    
+    # Divide into substrings and convert to decimal integers
+    R = int(sHex[0:2], 16)
+    G = int(sHex[2:4], 16)
+    B = int(sHex[4:6], 16)
+    
+    return R, G, B
+
 
 def SaveKey(key_fname, ontology):
     '''
