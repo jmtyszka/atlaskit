@@ -44,7 +44,9 @@ Copyright
 
 __version__ = '0.1.0'
 
+import numpy as np
 import argparse
+from colorsys import hsv_to_rgb
 from urllib.request import urlopen
 import xml.etree.cElementTree as ET
 
@@ -75,6 +77,12 @@ def main():
     print('Parsing XML tree')
     tree = ET.parse(xml_remote)
     
+    # Collect and sort all label numbers into an array
+    ids = list()
+    for id in tree.iter(tag='id'):
+        ids.append(int(id.text))
+    ids = np.sort(np.array(ids))
+    
     # Open output text file
     out_file = open(itksnap_fname, "w")
     print('Writing label key to %s' % itksnap_fname)
@@ -82,8 +90,16 @@ def main():
     # List of structures to expand
     acronyms = ['"BN"','"MTg"','"AMY"','"ATA"','"FWM"']
     
-    for acro in acronyms:
-    
+    for ac, acro in enumerate(acronyms):
+        
+        # Cycle through hues for each structure group
+        # Color-anticolor pairs via Ha
+        # Generates H = 0, 180, 60, 240, 120, 300 then repeats
+        Ha = np.mod(ac,2)
+        H = np.mod(int(ac/2) * 60.0 + Ha * 180.0, 360.0) / 360.0
+        
+        print('%f' % H)
+        
         for struct in tree.iter(tag='structure'):
             
             if struct.find('acronym').text == acro:
@@ -91,22 +107,33 @@ def main():
                 # Found structure with correct acronym
                 # Iterate into this structure, printing out info
                 
-                for substruct in struct.iter(tag='structure'):
+                for sc, substruct in enumerate(struct.iter(tag='structure')):
                     
-                    # sub_acro = substruct.find('acronym').text
-                    sub_name = substruct.find('name').text
-                    sub_id = int(substruct.find('id').text)
-                    sub_rgb = substruct.find('color-hex-triplet').text
+                    # Structure acronym from Allen ontology
+                    sub_acro = substruct.find('acronym').text
+
+                    # Get ontology id and map to simple index
+                    sub_ont_id = int(substruct.find('id').text)
+                    sub_id = np.where(ids == sub_ont_id)[0][0]
                     
-                    # Split hex triplet into decimal R, G and B
-                    R, G, B = Hex2RGB(sub_rgb)
+                    # Convert CIT index to RGB triple via HSV
+
+                    # S = 0.25:0.10:0.75 [6 levels] (outer loop)
+                    S = np.mod(sub_id/6, 6) * 0.1 + 0.25
+
+                    # V = 0.50:0.10:1.00 [6 levels] (inner loop)
+                    V = np.mod(sub_id, 6) * 0.1 + 0.50
                     
+                    # Convert HSV to RGB triple
+                    R, G, B = hsv_to_rgb(H, S, V)
+                    
+                    # Scale RGB to [0,255] range
+                    R, G, B = int(R*255.0), int(G*255.0), int(B*255.0)
+                                        
                     # Write line to output ITKSNAP label file
-                    if sub_id > 99999:
-                        print('%5d%6d%6d%6d%9d%3d%3d     %s' % (sub_id, R, G, B, 1, 1, 1, sub_name))
-                    else:
-                        out_file.write('%5d%6d%6d%6d%9d%3d%3d     %s\n' % (sub_id, R, G, B, 1, 1, 1, sub_name))
-              
+                    # print('%5d%6d%6d%6d%9d%3d%3d     %s' % (sub_id, R, G, B, 1, 1, 1, sub_acro))
+                    out_file.write('%5d%6d%6d%6d%9d%3d%3d     %s\n' % (sub_id, R, G, B, 1, 1, 1, sub_acro))
+          
 
     # Clean up
     out_file.close()
