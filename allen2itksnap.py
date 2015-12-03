@@ -1,7 +1,7 @@
 #!/usr/bin/python
 """
 Create an ITK-SNAP label key from a subset of the Allen Brain Atlas human
-ontology availble through the online API
+ontology via the online API
 
 Usage
 ----
@@ -88,7 +88,11 @@ def main():
     print('Writing label key to %s' % itksnap_fname)
     
     # List of structures to expand
-    acronyms = ['"BN"','"MTg"','"AMY"','"ATA"','"FWM"']
+    # - Cerebral Nuclei (CN). Amygdala, etc
+    # - Diencephalon (Die). Thalamus, etc
+    # - Forebrain White Matter (FWM). AC, etc
+    # - Midbrain Tegmentum (MTg). SN, etc
+    acronyms = ['"CN"','"Die"','"FWM"','"MTg"']
     
     for ac, acro in enumerate(acronyms):
         
@@ -98,7 +102,7 @@ def main():
         Ha = np.mod(ac,2)
         H = np.mod(int(ac/2) * 60.0 + Ha * 180.0, 360.0) / 360.0
         
-        print('%f' % H)
+        print('\nExpanding %s :' % acro)
         
         for struct in tree.iter(tag='structure'):
             
@@ -111,18 +115,20 @@ def main():
                     
                     # Structure acronym from Allen ontology
                     sub_acro = substruct.find('acronym').text
-
-                    # Get ontology id and map to simple index
-                    sub_ont_id = int(substruct.find('id').text)
-                    sub_id = np.where(ids == sub_ont_id)[0][0]
                     
-                    # Convert CIT index to RGB triple via HSV
+                    print(sub_acro, end=' ')
+
+                    # Get Allen id and map to CIT id
+                    allen_id = int(substruct.find('id').text)
+                    cit_id = np.where(ids == allen_id)[0][0]
+                    
+                    # Convert CIT id to RGB triple via HSV
 
                     # S = 0.25:0.10:0.75 [6 levels] (outer loop)
-                    S = np.mod(sub_id/6, 6) * 0.1 + 0.25
+                    S = np.mod(cit_id/6, 6) * 0.1 + 0.25
 
                     # V = 0.50:0.10:1.00 [6 levels] (inner loop)
-                    V = np.mod(sub_id, 6) * 0.1 + 0.50
+                    V = np.mod(cit_id, 6) * 0.1 + 0.50
                     
                     # Convert HSV to RGB triple
                     R, G, B = hsv_to_rgb(H, S, V)
@@ -131,9 +137,11 @@ def main():
                     R, G, B = int(R*255.0), int(G*255.0), int(B*255.0)
                                         
                     # Write line to output ITKSNAP label file
-                    # print('%5d%6d%6d%6d%9d%3d%3d     %s' % (sub_id, R, G, B, 1, 1, 1, sub_acro))
-                    out_file.write('%5d%6d%6d%6d%9d%3d%3d     %s\n' % (sub_id, R, G, B, 1, 1, 1, sub_acro))
-          
+                    # print('%5d%6d%6d%6d%9d%3d%3d     %s' % (cit_id, R, G, B, 1, 1, 1, sub_acro))
+                    out_file.write('%5d%6d%6d%6d%9d%3d%3d     %s\n' % (cit_id, R, G, B, 1, 1, 1, sub_acro))
+                
+                # End substructure acronym list with newline
+                print('')
 
     # Clean up
     out_file.close()
