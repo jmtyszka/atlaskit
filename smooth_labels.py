@@ -1,15 +1,15 @@
-#!/opt/local/Library/Frameworks/Python.framework/Versions/2.7/Resources/Python.app/Contents/MacOS/Python
+#!/usr/bin/python
 """
 Smooth one or more labels within an integer atlas volume
 
 Usage
 ----
-smooth_labels.py <input label image> <output label image> <label numbers>
+smooth_labels.py -i <input label image> -o <output label image> [label numbers]
 smooth_labels.py -h
 
 Example
 ----
->>> smooth_labels.py atlas.nii.gz atlas_smooth_5.nii.gz 5 10 11
+>>> smooth_labels.py -i atlas.nii.gz -o atlas_smooth_5.nii.gz 5 10 11
 
 Authors
 ----
@@ -18,6 +18,7 @@ Mike Tyszka, Caltech Brain Imaging Center
 Dates
 ----
 2015-04-07 JMT From scratch
+2015-12-08 JMT Update command line arguments and port to python 3
 
 License
 ----
@@ -53,8 +54,8 @@ def main():
     
     # Parse command line arguments
     parser = argparse.ArgumentParser(description='Smooth one or more atlas labels')
-    parser.add_argument('in_file', help="source atlas labels filename")
-    parser.add_argument('out_file', help="smoothed atlas labels filename")
+    parser.add_argument('-i','--in_file', help="source atlas labels filename")
+    parser.add_argument('-o','--out_file', help="smoothed atlas labels filename")
     parser.add_argument('labels', metavar='N', type=int, nargs='+',
                         help='label numbers to smooth')
 

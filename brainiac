@@ -1,0 +1,130 @@
+#!/bin/bash
+# Register CIT168 atlas to an individual T1w image
+#
+# REQUIRES:
+# 1. Working installation of the ANTs registration package, specifically:
+# - N4BiasFieldCorrection
+# - antsApplyTransforms
+# - antsRegistrationSyNQuick.sh (from the Scripts release)
+# 2. Working installation of FSL 5.0.8
+#
+# AUTHOR : Mike Tyszka
+# PLACE  : Caltech
+# DATES  : 2015-12-09 JMT Adapt ANTs brain extraction script to use exact brain template
+#          2015-12-16 JMT Adapt brainiac to extract brain, then warp CIT168 atlas to individual space
+#
+# Copyright 2015 California Institute of Technology
+
+# Check for CIT_ATLAS_DIR env variable
+if [ -z "$CIT_ATLAS_DIR" ]
+then
+	echo "Environment variable CIT_ATLAS_DIR needs to be defined"
+	exit
+fi
+
+# CIT168 T1w head, brain mask and prob atlas images
+CIT_T1=${CIT_ATLAS_DIR}/CIT168_T1w_head_700um.nii.gz
+CIT_brain_mask=${CIT_ATLAS_DIR}/CIT168_brain_mask_700um.nii.gz
+CIT_pAtlas=${CIT_ATLAS_DIR}/CIT168_pAmyNuc.nii.gz
+
+# Check usage
+if [ $# -lt 1 ]
+then
+	echo "USAGE : cit2ind <T1 whole-head image>"
+	exit
+fi
+
+# Get T1 image filename
+T1=$1
+
+if [ ! -e $T1 ]
+then
+	echo "*** ${T1} does not exist - exiting"
+	exit
+fi
+
+echo ""
+echo "BRAINIAC"
+echo "--------"
+
+# Create stub without .nii or .nii.gz extension
+stub=${T1%%.gz}
+stub=${stub%%.nii}
+
+# Results directory
+res_dir=${stub}.brainiac
+mkdir -p ${res_dir}
+
+# Intermediate filenames
+T1_nobias=${res_dir}/${stub}_nobias.nii.gz
+T1_brain=${res_dir}/${stub}_brain.nii.gz
+T1_brain_mask=${res_dir}/${stub}_brain_mask.nii.gz
+
+# Warped CIT168 T1 head template and prob atlas
+CIT_T1_Ind=${res_dir}/CIT168_T1w_${stub}.nii.gz
+CIT_pAtlas_Ind=${res_dir}/CIT168_pAtlas_${stub}.nii.gz
+
+# N4 bias correct T1 image
+if [ ! -e ${T1_nobias} ]
+then
+	echo "  N4 bias correction"
+	N4BiasFieldCorrection -d 3 -i ${T1} -o ${T1_nobias}
+else
+	echo "  N4 bias correction already done - skipping"
+fi
+
+#
+# Register CIT168 T1w head template to individual T1w head
+#
+
+# CIT atlas warp filenames
+CIT_prefix=${res_dir}/CIT2Ind
+CIT_affine=${CIT_prefix}0GenericAffine.mat
+CIT_warp=${CIT_prefix}1Warp.nii.gz
+ 
+# Warp CIT168 T1 to individual T1 brain
+if [ ! -e ${CIT_warp} ]
+then
+	echo "  Warping CIT168 T1 to individual space"
+	antsRegistrationSyNQuick.sh -d 3 -f ${T1} -m ${CIT_T1} -o ${CIT_prefix} > /dev/null
+else
+	echo "  Warping CIT168 T1 to individual space already done - skipping"
+fi
+
+# Warp CIT168 T1 template to individual space
+if [ ! -e ${CIT_T1_Ind} ]
+then
+	echo "  Resampling CIT T1 to individual space"
+	antsApplyTransforms -d 3 -i ${CIT_T1} -r ${T1} -o ${CIT_T1_Ind} -n BSpline -t ${CIT_warp} -t ${CIT_affine}
+else
+	echo "  Resampling CIT T1 to individual space already done - skipping"
+fi
+
+# Warp CIT168 prob atlas to individual space
+if [ ! -e ${CIT_pAtlas_Ind} ]
+then
+	echo "  Resampling CIT probabilistic atlas to individual space"
+	WarpTimeSeriesImageMultiTransform 4 ${CIT_pAtlas} ${CIT_pAtlas_Ind} -R ${T1} ${CIT_warp} ${CIT_affine} > /dev/null
+else
+	echo "  Resampling CIT probabilistic atlas to individual space already done - skipping"
+fi
+
+# Warp CIT168 brain mask to individual space
+if [ ! -e ${T1_brain_mask} ]
+then
+	echo "  Resampling CIT brain mask to individual space"
+	antsApplyTransforms -d 3 -i ${CIT_brain_mask} -r ${T1} -o ${T1_brain_mask} -n BSpline -t ${CIT_warp} -t ${CIT_affine}
+else
+	echo "  Resampling CIT brain mask to individual space already done - skipping"
+fi
+
+# Apply brain mask to individual unbiased T1 image
+if [ ! -e ${T1_brain} ]
+then
+	echo "  Brain masking unbiased T1 image"
+	fslmaths ${T1_nobias} -mul ${T1_brain_mask} ${T1_brain}
+else
+	echo "  Brain masking unbiased T1 image already done - skipping"
+fi
+
+echo "Complete - all results are in ${res_dir}"
