@@ -1,4 +1,4 @@
-#!/opt/local/bin/python
+#!/usr/local/bin/python
 '''
 Interpolate label between sparse sections
 - Speeds up manual labeling for larger label volumes
@@ -10,7 +10,7 @@ interp_labels.py -h
 
 Example
 ----
->>> interp_labels.py -i labels.nii.gz -l 1,3,4
+>>> interp_labels_a3.py -i labels.nii.gz -l 1,3,4
 
 Authors
 ----
@@ -52,11 +52,9 @@ import numpy as np
 from scipy.interpolate import Rbf
 from scipy.signal import medfilt
 from scipy.spatial import Delaunay
-from scipy.interpolate import LinearNDInterpolator
 from skimage import measure
 import time
 from scipy.ndimage.filters import gaussian_filter
-import random
 
 
 def ReduceSlices2Contours(Lsub, slices):
@@ -84,7 +82,7 @@ def ReduceSlices2Contours(Lsub, slices):
             myslice = np.zeros_like(myslice)
             for contour in contours:
                 all_contours.append(contour)
-                for p in xrange(len(contour)):
+                for p in range(len(contour)):
                     x,y = contour[p]
                     myslice[int(x), int(y)] = 1
                 if axis == 0:
@@ -107,7 +105,7 @@ def EvalSliceDistance(slices):
     @rtype: float
     """
     distances = []
-    for a in xrange(len(slices)):
+    for a in range(len(slices)):
         s = slices[a][0]
         if len(s) > 1:
             dl = list(s[1:len(s)] - s[0:(len(s) - 1)])
@@ -383,7 +381,7 @@ def _unique_rows(a):
 def alpha_shape(points, tri, alpha):
     classification = np.zeros(tri.vertices.shape[0])
 
-    for i in xrange(tri.vertices.shape[0]):
+    for i in range(tri.vertices.shape[0]):
         pa = points[tri.vertices[i,0]]
         pb = points[tri.vertices[i,1]]
         pc = points[tri.vertices[i,2]]
@@ -461,7 +459,7 @@ def SetValsPoints(points, vals, Lsub):
     @rtype: np.array
     """
     #print new_labels.shape
-    for i in xrange(len(vals)):
+    for i in range(len(vals)):
         point = points[i,:]
         Lsub[point[0], point[1], point[2]] = vals[i]
 
@@ -509,17 +507,17 @@ def main():
         sink = args.labels
         sink = sink.split(',')
         label_nos = []
-        for i in xrange(len(sink)):
+        for i in range(len(sink)):
             label_nos.append(int(sink[i]))
     else:
         # Construct list of unique label values in image
-        label_nos = np.unique(labels)
+        label_nos = np.unique(args.labels)
 
     if args.slices:
         sink = args.slices
         sink = sink.split(',')
         n_slices = []
-        for i in xrange(len(sink)):
+        for i in range(len(sink)):
             n_slices.append(int(sink[i]))
     else:
         # Construct list of unique label values in image
@@ -555,7 +553,7 @@ def main():
 
     # Detect slices in segmentaion image
     slices = FindSlices(Lsub, n_slices)
-    print "Number of slices, x: %s, y: %s, z: %s" % (slices[0][0].shape[0],slices[1][0].shape[0],slices[2][0].shape[0])
+    print("Number of slices, x: %s, y: %s, z: %s" % (slices[0][0].shape[0],slices[1][0].shape[0],slices[2][0].shape[0]))
 
     # Reduce to segmentation within slices to contour lines to speed up processing
     Lsub_contour, contour = ReduceSlices2Contours(Lsub, slices)
@@ -593,7 +591,7 @@ def main():
     xi, yi, zi = xi.reshape(-1,1), yi.reshape(-1,1), zi.reshape(-1,1)
     
     new_points = np.zeros((xi.shape[0], 3))
-    for i in xrange(xi.shape[0]):
+    for i in range(xi.shape[0]):
         new_points[i,:] = xi[i], yi[i], zi[i]
 
     # determine for each point in which tetrahedron it is
@@ -609,17 +607,17 @@ def main():
 
 
     # perform alpha shape 3 
-    print "Vertices in Delaunay tesselation: %s" % tri.vertices.shape[0]
+    print("Vertices in Delaunay tesselation: %s" % tri.vertices.shape[0])
     v_class = alpha_shape(points, tri, alpha)
-    print "Vertices in Alpha Complex: %s" % np.sum(v_class)
+    print("Vertices in Alpha Complex: %s" % np.sum(v_class))
 
 
-    print "Points contained in Dalauny tesselation: %s" % len(np.where(simplices_i > -1)[0])
-    for i in xrange(len(simplices_i)):
+    print("Points contained in Dalauny tesselation: %s" % len(np.where(simplices_i > -1)[0]))
+    for i in range(len(simplices_i)):
         if simplices_i[i] > -1:
             if v_class[simplices_i[i]] == 0:
                 simplices_i[i] = -1
-    print "Points contained in alpha complex: %s" % len(np.where(simplices_i > -1)[0])
+    print("Points contained in alpha complex: %s" % len(np.where(simplices_i > -1)[0]))
 
     # create segmentation image of interpolation
     vals = np.zeros_like(simplices_i)
