@@ -47,74 +47,120 @@ import sys
 import argparse
 import nibabel as nib
 import numpy as np
+import pandas as pd
 
 
 def main():
-    
+
     # Parse command line arguments
     parser = argparse.ArgumentParser(description='Similarity metrics for labeled volumes')
-    parser.add_argument('labelsA', help="Labeled volume A")
-    parser.add_argument('labelsB', help="Labeled volume B")
+    parser.add_argument('-a','--labelsA', required=True, help='Labeled volume A')
+    parser.add_argument('-b','--labelsB', required=True, help='Labeled volume B')
+    parser.add_argument('-k','--labelsKey', help='ITK-SNAP label key [optional]')
 
 
     # Parse command line arguments
     args = parser.parse_args()
-    labelsA, labelsB = args.labelsA, args.labelsB
-        
+
+    labelsA = args.labelsA
+    labelsB = args.labelsB
+
+    if args.labelsKey:
+        labelsKey = args.labelsKey
+    else:
+        labelsKey = ''
+
     # Load labeled volumes
     A_nii, B_nii = nib.load(labelsA), nib.load(labelsB)
     A_labels, B_labels = A_nii.get_data(), B_nii.get_data()
-    
+
+    # Load and parse label key
+    label_key = LoadKey(labelsKey)
+
     # Voxel volume in mm^3 (microliters) (from volume A)
     atlas_vox_vol_ul = np.array(A_nii.header.get_zooms()).prod()
 
     # Colume headers
-    print('%8s,%8s,%8s,%10s,%10s,%10s,%10s,' %
-        ('Label', 'nA', 'nB', 'vA_ul', 'vB_ul', 'Jaccard', 'Dice')) 
-    
+    print('%24s,%8s,%8s,%8s,%10s,%10s,%10s,%10s,' %
+        ('Label', 'Index', 'nA', 'nB', 'vA_ul', 'vB_ul', 'Jaccard', 'Dice'))
+
     # Construct list of unique label values in image
     unique_labels = np.unique(A_labels)
 
     # loop over each unique label value
-    for label in unique_labels:
-        
-        if label > 0:
+    for label_idx in unique_labels:
+
+        if label_idx > 0:
+
+            # Find label name
+            label_name = LabelName(label_idx, label_key)
 
             # Create label mask from A and B volumes
-            A_mask = (A_labels == label)
-            B_mask = (B_labels == label)
-    
+            A_mask = (A_labels == label_idx)
+            B_mask = (B_labels == label_idx)
+
             # Count voxels in each mask
             nA, nB = np.sum(A_mask), np.sum(B_mask)
-            
+
             # Only calculate stats if labels present in A or B
             if nA > 0 or nB > 0:
-                
+
                 # Find intersection and union of A and B masks
                 AandB = np.logical_and(A_mask, B_mask)
                 AorB = np.logical_or(A_mask, B_mask)
-            
+
                 # Count voxels in intersection and union
                 nAandB, nAorB = np.sum(AandB), np.sum(AorB)
-              
+
                 # Similarity coefficients
                 Jaccard = nAandB / float(nAorB)
                 Dice = 2.0 * nAandB / float(nA + nB)
-                
+
                 # Absolute volumes of label in A and B
                 A_vol_ul = np.sum(A_mask) * atlas_vox_vol_ul
                 B_vol_ul = np.sum(B_mask) * atlas_vox_vol_ul
-                
+
                 if Dice < 0.001:
-                    label_str = '>>> %4d' % label
+                    label_str = '>>> %20s' % label_name
                 else:
-                    label_str = '%8d' % label
-    
-                print('%s,%8d,%8d,%10.3f,%10.3f,%10.3f,%10.3f,' %
-                    (label_str, nA, nB, A_vol_ul, B_vol_ul, Jaccard, Dice)) 
-    
+                    label_str = label_name
+
+                print('%24s,%8d,%8d,%8d,%10.3f,%10.3f,%10.3f,%10.3f,' %
+                    (label_str, label_idx, nA, nB, A_vol_ul, B_vol_ul, Jaccard, Dice))
+
     # Clean exit
     sys.exit(0)
+
+
+
+def LoadKey(key_fname):
+    '''
+    Parse an ITK-SNAP label key file
+    '''
+
+    # Import key as a data table
+    # Note the partially undocumented delim_whitespace flag
+    data = pd.read_table(key_fname,
+                         comment='#',
+                         header=None,
+                         names=['Index','R','G','B','A','Vis','Mesh','Name'],
+                         delim_whitespace=True)
+
+    return data
+
+
+def LabelName(label_idx, label_key):
+    '''
+    Search label key for label index and return name
+    '''
+
+    label_name = 'Unknown Label'
+
+    for i, idx in enumerate(label_key.Index):
+        if label_idx == idx:
+            label_name = label_key.Name[i]
+
+    return label_name
 
 
 # This is the standard boilerplate that calls the main() function.
