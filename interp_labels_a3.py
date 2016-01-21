@@ -19,6 +19,7 @@ Mike Tyszka, Caltech Brain Imaging Center
 Dates
 ----
 2015-09-28 JMT From scratch
+2015-11-09 WMP Adapted for alpha shape interpolation
 
 License
 ----

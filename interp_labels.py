@@ -1,4 +1,4 @@
-#!/opt/local/bin/python
+#!/usr/local/bin/python
 '''
 Interpolate label between sparse sections
 - Speeds up manual labeling for larger label volumes
@@ -89,7 +89,7 @@ def main():
         sink = args.labels
         sink = sink.split(',')
         label_nos = []
-        for i in xrange(len(sink)):
+        for i in range(len(sink)):
             label_nos.append(int(sink[i]))
     else:
         # Construct list of unique label values in image
@@ -220,7 +220,7 @@ def FindSlices(label):
     Dz = Pz - medfilt(Pz)
     
     # Locate spikes in residual
-    Dmin = 0.1
+    Dmin = 0.01
     Sx = np.where(Dx > Dmin)
     Sy = np.where(Dy > Dmin)
     Sz = np.where(Dz > Dmin)
@@ -337,7 +337,7 @@ def InsideOutside(s):
     # Random downsample by 3
     # Every third point(ish) on boundary should be sufficient for accurate RBF
     n = xy.shape[0]
-    samp = random.sample(np.arange(n), int(n/3.0))
+    samp = np.random.choice(np.arange(n), int(n/3.0))
     xy = xy[samp,:]
     
     io_xy = io[xy[:,0], xy[:,1]] 

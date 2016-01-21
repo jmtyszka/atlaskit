@@ -104,9 +104,14 @@ def main():
                 # Absolute volumes of label in A and B
                 A_vol_ul = np.sum(A_mask) * atlas_vox_vol_ul
                 B_vol_ul = np.sum(B_mask) * atlas_vox_vol_ul
+                
+                if Dice < 0.001:
+                    label_str = '>>> %4d' % label
+                else:
+                    label_str = '%8d' % label
     
-                print('%8d,%8d,%8d,%10.3f,%10.3f,%10.3f,%10.3f,' %
-                    (label, nA, nB, A_vol_ul, B_vol_ul, Jaccard, Dice)) 
+                print('%s,%8d,%8d,%10.3f,%10.3f,%10.3f,%10.3f,' %
+                    (label_str, nA, nB, A_vol_ul, B_vol_ul, Jaccard, Dice)) 
     
     # Clean exit
     sys.exit(0)
