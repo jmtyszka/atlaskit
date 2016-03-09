@@ -19,7 +19,7 @@ pAmyOnly_LH=${atlas_dir}/pAmyOnly_LH.nii.gz
 echo ""
 echo "Constructing amygdala probabilistic atlas"
 echo "----"
-probabilistic.py -o ${atlas_dir}/pAll_LH.nii.gz ${val_dir}/*/*_all_*.nii.gz
+probabilistic.py -o ${pAll_LH} ${val_dir}/*/*_all_*.nii.gz
 
 # Crop atlas to first ten labels
 echo ""
