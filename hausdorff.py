@@ -1,15 +1,15 @@
 #!/usr/bin/env python3
 """
-Calculate Dice, Jaquard and related stats for inter and intra-observer labeling comparisons
+Calculate generalized Hausdorff distance between corresponding labels in A and B
 
 Usage
 ----
-dice.py <labelsA> <labelsB>
-dice.py -h
+hausdorff.py <labelsA> <labelsB>
+haussdorf.py -h
 
 Example
 ----
->>> dice.py labelsA.nii.gz labelsB.nii.gz
+>>> hausdorff.py labelsA.nii.gz labelsB.nii.gz
 
 Authors
 ----
@@ -17,7 +17,7 @@ Mike Tyszka, Caltech Brain Imaging Center
 
 Dates
 ----
-2015-07-21 JMT From scratch
+2016-03-15 JMT Adapt from dice.py
 
 License
 ----
@@ -41,7 +41,7 @@ Copyright
 2015 California Institute of Technology.
 """
 
-__version__ = '0.2.0'
+__version__ = '0.1.0'
 
 import sys
 import argparse
@@ -53,7 +53,7 @@ import pandas as pd
 def main():
 
     # Parse command line arguments
-    parser = argparse.ArgumentParser(description='Similarity metrics for labeled volumes')
+    parser = argparse.ArgumentParser(description='Hausdorff distance between corresponding labels in two volumes')
     parser.add_argument('-a','--labelsA', required=True, help='Labeled volume A')
     parser.add_argument('-b','--labelsB', required=True, help='Labeled volume B')
     parser.add_argument('-k','--labelsKey', help='ITK-SNAP label key [optional]')
@@ -82,7 +82,7 @@ def main():
 
     # Colume headers
     print('%24s,%8s,%8s,%8s,%10s,%10s,%10s,%10s,' %
-        ('Label', 'Index', 'nA', 'nB', 'vA_ul', 'vB_ul', 'Jaccard', 'Dice'))
+        ('Label', 'Index', 'nA', 'nB', 'vA_ul', 'vB_ul', 'Hausdorff'))
 
     # Construct list of unique label values in image
     unique_labels = np.unique(A_labels)
@@ -105,33 +105,38 @@ def main():
             # Only calculate stats if labels present in A or B
             if nA > 0 or nB > 0:
 
-                # Find intersection and union of A and B masks
-                AandB = np.logical_and(A_mask, B_mask)
-                AorB = np.logical_or(A_mask, B_mask)
-
-                # Count voxels in intersection and union
-                nAandB, nAorB = np.sum(AandB), np.sum(AorB)
-
                 # Similarity coefficients
-                Jaccard = nAandB / float(nAorB)
-                Dice = 2.0 * nAandB / float(nA + nB)
+                H = Hausdorff(A_mask, B_mask)
 
                 # Absolute volumes of label in A and B
                 A_vol_ul = np.sum(A_mask) * atlas_vox_vol_ul
                 B_vol_ul = np.sum(B_mask) * atlas_vox_vol_ul
 
-                if Dice < 0.001:
-                    label_str = '>>> %20s' % label_name
-                else:
-                    label_str = label_name
-
                 print('%24s,%8d,%8d,%8d,%10.3f,%10.3f,%10.3f,%10.3f,' %
-                    (label_str, label_idx, nA, nB, A_vol_ul, B_vol_ul, Jaccard, Dice))
+                    (label_name, label_idx, nA, nB, A_vol_ul, B_vol_ul, H))
 
     # Clean exit
     sys.exit(0)
 
+def Hausdorff(A, B):
+    """
+    Calculate the Hausdorff distance between two binary masks in 3D
 
+    Parameters
+    ----------
+    A : 3D numpy array
+    B : 3D numpy array
+
+    Returns
+    -------
+    H : float
+        Hausdorff distance between labels
+    """
+
+    # Create lists of all True points in both masks
+
+
+    return H
 
 def LoadKey(key_fname):
     '''
@@ -147,7 +152,6 @@ def LoadKey(key_fname):
                          delim_whitespace=True)
 
     return data
-
 
 def LabelName(label_idx, label_key):
     '''
