@@ -53,10 +53,10 @@ import pandas as pd
 def main():
 
     # Parse command line arguments
-    parser = argparse.ArgumentParser(description='Similarity metrics for labeled volumes')
+    parser = argparse.ArgumentParser(description='Dice, Jaccard and Hausdorff distances between labels')
     parser.add_argument('-a','--labelsA', required=True, help='Labeled volume A')
     parser.add_argument('-b','--labelsB', required=True, help='Labeled volume B')
-    parser.add_argument('-k','--labelsKey', help='ITK-SNAP label key [optional]')
+    parser.add_argument('-k','--labelsKey', required=False, help='ITK-SNAP label key [optional]')
 
 
     # Parse command line arguments
@@ -65,24 +65,25 @@ def main():
     labelsA = args.labelsA
     labelsB = args.labelsB
 
-    if args.labelsKey:
-        labelsKey = args.labelsKey
-    else:
-        labelsKey = ''
-
     # Load labeled volumes
     A_nii, B_nii = nib.load(labelsA), nib.load(labelsB)
     A_labels, B_labels = A_nii.get_data(), B_nii.get_data()
 
-    # Load and parse label key
-    label_key = LoadKey(labelsKey)
+    # Load and parse label key if provided
+    if args.labelsKey:
+        label_key = LoadKey(args.labelsKey)
+    else:
+        label_key = []
+
+    # Voxel dimensions in mm (assume A and B have identical dimensions)
+    vox_mm = np.array(A_nii.header.get_zooms())
 
     # Voxel volume in mm^3 (microliters) (from volume A)
-    atlas_vox_vol_ul = np.array(A_nii.header.get_zooms()).prod()
+    atlas_vox_vol_ul = vox_mm.prod()
 
     # Colume headers
-    print('%24s,%8s,%8s,%8s,%10s,%10s,%10s,%10s,' %
-        ('Label', 'Index', 'nA', 'nB', 'vA_ul', 'vB_ul', 'Jaccard', 'Dice'))
+    print('%24s,%8s,%8s,%8s,%10s,%10s,%10s,%10s,%10s' %
+        ('Label', 'Index', 'nA', 'nB', 'vA_ul', 'vB_ul', 'Dice', 'Hausdorf', 'Jaccard'))
 
     # Construct list of unique label values in image
     unique_labels = np.unique(A_labels)
@@ -92,8 +93,11 @@ def main():
 
         if label_idx > 0:
 
-            # Find label name
-            label_name = LabelName(label_idx, label_key)
+            # Find label name if provided
+            if np.any(label_key):
+                label_name = LabelName(label_idx, label_key)
+            else:
+                label_name = 'Unknown'
 
             # Create label mask from A and B volumes
             A_mask = (A_labels == label_idx)
@@ -116,6 +120,9 @@ def main():
                 Jaccard = nAandB / float(nAorB)
                 Dice = 2.0 * nAandB / float(nA + nB)
 
+                # Hausdorff distance
+                H = Hausdorff(A_mask, B_mask, vox_mm)
+
                 # Absolute volumes of label in A and B
                 A_vol_ul = np.sum(A_mask) * atlas_vox_vol_ul
                 B_vol_ul = np.sum(B_mask) * atlas_vox_vol_ul
@@ -125,12 +132,60 @@ def main():
                 else:
                     label_str = label_name
 
-                print('%24s,%8d,%8d,%8d,%10.3f,%10.3f,%10.3f,%10.3f,' %
-                    (label_str, label_idx, nA, nB, A_vol_ul, B_vol_ul, Jaccard, Dice))
+                print('%24s,%8d,%8d,%8d,%10.3f,%10.3f,%10.3f,%10.3f,%10.3f' %
+                    (label_str, label_idx, nA, nB, A_vol_ul, B_vol_ul, Dice, H, Jaccard))
 
     # Clean exit
     sys.exit(0)
 
+
+def Hausdorff(A, B, vox_mm):
+    """
+    Calculate the Hausdorff distance in mm between two binary masks in 3D
+
+    Parameters
+    ----------
+    A : 3D numpy array
+        Binary mask A
+    B : 3D numpy array
+        Binary mask B
+    vox_mm : numpy array
+        voxel dimensions in mm
+
+    Returns
+    -------
+    H : float
+        Hausdorff distance between labels
+    """
+
+    # Create lists of all True points in both masks
+    xA, yA, zA = np.nonzero(A)
+    xB, yB, zB = np.nonzero(B)
+
+    # Count elements in each point set
+    nA = xA.size
+    nB = xB.size
+
+    if nA > 0 and nB > 0:
+
+        # Init min dr to -1 for all points in A
+        min_dr = -1.0 * np.ones([nA])
+
+        for ac in range(0,nA):
+
+            dx = (xA[ac] - xB[:]) * vox_mm[1]
+            dy = (yA[ac] - yB[:]) * vox_mm[2]
+            dz = (zA[ac] - zB[:]) * vox_mm[3]
+            min_dr[ac] = np.min(np.sqrt(dx**2 + dy**2 + dz**2))
+
+        # Find maximum over A of the minimum distances A to B
+        H = np.max(min_dr)
+
+    else:
+
+        H = np.nan
+
+    return H
 
 
 def LoadKey(key_fname):

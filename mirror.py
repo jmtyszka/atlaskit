@@ -19,6 +19,7 @@ Mike Tyszka, Caltech Brain Imaging Center
 Dates
 ----
 2015-07-31 JMT From scratch
+2016-03-25 JMT Explicit output filename
 
 License
 ----
@@ -42,7 +43,7 @@ Copyright
 2015 California Institute of Technology.
 """
 
-__version__ = '0.1.0'
+__version__ = '0.2.0'
 
 import os
 import sys
@@ -54,15 +55,18 @@ def main():
     
     # Parse command line arguments
     parser = argparse.ArgumentParser(description='Mirror data in x without header adjustment')
-    parser.add_argument('in_file', help="3D or 4D Nifti-1 image")
+    parser.add_argument('-i','--in_file', required=True, help="Input Nifti 3D or 4D volume")
+    parser.add_argument('-o','--out_file', required=True, help="Output mirrored version of input image")
 
     # Parse command line arguments
     args = parser.parse_args()
     in_file = args.in_file
+    out_file = args.out_file
     
     # Convert relative to absolute path
     in_file = os.path.abspath(in_file)
-        
+    out_file = os.path.abspath(out_file)
+
     # Open and load Nifti image
     in_nii = nib.load(in_file)
     in_data = in_nii.get_data()
@@ -75,9 +79,6 @@ def main():
     elif nd == 4:
         out_data = in_data[::-1,:,:,:]
 
-    # Construct output filename. Use zero-padded indexing
-    out_file = in_file.strip('.nii.gz') + '_mirror' + '.nii.gz'
-        
     # Write x-mirrored data with identical header
     print('Saving x-mirrored image to %s' % out_file)
     out_nii = nib.Nifti1Image(out_data, in_nii.get_affine())
