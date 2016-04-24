@@ -1,4 +1,4 @@
-#!/opt/local/bin/python
+#!/usr/bin/env python3
 """
 Combine several labels in a 4D prob atlas by simple addition (probabilistic OR)
 
