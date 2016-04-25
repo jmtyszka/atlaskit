@@ -67,7 +67,7 @@ def main():
         seg_method = 'KMeans'
 
     if args.nclusters:
-        n = args.nclusters
+        n = np.int(args.nclusters)
     else:
         n = 3
 
