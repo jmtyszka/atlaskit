@@ -53,11 +53,11 @@ import pandas as pd
 def main():
 
     # Parse command line arguments
-    parser = argparse.ArgumentParser(description='Dice, Jaccard and Hausdorff distances between labels')
+    parser = argparse.ArgumentParser(description='Dice, Jaccard and hausdorff_distance distances between labels')
     parser.add_argument('-a','--labelsA', required=True, help='Labeled volume A')
     parser.add_argument('-b','--labelsB', required=True, help='Labeled volume B')
     parser.add_argument('-k','--labelsKey', required=False, help='ITK-SNAP label key [optional]')
-
+    parser.add_argument('-l','--labelsList', required=False, type=parse_range, help='List of label indices to process (eg 1-5, 7-9, 12)')
 
     # Parse command line arguments
     args = parser.parse_args()
@@ -71,9 +71,15 @@ def main():
 
     # Load and parse label key if provided
     if args.labelsKey:
-        label_key = LoadKey(args.labelsKey)
+        label_key = load_key(args.labelsKey)
     else:
         label_key = []
+
+    # Limited list of labels to process
+    if args.labelsList:
+        unique_labels = args.labelsList
+    else:
+        unique_labels = np.unique(A_labels)
 
     # Voxel dimensions in mm (assume A and B have identical dimensions)
     vox_mm = np.array(A_nii.header.get_zooms())
@@ -85,8 +91,6 @@ def main():
     print('%24s,%8s,%8s,%8s,%10s,%10s,%10s,%10s,%10s' %
         ('Label', 'Index', 'nA', 'nB', 'vA_ul', 'vB_ul', 'Dice', 'Hausdorf', 'Jaccard'))
 
-    # Construct list of unique label values in image
-    unique_labels = np.unique(A_labels)
 
     # loop over each unique label value
     for label_idx in unique_labels:
@@ -95,7 +99,7 @@ def main():
 
             # Find label name if provided
             if np.any(label_key):
-                label_name = LabelName(label_idx, label_key)
+                label_name = get_label_name(label_idx, label_key)
             else:
                 label_name = 'Unknown'
 
@@ -120,8 +124,8 @@ def main():
                 Jaccard = nAandB / float(nAorB)
                 Dice = 2.0 * nAandB / float(nA + nB)
 
-                # Hausdorff distance
-                H = Hausdorff(A_mask, B_mask, vox_mm)
+                # hausdorff_distance distance
+                H = hausdorff_distance(A_mask, B_mask, vox_mm)
 
                 # Absolute volumes of label in A and B
                 A_vol_ul = np.sum(A_mask) * atlas_vox_vol_ul
@@ -139,9 +143,9 @@ def main():
     sys.exit(0)
 
 
-def Hausdorff(A, B, vox_mm):
+def hausdorff_distance(A, B, vox_mm):
     """
-    Calculate the Hausdorff distance in mm between two binary masks in 3D
+    Calculate the hausdorff_distance distance in mm between two binary masks in 3D
 
     Parameters
     ----------
@@ -155,7 +159,7 @@ def Hausdorff(A, B, vox_mm):
     Returns
     -------
     H : float
-        Hausdorff distance between labels
+        hausdorff_distance distance between labels
     """
 
     # Create lists of all True points in both masks
@@ -173,9 +177,9 @@ def Hausdorff(A, B, vox_mm):
 
         for ac in range(0,nA):
 
-            dx = (xA[ac] - xB[:]) * vox_mm[1]
-            dy = (yA[ac] - yB[:]) * vox_mm[2]
-            dz = (zA[ac] - zB[:]) * vox_mm[3]
+            dx = (xA[ac] - xB[:]) * vox_mm[0]
+            dy = (yA[ac] - yB[:]) * vox_mm[1]
+            dz = (zA[ac] - zB[:]) * vox_mm[2]
             min_dr[ac] = np.min(np.sqrt(dx**2 + dy**2 + dz**2))
 
         # Find maximum over A of the minimum distances A to B
@@ -188,9 +192,17 @@ def Hausdorff(A, B, vox_mm):
     return H
 
 
-def LoadKey(key_fname):
+def load_key(key_fname):
     '''
     Parse an ITK-SNAP label key file
+
+    Parameters
+    ----------
+    key_fname
+
+    Returns
+    -------
+
     '''
 
     # Import key as a data table
@@ -204,9 +216,18 @@ def LoadKey(key_fname):
     return data
 
 
-def LabelName(label_idx, label_key):
+def get_label_name(label_idx, label_key):
     '''
     Search label key for label index and return name
+
+    Parameters
+    ----------
+    label_idx
+    label_key
+
+    Returns
+    -------
+
     '''
 
     label_name = 'Unknown Label'
@@ -216,6 +237,26 @@ def LabelName(label_idx, label_key):
             label_name = label_key.Name[i]
 
     return label_name
+
+
+def parse_range(astr):
+    '''
+    Parse compound list of integers and integer ranges
+
+    Parameters
+    ----------
+    astr
+
+    Returns
+    -------
+
+    '''
+    result = set()
+    for part in astr.split(','):
+        x = part.split('-')
+        result.update(range(int(x[0]), int(x[-1]) + 1))
+
+    return sorted(result)
 
 
 # This is the standard boilerplate that calls the main() function.

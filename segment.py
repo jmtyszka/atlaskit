@@ -82,10 +82,10 @@ def main():
     # Flatten image for segmentation - see sklearn documentation
     in_img = in_img.reshape(-1,1,order='F')
 
-    # Intesnity cluster segmentation
+    # Intensity cluster segmentation
     print('Segmenting using %s' % seg_method)
     if seg_method == 'KMeans':
-        k_means = KMeans(init='k-means++', n_clusters=n)
+        k_means = KMeans(init='k-means++', n_init=10, tol=1e-9, n_clusters=n)
         k_means.fit(in_img)
         seg_img = k_means.labels_
     else:

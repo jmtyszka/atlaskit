@@ -37,6 +37,10 @@ T2=${out_dir}/${T2_fname}
 T1_mirror=${out_dir}/${T1_stub}_mirror.nii.gz
 T2_mirror=${out_dir}/${T2_stub}_mirror.nii.gz
 
+# Final mirror warped versions of original images
+T1_mirror_warp=${out_dir}/${T1_stub}_mirror_warp.nii.gz
+T2_mirror_warp=${out_dir}/${T2_stub}_mirror_warp.nii.gz
+
 # ANTs output prefix
 ANTS_prefix=${out_dir}/Mirror
 ANTS_warp=WarpImageMultiTransform
@@ -63,6 +67,11 @@ then
   # Warp L-R flipped T1 and T2 onto their unflipped versions
   echo "  Warping L-R reflected images onto their unreflected versions"
   ANTS 3 -m CC[${T1},${T1_mirror},1,5] -m CC[${T2},${T2_mirror},1,5] ${ANTS_OPTS} -o ${ANTS_prefix}
+
+	# Apply mirror warp to L-R flipped T1 and T2
+	echo "  Applying mirror warp"
+	WarpImageMultiTransform 3 ${T1_mirror} ${T1_mirror_warp} $mirror_warp $mirror_affine
+	WarpImageMultiTransform 3 ${T2_mirror} ${T2_mirror_warp} $mirror_warp $mirror_affine
 
 else
 
