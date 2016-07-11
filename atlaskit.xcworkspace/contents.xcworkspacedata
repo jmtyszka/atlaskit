@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Workspace
+   version = "1.0">
+   <FileRef
+      location = "group:allen2cit.py">
+   </FileRef>
+   <FileRef
+      location = "group:allen2itksnap.py">
+   </FileRef>
+   <FileRef
+      location = "group:atlaskit.xcworkspace">
+   </FileRef>
+   <FileRef
+      location = "group:brainiac">
+   </FileRef>
+   <FileRef
+      location = "group:bulkheads.py">
+   </FileRef>
+   <FileRef
+      location = "group:cit2ind">
+   </FileRef>
+   <FileRef
+      location = "group:dice.py">
+   </FileRef>
+   <FileRef
+      location = "group:interp_labels_a3.py">
+   </FileRef>
+   <FileRef
+      location = "group:interp_labels.py">
+   </FileRef>
+   <FileRef
+      location = "group:label_volumes.py">
+   </FileRef>
+   <FileRef
+      location = "group:merge_labels.py">
+   </FileRef>
+   <FileRef
+      location = "group:mirror_warp_apply.sh">
+   </FileRef>
+   <FileRef
+      location = "group:mirror_warp_calc.sh">
+   </FileRef>
+   <FileRef
+      location = "group:mirror.py">
+   </FileRef>
+   <FileRef
+      location = "group:nifti2jpg.py">
+   </FileRef>
+   <FileRef
+      location = "group:nifti2png.py">
+   </FileRef>
+   <FileRef
+      location = "group:pool_labels.py">
+   </FileRef>
+   <FileRef
+      location = "group:prob_label_volumes.py">
+   </FileRef>
+   <FileRef
+      location = "group:prob_or.py">
+   </FileRef>
+   <FileRef
+      location = "group:prob2idx.sh">
+   </FileRef>
+   <FileRef
+      location = "group:probabilistic.py">
+   </FileRef>
+   <FileRef
+      location = "group:remap_labels.py">
+   </FileRef>
+   <FileRef
+      location = "group:segment.py">
+   </FileRef>
+   <FileRef
+      location = "group:separate_labels.py">
+   </FileRef>
+   <FileRef
+      location = "group:smooth_labels.py">
+   </FileRef>
+   <FileRef
+      location = "group:sobel.py">
+   </FileRef>
+   <Group
+      location = "group:ANTs"
+      name = "ANTs">
+      <FileRef
+         location = "group:ind_label.sh">
+      </FileRef>
+      <FileRef
+         location = "group:label_copy_lr.sh">
+      </FileRef>
+   </Group>
+</Workspace>
