@@ -2,29 +2,29 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="5e02d061-5636-4555-8bcb-f1804eb82bd7" name="Default" comment="">
-      <change type="DELETED" beforePath="$PROJECT_DIR$/allen2cit.py" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/allen2itksnap.py" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/cit2ind.sh" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/dice.py" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/interp_labels.py" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/interp_labels_a3.py" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/label_volumes.py" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/merge_labels.py" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/mirror.py" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/mirror_warp_apply.sh" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/mirror_warp_calc.sh" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/nifti2jpg.py" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/nifti2png.py" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/pool_labels.py" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/prob2idx.sh" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/prob_label_volumes.py" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/prob_or.py" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/probabilistic.py" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/remap_labels.py" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/segment.py" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/separate_labels.py" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/smooth_labels.py" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/sobel.py" afterPath="" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/Deterministic/dice.py" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/Deterministic/interp_labels.py" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/Deterministic/interp_labels_a3.py" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/Deterministic/label_volumes.py" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/Deterministic/merge_labels.py" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/Deterministic/pool_labels.py" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/Deterministic/remap_labels.py" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/Deterministic/separate_labels.py" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/Deterministic/smooth_labels.py" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/Grayscale/nifti2jpg.py" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/Grayscale/nifti2png.py" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/Grayscale/segment.py" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/Grayscale/sobel.py" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/Ontology/allen2cit.py" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/Ontology/allen2itksnap.py" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/Probabilistic/prob2idx.sh" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/Probabilistic/prob_label_volumes.py" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/Probabilistic/prob_or.py" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/Probabilistic/probabilistic.py" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/Transformations/cit2ind.sh" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/Transformations/mirror.py" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/Transformations/mirror_warp_apply.sh" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/Transformations/mirror_warp_calc.sh" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
     <ignored path="atlaskit.iws" />
@@ -597,7 +597,14 @@
       <option name="project" value="LOCAL" />
       <updated>1469470510713</updated>
     </task>
-    <option name="localTasksCounter" value="7" />
+    <task id="LOCAL-00007" summary="Organize all scripts into directories.">
+      <created>1469475699983</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1469475699983</updated>
+    </task>
+    <option name="localTasksCounter" value="8" />
     <servers />
   </component>
   <component name="ToolWindowManager">
@@ -641,7 +648,8 @@
     <MESSAGE value="Scale Hausdorff distance to mm. Add mirror_warp shell scripts." />
     <MESSAGE value="First pass tidy up for general release. Remove historical artifacts, broken scripts, etc." />
     <MESSAGE value="Correct extensions for all scripts." />
-    <option name="LAST_COMMIT_MESSAGE" value="Correct extensions for all scripts." />
+    <MESSAGE value="Organize all scripts into directories." />
+    <option name="LAST_COMMIT_MESSAGE" value="Organize all scripts into directories." />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
