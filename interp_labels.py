@@ -1,4 +1,4 @@
-#!/usr/local/bin/python
+#!/usr/bin/env python3
 '''
 Interpolate label between sparse sections
 - Speeds up manual labeling for larger label volumes

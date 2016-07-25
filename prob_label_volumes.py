@@ -1,4 +1,4 @@
-#!/opt/local/Library/Frameworks/Python.framework/Versions/2.7/Resources/Python.app/Contents/MacOS/Python
+#!/usr/bin/env python3
 """
 Output volumes of each probabilistic label in an atlas in microliters.
 Accepts multiple 4D prob atlas files

@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python3
 """
 Merge separate segmentation volumens, with one ONLY one label per volume, into one.
 

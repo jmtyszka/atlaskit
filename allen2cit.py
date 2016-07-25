@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python3
 """
 Map the Allen developmental human brain ontology (16) to CIT
 simple label numbering. Output master conversion table as a CSV file.

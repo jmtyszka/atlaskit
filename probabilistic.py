@@ -1,4 +1,4 @@
-#!/opt/local/bin/python
+#!/usr/bin/env python3
 """
 Construct a probabilistic atlas from a set of N label images each containing
 M unique labels. The final atlas will be a 4D float image (nx x ny x nz x M)

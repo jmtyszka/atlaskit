@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python3
 """
 Use a new key to reorder label numbers in label volumes.
 

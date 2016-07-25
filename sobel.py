@@ -1,4 +1,4 @@
-#!/opt/local/bin/python
+#!/usr/bin/env python3
 """
 Calculate the local intensity gradient using a 3D Sobel filter
 

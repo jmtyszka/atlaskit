@@ -1,6 +1,7 @@
-#!/opt/local/Library/Frameworks/Python.framework/Versions/2.7/Resources/Python.app/Contents/MacOS/Python
+#!/usr/bin/env python3
 """
 Output volumes of each label in an atlas in microliters.
+- largely superseded by ITK-SNAP volume output
 
 Usage
 ----

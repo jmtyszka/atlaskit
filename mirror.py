@@ -1,4 +1,4 @@
-#!/opt/local/bin/python
+#!/usr/bin/env python3
 """
 Flip 3D (xyz) or 4D (xyzt) data volume in x, WITHOUT ALTERING THE HEADER
 The usual caveats apply. ONLY RUN THIS ON ABSTRACTED DATA (eg atlases)

@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python3
 """
 Create an ITK-SNAP label key from a subset of the Allen Brain Atlas human
 ontology via the online API

@@ -1,5 +1,4 @@
-#!/opt/local/bin/python
-
+#!/usr/bin/env python3
 """
 Write separate volume for each label found in the input image
 

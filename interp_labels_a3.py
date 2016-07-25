@@ -1,6 +1,6 @@
-#!/usr/local/bin/python
+#!/usr/bin/env python3
 '''
-Interpolate label between sparse sections
+Interpolate label between sparse sections using alpha shape
 - Speeds up manual labeling for larger label volumes
 
 Usage
@@ -14,7 +14,7 @@ Example
 
 Authors
 ----
-Mike Tyszka, Caltech Brain Imaging Center
+Mike Tyszka and Wolfgang Pauli, Caltech
 
 Dates
 ----

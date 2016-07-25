@@ -1,4 +1,4 @@
-#!/opt/local/bin/python
+#!/usr/bin/env python3
 """
 Convert single Nifti-1 3D or 4D volume to set of JPEG stacks.
 
