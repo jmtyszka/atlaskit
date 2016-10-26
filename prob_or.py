@@ -4,12 +4,12 @@ Combine several labels in a 4D prob atlas by simple addition (probabilistic OR)
 
 Usage
 ----
-prob_or.py <4D prob atlas>
+prob_or.py -i <4D prob atlas> -o <3D prob atlas> <space separated label list>
 prob_or.py -h
 
 Example
 ----
->>> probabilistic.py Labels_1.nii.gz Labels_2.nii.gz ... Labels_N.nii.gz
+>>> prob_or.py -i prob_atlas.nii.gz prob_label.nii.gz 1 2 5 10
 
 Authors
 ----
@@ -18,6 +18,7 @@ Mike Tyszka, Caltech Brain Imaging Center
 Dates
 ----
 2015-07-29 JMT From scratch
+2016-09-27 JMT Clarify argparse help
 
 License
 ----

@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
 """
 Warp a probabistic atlas onto a brain containing a lesion.
-Requires a T1w image of the lesioned brain and a binary lesion mask, both in the same space.
-This command outputs lesion volumes within each probabilistic atlas label
+Requires a T1w image of the lesioned brain and a corresponding binary lesion mask in the same space.
 
 Usage
 ----
@@ -57,10 +56,10 @@ def main():
 
     # Construct a command line argument parser
     parser = argparse.ArgumentParser(description='Atlas-based lesion volumetrics')
-    parser.add_argument('-i', '--input', help='Skull-stripped T1w image of lesioned brain')
-    parser.add_argument('-m', '--mask', help='Lesion mask')
-    parser.add_argument('-t', '--template', help='Skull-stripped T1w atlas template for registration')
-    parser.add_argument('-a', '--atlas', help='Probabilistic atlas labels')
+    parser.add_argument('-i', '--input', required=True, help='Skull-stripped T1w image of lesioned brain')
+    parser.add_argument('-m', '--mask', required=True, help='Lesion mask')
+    parser.add_argument('-t', '--template', required=True, help='Skull-stripped T1w atlas template for registration')
+    parser.add_argument('-a', '--atlas', required=True, help='Probabilistic atlas labels')
 
     # Parse command line arguments
     args = parser.parse_args()
@@ -69,51 +68,57 @@ def main():
     atlas_T1w = args.template
     atlas_prob = args.atlas
 
-    # Setup nipype pipeline
-    antsnorm = ants.Registration()
-    antsnorm.inputs.output_transform_prefix = "trans"
-    antsnorm.inputs.fixed_image = lesion_T1w
-    antsnorm.inputs.moving_image = atlas_T1w
-    antsnorm.inputs.fixed_image_mask = lesion_mask
-    antsnorm.inputs.collapse_output_transforms = True
-    antsnorm.inputs.initial_moving_transform_com = True
-    antsnorm.inputs.num_threads = 4
-    antsnorm.inputs.output_inverse_warped_image = True
-    antsnorm.inputs.output_warped_image = True
-    antsnorm.inputs.sigma_units = ['vox'] * 3
-    antsnorm.inputs.transforms = ['Rigid', 'Affine', 'SyN']
-    antsnorm.inputs.terminal_output = 'stream'
-    antsnorm.inputs.winsorize_lower_quantile = 0.005
-    antsnorm.inputs.winsorize_upper_quantile = 0.995
-    antsnorm.inputs.convergence_threshold = [1e-06]
-    antsnorm.inputs.convergence_window_size = [10]
-    antsnorm.inputs.metric = ['MI', 'MI', 'CC']
-    antsnorm.inputs.metric_weight = [1.0] * 3
-    antsnorm.inputs.number_of_iterations = [[1000, 500, 250, 100], [1000, 500, 250, 100], [100, 70, 50, 20]]
-    antsnorm.inputs.radius_or_number_of_bins = [32, 32, 4]
-    antsnorm.inputs.sampling_percentage = [0.25, 0.25, 1]
-    antsnorm.inputs.sampling_strategy = ['Regular', 'Regular', 'None']
-    antsnorm.inputs.shrink_factors = [[8, 4, 2, 1]] * 3
-    antsnorm.inputs.smoothing_sigmas = [[3, 2, 1, 0]] * 3
-    antsnorm.inputs.transform_parameters = [(0.1,), (0.1,), (0.1, 3.0, 0.0)]
-    antsnorm.inputs.use_histogram_matching = True
-    antsnorm.inputs.write_composite_transform = True
-    antsnorm.run()
+    # ANTS composite (affine + SyN warp) transform file
+    xfms = ['trans0GenericAffine.mat','trans1Warp.nii.gz']
 
-    trans = ['trans0GenericAffine.mat', 'trans1InverseWarp.nii.gz']
+    # Run ANTs SyN registration of atlas T1w template to T1w lesion image
+    if not os.path.isfile(xfms[0]):
+        print('  Calculating warp from template to individual space')
+        antsreg = ants.Registration()
+        antsreg.inputs.output_transform_prefix = "trans"
+        antsreg.inputs.fixed_image = lesion_T1w
+        antsreg.inputs.moving_image = atlas_T1w
+        antsreg.inputs.fixed_image_mask = lesion_mask
+        antsreg.inputs.collapse_output_transforms = True
+        antsreg.inputs.initial_moving_transform_com = True
+        antsreg.inputs.num_threads = 4
+        antsreg.inputs.smoothing_sigmas = [[3, 2, 1, 0]] * 3
+        antsreg.inputs.sigma_units = ['vox'] * 3
+        antsreg.inputs.transforms = ['Rigid', 'Affine', 'SyN']
+        antsreg.inputs.terminal_output = 'stream'
+        antsreg.inputs.winsorize_lower_quantile = 0.005
+        antsreg.inputs.winsorize_upper_quantile = 0.995
+        antsreg.inputs.convergence_threshold = [1e-06]
+        antsreg.inputs.convergence_window_size = [10]
+        antsreg.inputs.metric = ['MI', 'MI', 'CC']
+        antsreg.inputs.metric_weight = [1.0] * 3
+        antsreg.inputs.number_of_iterations = [[1000, 500, 250, 100], [1000, 500, 250, 100], [100, 70, 50, 20]]
+        antsreg.inputs.radius_or_number_of_bins = [32, 32, 4]
+        antsreg.inputs.sampling_strategy = ['Regular', 'Regular', 'None']
+        antsreg.inputs.sampling_percentage = [0.25, 0.25, 1]
+        antsreg.inputs.shrink_factors = [[8, 4, 2, 1]] * 3
+        antsreg.inputs.transform_parameters = [(0.1,), (0.1,), (0.1, 3.0, 0.0)]
+        antsreg.inputs.use_histogram_matching = True
+        antsreg.inputs.write_composite_transform = False
+        antsreg.inputs.output_warped_image = True
+        antsreg.inputs.output_inverse_warped_image = True
+        antsreg.run()
+    else:
+        print('* ANTs registration already run - continuing to resampling')
 
-    apply2anat = ants.ApplyTransforms()
-    apply2anat.inputs.input_image = atlas_prob
-    apply2anat.inputs.output_image = 'lesion_atlas_prob.nii.gz'
-    apply2anat.inputs.transforms = trans
-    apply2anat.inputs.default_value = 0
-    apply2anat.inputs.dimension = 3
-    apply2anat.inputs.input_image_type = 0
-    apply2anat.inputs.invert_transform_flags = [True, False]
-    apply2anat.inputs.num_threads = 4
-    apply2anat.inputs.reference_image = lesion_T1w
-    apply2anat.inputs.terminal_output = 'stream'
-    apply2anat.run()
+    # Note that the affine+SyN warp is written as a single composite transform
+    if os.path.isfile(xfms[0]):
+        print('  Warping probabilistic atlas to individual space')
+        warp = ants.WarpTimeSeriesImageMultiTransform()
+        warp.inputs.input_image = atlas_prob
+        warp.inputs.out_postfix = '_warped'
+        warp.inputs.transformation_series = xfms
+        warp.inputs.num_threads = 4
+        warp.inputs.reference_image = lesion_T1w
+        warp.inputs.terminal_output = 'stream'
+        warp.run()
+    else:
+        print('* ANTs composite transform file not found - exiting')
 
     # Clean exit
     sys.exit(0)

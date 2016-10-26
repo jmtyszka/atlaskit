@@ -2,31 +2,10 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="5e02d061-5636-4555-8bcb-f1804eb82bd7" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/allen2cit.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/allen2itksnap.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/atlas2lesion.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/cit2ind.sh" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/dice.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/interp_labels.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/interp_labels_a3.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/label_volumes.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/merge_labels.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/mirror.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/mirror_warp_apply.sh" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/mirror_warp_calc.sh" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/nifti2jpg.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/nifti2png.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/pool_labels.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/prob2idx.sh" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/prob_label_volumes.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/prob_or.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/probabilistic.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/remap_labels.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/segment.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/separate_labels.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/smooth_labels.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/sobel.py" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/lesion_atlas_analysis.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/atlas2lesion.py" afterPath="$PROJECT_DIR$/atlas2lesion.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/prob_or.py" afterPath="$PROJECT_DIR$/prob_or.py" />
     </list>
     <ignored path="atlaskit.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -51,7 +30,20 @@
     <favorites_list name="atlaskit" />
   </component>
   <component name="FileEditorManager">
-    <leaf SIDE_TABS_SIZE_LIMIT_KEY="300" />
+    <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
+      <file leaf-file-name="lesion_atlas_analysis.py" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/lesion_atlas_analysis.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="120">
+              <caret line="51" column="0" selection-start-line="51" selection-start-column="0" selection-end-line="51" selection-end-column="0" />
+              <folding>
+                <element signature="e#1146#1155#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+    </leaf>
   </component>
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
@@ -88,6 +80,9 @@
         <option value="$PROJECT_DIR$/smooth_labels.py" />
         <option value="$PROJECT_DIR$/sobel.py" />
         <option value="$PROJECT_DIR$/Lesions/atlas2lesion.py" />
+        <option value="$PROJECT_DIR$/prob_or.py" />
+        <option value="$PROJECT_DIR$/atlas2lesion.py" />
+        <option value="$PROJECT_DIR$/lesion_atlas_analysis.py" />
       </list>
     </option>
   </component>
@@ -98,8 +93,8 @@
     <sorting>DEFINITION_ORDER</sorting>
   </component>
   <component name="ProjectFrameBounds">
-    <option name="x" value="205" />
-    <option name="y" value="90" />
+    <option name="x" value="319" />
+    <option name="y" value="104" />
     <option name="width" value="1551" />
     <option name="height" value="1193" />
   </component>
@@ -129,7 +124,6 @@
     </navigator>
     <panes>
       <pane id="Scratches" />
-      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <PATH>
@@ -150,6 +144,7 @@
           </PATH>
         </subPane>
       </pane>
+      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -509,11 +504,18 @@
       <option name="project" value="LOCAL" />
       <updated>1475007577617</updated>
     </task>
-    <option name="localTasksCounter" value="10" />
+    <task id="LOCAL-00010" summary="Flatten directories - that wasn't as convenient as I thought.">
+      <created>1475009251270</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1475009251270</updated>
+    </task>
+    <option name="localTasksCounter" value="11" />
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="205" y="90" width="1551" height="1193" extended-state="0" />
+    <frame x="319" y="104" width="1551" height="1193" extended-state="0" />
     <editor active="false" />
     <layout>
       <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.30238557" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
@@ -567,38 +569,65 @@
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/Lesions/atlas2lesion.py">
+    <entry file="file://$PROJECT_DIR$/atlas2lesion.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
+          <folding>
+            <element signature="e#1230#1239#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Probabilistic/probabilistic.py">
+    <entry file="file://$PROJECT_DIR$/prob_or.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="810">
-          <caret line="57" column="0" selection-start-line="57" selection-start-column="0" selection-end-line="57" selection-end-column="71" />
-          <folding />
+        <state relative-caret-position="465">
+          <caret line="31" column="21" selection-start-line="31" selection-start-column="20" selection-end-line="31" selection-end-column="21" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Lesions/atlas2lesion.py">
+    <entry file="file://$PROJECT_DIR$/atlas2lesion.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
+          <folding>
+            <element signature="e#1230#1239#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Probabilistic/probabilistic.py">
+    <entry file="file://$PROJECT_DIR$/prob_or.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="810">
-          <caret line="57" column="0" selection-start-line="57" selection-start-column="0" selection-end-line="57" selection-end-column="71" />
-          <folding />
+        <state relative-caret-position="0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/prob_or.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/prob_or.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/prob_or.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Lesions/atlas2lesion.py" />
+    <entry file="file://$PROJECT_DIR$/Probabilistic/probabilistic.py" />
+    <entry file="file://$PROJECT_DIR$/Lesions/atlas2lesion.py" />
+    <entry file="file://$PROJECT_DIR$/Probabilistic/probabilistic.py" />
     <entry file="file://$PROJECT_DIR$/../CBICQAlive/cbicqalive_stats.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
@@ -637,27 +666,18 @@
     <entry file="file://$PROJECT_DIR$/dice.py" />
     <entry file="file://$PROJECT_DIR$/interp_labels.py" />
     <entry file="file://$PROJECT_DIR$/interp_labels_a3.py" />
-    <entry file="file://$PROJECT_DIR$/label_volumes.py" />
     <entry file="file://$PROJECT_DIR$/merge_labels.py" />
     <entry file="file://$PROJECT_DIR$/mirror.py" />
     <entry file="file://$PROJECT_DIR$/nifti2jpg.py" />
     <entry file="file://$PROJECT_DIR$/nifti2png.py" />
     <entry file="file://$PROJECT_DIR$/pool_labels.py" />
-    <entry file="file://$PROJECT_DIR$/prob_label_volumes.py" />
-    <entry file="file://$PROJECT_DIR$/prob_or.py" />
     <entry file="file://$PROJECT_DIR$/probabilistic.py" />
     <entry file="file://$PROJECT_DIR$/remap_labels.py" />
     <entry file="file://$PROJECT_DIR$/segment.py" />
     <entry file="file://$PROJECT_DIR$/separate_labels.py" />
     <entry file="file://$PROJECT_DIR$/smooth_labels.py" />
     <entry file="file://$PROJECT_DIR$/sobel.py" />
-    <entry file="file://$PROJECT_DIR$/Probabilistic/prob_label_volumes.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-180">
-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="101" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://$PROJECT_DIR$/Probabilistic/prob_label_volumes.py" />
     <entry file="file://$PROJECT_DIR$/LICENSE.md">
       <provider selected="true" editor-type-id="split-provider[text-editor;MarkdownPreviewEditor]">
         <state split_layout="FIRST">
@@ -671,19 +691,48 @@
         <state />
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Probabilistic/probabilistic.py">
+    <entry file="file://$PROJECT_DIR$/Probabilistic/probabilistic.py" />
+    <entry file="file://$PROJECT_DIR$/Lesions/atlas2lesion.py" />
+    <entry file="file://$PROJECT_DIR$/prob_or.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="810">
-          <caret line="57" column="0" selection-start-line="57" selection-start-column="0" selection-end-line="57" selection-end-column="71" />
+        <state relative-caret-position="465">
+          <caret line="31" column="21" selection-start-line="31" selection-start-column="20" selection-end-line="31" selection-end-column="21" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/prob_label_volumes.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="480">
+          <caret line="33" column="65" selection-start-line="33" selection-start-column="65" selection-end-line="33" selection-end-column="65" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Lesions/atlas2lesion.py">
+    <entry file="file://$PROJECT_DIR$/label_volumes.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="765">
-          <caret line="51" column="18" selection-start-line="51" selection-start-column="18" selection-end-line="51" selection-end-column="18" />
+        <state relative-caret-position="0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/atlas2lesion.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="135">
+          <caret line="9" column="0" selection-start-line="9" selection-start-column="0" selection-end-line="9" selection-end-column="0" />
+          <folding>
+            <element signature="e#1230#1239#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/lesion_atlas_analysis.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="120">
+          <caret line="51" column="0" selection-start-line="51" selection-start-column="0" selection-end-line="51" selection-end-column="0" />
+          <folding>
+            <element signature="e#1146#1155#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
