@@ -1,0 +1,17 @@
+#!/bin/bash
+# Resample image isotropically to new voxel size
+#
+# AUTHOR : Mike Tyszka
+# PLACE  : Caltech
+# DATES  : 2016-11-16 JMT From scratch
+
+if [ $# -lt 3 ]; then
+  echo "USAGE : resample <original image> <resampled image> <isotropic resolution in mm>"
+  exit
+fi
+
+echo "Original image       : $1"
+echo "Resampled image      : $2"
+echo "Isotropic resolution : $3 mm"
+
+${FSLDIR}/bin/flirt -in $1 -out $2 -ref $1 -init ${FSLDIR}/etc/flirtsch/ident.mat -applyisoxfm $3 -interp sinc -sincwindow hanning

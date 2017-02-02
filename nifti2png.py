@@ -45,18 +45,18 @@ __version__ = '0.1.0'
 
 import os
 import sys
-import cv2
 import argparse
 import nibabel as nib
 import numpy as np
-
+from skimage import io, color, exposure
 
 def main():
 
     # Parse command line arguments
-    parser = argparse.ArgumentParser(description='Convert 3D Nifti volume to JPEG stack')
+    parser = argparse.ArgumentParser(description='Convert 3D Nifti volume to 8-bit RGB PNG stack')
     parser.add_argument('-i', '--nii_file', required=True, help='3D or 4D Nifti image')
     parser.add_argument('-o', '--png_stub', required=False, help='PNG stack stub')
+    parser.add_argument('-r', '--minmax', required=False, nargs=2, help='Intensity limits imposed on input before 8-bit scaling')
 
     # Parse arguments
     args = parser.parse_args()
@@ -65,7 +65,8 @@ def main():
     if args.png_stub:
         png_stub = args.png_stub
     else:
-        png_stub = "Images"
+        png_stub = 'slice'
+
 
     # Strip extension from Nifti filename for use as a stub
     nii_stub, fext = os.path.splitext(nii_file)
@@ -93,12 +94,16 @@ def main():
 
     print('  Matrix size : (%d, %d, %d, %d)' % (nx, ny, nz, nt))
 
+    # Clamp input range if requested
+    if args.minmax:
+        imin, imax = float(args.minmax[0]), float(args.minmax[1])
+    else:
+        imin, imax = np.min(s), np.max(s)
+
     # Rescale to 0..255 uint8
-    imin, imax = np.min(s), np.max(s)
-
-    print('  Voxel intensity range : [%0.3f, %0.3f]' % (imin, imax))
-
-    s = np.uint8(255.0 * (s - imin) / (imax - imin))
+    print('  Input intensity range : [%0.3f, %0.3f]' % (imin, imax))
+    print('  Output intensity range : [0.0, 1.0]')
+    s = exposure.rescale_intensity(s, in_range=(imin, imax), out_range=(0.0, 1.0))
 
     # Loop over each volume
     for t in range(0, nt):
@@ -125,8 +130,8 @@ def main():
             png_path = os.path.join(png_dir, png_stub + '_%04d.png' % z)
 
             # Write single byte image slice to jpg file
-            sz_rgb = cv2.cvtColor(st[:, :, z], cv2.COLOR_GRAY2RGB)
-            cv2.imwrite(png_path, sz_rgb)
+            sz_rgb = color.gray2rgb(st[:,:,z])
+            io.imsave(png_path, sz_rgb)
 
     print('Done')
 
@@ -136,4 +141,5 @@ def main():
 
 # This is the standard boilerplate that calls the main() function.
 if __name__ == '__main__':
+
     main()

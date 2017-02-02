@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """
-Analyse absolute and relative volumes of probabilistic atlas labels occupied by one or
-more lesion labels
+Analyse mutual volume overlap of lesion labels with probabilistic atlas labels
+- Outputs relative and absolute volume overlaps
+- Overlap volumes relative to both lesion and atlas labels
 
 Usage
 ----
@@ -43,12 +44,12 @@ Copyright
 
 __version__ = '0.1.0'
 
-import os
 import sys
 import argparse
 import nibabel as nib
 import numpy as np
-from nipype.interfaces import ants
+import matplotlib.pyplot as plt
+import matplotlib.cm as cm
 
 
 def main():
@@ -78,18 +79,106 @@ def main():
     # Load lesion label image
     try:
         lesion_nii = nib.load(lesion_fname)
-        lesion = lesion_nii.
+        lesion = lesion_nii.get_data()
+
     except:
         print('* Problem loading lesion image')
 
     # Load probabilistic atlas
     try:
         atlas_nii = nib.load(atlas_fname)
+        atlas = atlas_nii.get_data()
     except:
         print('* Problem loading atlas image')
 
+    # Construct list of unique label values in lesion image
+    # Drop first label (assumed background = 0)
+    lesions = np.unique(lesion)
+    lesions = lesions[1:]
+    n_lesions = lesions.size
 
+    # Number of atlas labels (4th dimension size)
+    n_atlas_labels = (atlas.shape)[3]
+    atlas_labels=range(0,n_atlas_labels)
 
+    print('  Detected %d labels in lesion image' % n_lesions)
+    print('  Detected %d labels in atlas image' % n_atlas_labels)
+
+    # Init result arrays
+    intersect_lesion = np.zeros([n_lesions, n_atlas_labels])
+    intersect_atlas = np.zeros_like(intersect_lesion)
+
+    for l_i, lesion_i in enumerate(lesions):
+
+        print('Lesion label %d' % lesion_i)
+
+        # Extract binary mask for current lesion label
+        lesion_mask = lesion == lesion_i
+
+        # Lesion mask volume
+        lesion_volume = lesion_mask.sum()
+
+        # Loop over each atlas label
+        for a_i, atlas_label_i in enumerate(atlas_labels):
+
+            print('  Atlas label %d' % atlas_label_i)
+
+            # Extract probability field for current atlas label
+            atlas_prob = atlas[:,:,:,a_i]
+
+            # Integrated volume of prob atlas label
+            atlas_volume = atlas_prob.sum()
+            print('    Atlas volume : %0.1f voxels' % atlas_volume)
+
+            # Multiply lesion label and atlas prob image (voxelwise)
+            lesion_atlas = lesion_mask * atlas_prob
+
+            # Integrate volume of lesion-masked atlas label
+            intersect_volume = lesion_atlas.sum()
+            print('    Lesion masked atlas volume : %0.1f voxels' % intersect_volume)
+
+            # Lesion-masked atlas volume normalized to lesion label volume
+            intersect_lesion[l_i, a_i] = intersect_volume / lesion_volume * 100.0
+            print('    Intersection / lesion : %0.1f%%' % intersect_lesion[l_i, a_i])
+
+            # Lesion-masked atlas volume normalized to atlas label volume
+            intersect_atlas[l_i, a_i] = intersect_volume / atlas_volume * 100.0
+            print('    Intersection / atlas : %0.1f%%' % intersect_atlas[l_i, a_i])
+
+    # Plot overlap volume arrays
+    fig = plt.figure()
+
+    # Hardwire atlas labels and lesion names for now
+    atlas_labels = np.array(['La','BL (BLD+BLI)','BM','CEN','CMN','BL (BLV)','ATA','ATA (ASTA)','AAA', 'Amy (Other)'])
+    lesions = np.array(['Right Calcification', 'Left Calcification'])
+    lesion_inds = range(1, n_lesions+1)
+
+    # Grouped bar chart parameters
+    space = 0.3
+    width = (1 - space) / n_atlas_labels
+
+    # Intersection / lesion volume
+    ax = fig.add_subplot(111)
+
+    for a_i, atlas_label_i in enumerate(atlas_labels):
+
+        vals = intersect_atlas[:, a_i]
+        pos = [l_i - (1 - space) / 2. + a_i * width for l_i in lesion_inds]
+
+        ax.bar(pos, vals, width=width, label=atlas_label_i, color=cm.rainbow(float(a_i)/n_atlas_labels))
+
+    # Set x-axis tick labels
+    ax.set_xticks(lesion_inds)
+    ax.set_xticklabels(lesions)
+
+    ax.set_ylabel("Nucleus Volume Lesioned (Percent))")
+    ax.set_xlabel("Lesion")
+
+    # Add a legend
+    handles, labels = ax.get_legend_handles_labels()
+    ax.legend(handles[::-1], labels[::-1], loc='upper right')
+
+    plt.show()
 
     # Clean exit
     sys.exit(0)
