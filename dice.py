@@ -7,10 +7,6 @@ Usage
 dice.py <labelsA> <labelsB>
 dice.py -h
 
-Example
-----
->>> dice.py labelsA.nii.gz labelsB.nii.gz
-
 Authors
 ----
 Mike Tyszka, Caltech Brain Imaging Center

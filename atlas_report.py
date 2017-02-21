@@ -61,13 +61,18 @@ def main():
 
     # Parse command line arguments
     parser = argparse.ArgumentParser(description='Report intra and inter-observer atlas label statistics')
-    parser.add_argument('-d','--labeldir', required=True, help='Directory containing observer labels')
-    parser.add_argument('-k', '--key', required=False, help='ITK-SNAP label key file [Atlas_Labels.txt]')
+    parser.add_argument('-d','--labeldir', help='Directory containing observer labels')
+    parser.add_argument('-k', '--key', help='ITK-SNAP label key file [Atlas_Labels.txt]')
 
     # Parse command line arguments
     args = parser.parse_args()
 
-    label_dir = args.labeldir
+    if args.labeldir:
+        label_dir = args.labeldir
+    else:
+        label_dir = os.path.realpath(os.getcwd())
+
+    print('Label directory : %s' % label_dir)
 
     # Check for label directory existence
     if not os.path.isdir(label_dir):
@@ -99,7 +104,9 @@ def main():
     intra_metrics_csv = os.path.join(report_dir, 'intra_observer_metrics.csv')
 
     # Compute metrics if required, otherwise skip to next section
-    if not os.path.isfile(inter_metrics_csv) and not os.path.isfile(intra_metrics_csv):
+    if not os.path.isfile(inter_metrics_csv) or not os.path.isfile(intra_metrics_csv):
+
+        print('One or both metric files missing - calculating similarity metrics')
 
         # Loop through all subdirectories of label directory
         for obs in observers:
@@ -161,30 +168,60 @@ def main():
 
             if label_idx > 0:
 
-                # Find label name if provided
-                if np.any(label_key):
-                    label_name = get_label_name(label_idx, label_key)
-                else:
-                    label_name = 'Unknown'
-
-                print('Analysing label %d (%s)' % (label_idx, label_name))
-
                 # Current label mask
                 label_mask = (labels == label_idx)
 
                 # Intra-observer metrics
-                intra_metrics_all.append((intra_observer_metrics(label_mask, vox_mm), label_idx, label_name))
+                intra_metrics_all.append(intra_observer_metrics(label_mask, vox_mm))
 
                 # Inter-observer metrics
-                inter_metrics_all.append((inter_observer_metrics(label_mask, vox_mm), label_idx, label_name))
+                inter_metrics_all.append(inter_observer_metrics(label_mask, vox_mm))
 
         # Write metrics to report directory as CSV
-        save_intra_metrics(intra_metrics_csv, intra_metrics_all)
-        save_inter_metrics(inter_metrics_csv, inter_metrics_all)
+        save_intra_metrics(intra_metrics_csv, intra_metrics_all, unique_labels)
+        save_inter_metrics(inter_metrics_csv, inter_metrics_all, unique_labels)
 
+    else:
+
+        print('Similarity metric files detected')
+
+    print('Loading similarity metrics')
+    intra_headers, intra_metrics_all = load_metrics(intra_metrics_csv)
+    inter_headers, inter_metrics_all = load_metrics(inter_metrics_csv)
+
+    # Create HTML report
+    metrics_report(report_dir, intra_metrics_all, inter_metrics_all, observers, label_key, vox_ul)
 
     # Clean exit
     sys.exit(0)
+
+
+def metrics_report(report_dir, intra_metrics_all, inter_metrics_all, observers, label_key, vox_ul):
+    """
+
+    Parameters
+    ----------
+    report_dir
+    intra_metrics_all
+    inter_metrics_all
+    observers
+    label_key
+    vox_ul
+
+    Returns
+    -------
+
+    """
+
+    # Observer, template counts, etc
+    n_obs = len(observers)
+    n_tmp = np.max(inter_metrics_all[:,1]) + 1
+
+    # Intra-observer metric matrices for each observer
+    for obs in observers:
+        print(obs)
+
+    print('Done')
 
 
 def intra_observer_metrics(label_mask, vox_mm):
@@ -297,7 +334,7 @@ def inter_observer_metrics(label_mask, vox_mm):
     return inter_metrics
 
 
-def save_intra_metrics(fname, intra_metrics):
+def save_intra_metrics(fname, intra_metrics, unique_labels):
     """
 
     Parameters
@@ -310,13 +347,25 @@ def save_intra_metrics(fname, intra_metrics):
 
     """
 
-    with open(fname, "wb") as f:
+    print('Saving intra-observer metrics to %s' % fname)
+
+    # Preferred method for safe opening CSV file in Python 3
+    with open(fname, "w", newline='') as f:
+
         writer = csv.writer(f)
 
-        for m_obs in intra_metrics:
+        # Column headers
+        writer.writerow(('Label','Observer','TmpA','TmpB','Dice','Hausdorff','nA','nB'))
+
+        for idx, m_idx in enumerate(intra_metrics):
+            true_idx = unique_labels[idx]
+            for obs, m_obs in enumerate(m_idx):
+                for ta, m_ta in enumerate(m_obs):
+                    for tb, m_tb in enumerate(m_ta):
+                        writer.writerow((true_idx, obs, ta, tb) + m_tb)
 
 
-def save_inter_metrics(fname, inter_metrics):
+def save_inter_metrics(fname, inter_metrics, unique_labels):
     """
 
     Parameters
@@ -329,8 +378,46 @@ def save_inter_metrics(fname, inter_metrics):
 
     """
 
-    with open(fname, "wb") as f:
+    print('Saving inter-observer metrics to %s' % fname)
+
+    with open(fname, "w", newline='') as f:
+
         writer = csv.writer(f)
+
+        # Column headers
+        writer.writerow(('Label','Template','ObsA','ObsB','Dice','Hausdorff','nA','nB'))
+
+        for idx, m_idx in enumerate(inter_metrics):
+            true_idx = unique_labels[idx]
+            for tmp, m_tmp in enumerate(m_idx):
+                for oa, m_oa in enumerate(m_tmp):
+                    for ob, m_ob in enumerate(m_oa):
+                        writer.writerow((true_idx, tmp, oa, ob) + m_ob)
+
+
+def load_metrics(fname):
+    """
+    Parse similarity metrics from CSV file
+
+    Parameters
+    ----------
+    fname : CSV filename to parse
+
+    Returns
+    -------
+
+    """
+    with open(fname, "r") as f:
+        reader = csv.reader(f)
+        l = list(reader)
+
+    m = np.array(l[1:], dtype=np.float)
+
+    dice, haus = m[:,5], m[:,6]
+
+
+
+    return dice, haus
 
 
 def similarity(mask_a, mask_b, vox_mm):
