@@ -11,8 +11,8 @@ Expects a label directory organized as follows:
 
 Usage
 ----
-atlas_report.py -d <observer labels directory>
-atlas_report.py -h
+label_metrics.py -d <observer labels directory>
+label_metrics.py -h
 
 Authors
 ----
@@ -59,10 +59,14 @@ from glob import glob
 
 def main():
 
+    print()
+    print('--------------------')
+    print('Similarity Metrics')
+    print('--------------------')
+
     # Parse command line arguments
-    parser = argparse.ArgumentParser(description='Report intra and inter-observer atlas label statistics')
-    parser.add_argument('-d','--labeldir', help='Directory containing observer labels')
-    parser.add_argument('-k', '--key', help='ITK-SNAP label key file [Atlas_Labels.txt]')
+    parser = argparse.ArgumentParser(description='Calculate label similarity metrics for multiple observers')
+    parser.add_argument('-d','--labeldir', help='Directory containing observer label subdirectories')
 
     # Parse command line arguments
     args = parser.parse_args()
@@ -71,7 +75,6 @@ def main():
         label_dir = args.labeldir
     else:
         label_dir = os.path.realpath(os.getcwd())
-
     print('Label directory : %s' % label_dir)
 
     # Check for label directory existence
@@ -79,45 +82,31 @@ def main():
         print('Label directory does not exist (%s) - existing' % label_dir)
         sys.exit(1)
 
-    # Load and parse label key if provided
-    if args.key:
-        label_key = load_key(os.path.join(label_dir, args.key))
-    else:
-        label_key = []
-
-    # Get list of observers
-    observers = next(os.walk(label_dir))[1]
-
     # Init grand lists
     grand_labels = []
     vox_mm = []  # Voxel dimensions in mm
     vox_ul = []  # Voxel volume in mm^3 (microliters)
 
-    # Create report directory alongside label directory
-    report_dir = label_dir + '.report'
-    if not os.path.isdir(report_dir):
-        os.mkdir(report_dir)
-    print('Report directory : %s' % report_dir)
+    # Create metrics directory within label directory
+    metrics_dir = os.path.join(label_dir, 'metrics')
+    if not os.path.isdir(metrics_dir):
+        os.mkdir(metrics_dir)
+    print('Metrics directory : %s' % metrics_dir)
 
-    # Inter/intra-observer metrics CSV files
-    inter_metrics_csv = os.path.join(report_dir, 'inter_observer_metrics.csv')
-    intra_metrics_csv = os.path.join(report_dir, 'intra_observer_metrics.csv')
+    # Similarity metrics output files
+    inter_metrics_csv = os.path.join(metrics_dir, 'inter_observer_metrics.csv')
+    intra_metrics_csv = os.path.join(metrics_dir, 'intra_observer_metrics.csv')
 
-    # Compute metrics if required, otherwise skip to next section
-    if not os.path.isfile(inter_metrics_csv) or not os.path.isfile(intra_metrics_csv):
+    # Loop over observer directories
+    # Any subdirectory of the label directory begining with "obs-"
+    for obs_dir in glob(os.path.join(label_dir, "obs-*")):
 
-        print('One or both metric files missing - calculating similarity metrics')
+        if os.path.isdir(obs_dir):
 
-        # Loop through all subdirectories of label directory
-        for obs in observers:
-
-            print('Loading label images for observer %s ... ' % obs, end='')
+            print('Loading label images from %s' % obs_dir)
 
             # Init label image list for this observer
             obs_labels = []
-
-            # Observer subdirectory
-            obs_dir = os.path.join(label_dir, obs)
 
             # Loop over all template label images
             for im in glob(os.path.join(obs_dir, '*.nii.gz')):
@@ -131,97 +120,61 @@ def main():
                 vox_mm.append(d)
                 vox_ul.append(d.prod())
 
-            print("%d label images loaded" % len(obs_labels))
+            if len(obs_labels) > 0:
+                print("  Loaded %d label images" % len(obs_labels))
+                grand_labels.append(obs_labels)
+            else:
+                print("  No label images detected - skipping")
 
-            # Add observer labels to grand labels
-            grand_labels.append(obs_labels)
+    # Voxel dimensions and volumes
+    vox_mm, vox_ul = np.array(vox_mm), np.array(vox_ul)
 
-        # Voxel dimensions and volumes
-        vox_mm, vox_ul = np.array(vox_mm), np.array(vox_ul)
-
-        # Check for any variation in dimensions across templates and observers
-        if any(np.nonzero(np.std(vox_mm, axis=1))):
-            print('* Not all images have the same voxel dimensions - exiting')
-            sys.exit(1)
-        else:
-            # Use dimensions from first image
-            vox_mm = vox_mm[0]
-            vox_ul = vox_ul[0]
-
-        # Convert grand list to numpy array
-        # -> labels[observer][template][x][y][z]
-        print('Preparing labels')
-        labels = np.array(grand_labels)
-
-        # Find unique label numbers within data
-        print('Determining unique label indices')
-        unique_labels = np.unique(labels)
-
-        print('Found %d unique label indices' % len(unique_labels))
-
-        intra_metrics_all = []
-        inter_metrics_all = []
-
-        # loop over each unique label value
-        # for label_idx in unique_labels:
-        for label_idx in range(0,3):
-
-            if label_idx > 0:
-
-                # Current label mask
-                label_mask = (labels == label_idx)
-
-                # Intra-observer metrics
-                intra_metrics_all.append(intra_observer_metrics(label_mask, vox_mm))
-
-                # Inter-observer metrics
-                inter_metrics_all.append(inter_observer_metrics(label_mask, vox_mm))
-
-        # Write metrics to report directory as CSV
-        save_intra_metrics(intra_metrics_csv, intra_metrics_all, unique_labels)
-        save_inter_metrics(inter_metrics_csv, inter_metrics_all, unique_labels)
-
+    # Check for any variation in dimensions across templates and observers
+    if any(np.nonzero(np.std(vox_mm, axis=1))):
+        print('* Not all images have the same voxel dimensions - exiting')
+        sys.exit(1)
     else:
+        # Use dimensions from first image
+        vox_mm = vox_mm[0]
+        vox_ul = vox_ul[0]
 
-        print('Similarity metric files detected')
+    # Convert grand list to numpy array
+    # -> labels[observer][template][x][y][z]
+    print('Preparing labels')
+    labels = np.array(grand_labels)
 
-    print('Loading similarity metrics')
-    intra_headers, intra_metrics_all = load_metrics(intra_metrics_csv)
-    inter_headers, inter_metrics_all = load_metrics(inter_metrics_csv)
+    # Find unique label numbers within data
+    print('Determining unique label indices')
+    unique_labels = np.int32(np.unique(labels))
 
-    # Create HTML report
-    metrics_report(report_dir, intra_metrics_all, inter_metrics_all, observers, label_key, vox_ul)
+    print('Found %d unique label indices' % len(unique_labels))
+
+    intra_metrics_all = []
+    inter_metrics_all = []
+
+    # loop over each unique label value
+    # for label_idx in unique_labels:
+    for label_idx in unique_labels[0:3]:
+
+        if label_idx > 0:
+
+            print('Analyzing label index %d' % label_idx)
+
+            # Current label mask
+            label_mask = (labels == label_idx)
+
+            # Intra-observer metrics
+            intra_metrics_all.append(intra_observer_metrics(label_mask, vox_mm))
+
+            # Inter-observer metrics
+            inter_metrics_all.append(inter_observer_metrics(label_mask, vox_mm))
+
+    # Write metrics to report directory as CSV
+    save_intra_metrics(intra_metrics_csv, intra_metrics_all, unique_labels)
+    save_inter_metrics(inter_metrics_csv, inter_metrics_all, unique_labels)
 
     # Clean exit
     sys.exit(0)
-
-
-def metrics_report(report_dir, intra_metrics_all, inter_metrics_all, observers, label_key, vox_ul):
-    """
-
-    Parameters
-    ----------
-    report_dir
-    intra_metrics_all
-    inter_metrics_all
-    observers
-    label_key
-    vox_ul
-
-    Returns
-    -------
-
-    """
-
-    # Observer, template counts, etc
-    n_obs = len(observers)
-    n_tmp = np.max(inter_metrics_all[:,1]) + 1
-
-    # Intra-observer metric matrices for each observer
-    for obs in observers:
-        print(obs)
-
-    print('Done')
 
 
 def intra_observer_metrics(label_mask, vox_mm):
@@ -355,14 +308,14 @@ def save_intra_metrics(fname, intra_metrics, unique_labels):
         writer = csv.writer(f)
 
         # Column headers
-        writer.writerow(('Label','Observer','TmpA','TmpB','Dice','Hausdorff','nA','nB'))
+        writer.writerow(('Index','TrueIndex','Observer','TmpA','TmpB','Dice','Hausdorff','nA','nB'))
 
         for idx, m_idx in enumerate(intra_metrics):
             true_idx = unique_labels[idx]
             for obs, m_obs in enumerate(m_idx):
                 for ta, m_ta in enumerate(m_obs):
                     for tb, m_tb in enumerate(m_ta):
-                        writer.writerow((true_idx, obs, ta, tb) + m_tb)
+                        writer.writerow((idx, true_idx, obs, ta, tb) + m_tb)
 
 
 def save_inter_metrics(fname, inter_metrics, unique_labels):
@@ -385,39 +338,14 @@ def save_inter_metrics(fname, inter_metrics, unique_labels):
         writer = csv.writer(f)
 
         # Column headers
-        writer.writerow(('Label','Template','ObsA','ObsB','Dice','Hausdorff','nA','nB'))
+        writer.writerow(('Index','TrueIndex','Template','ObsA','ObsB','Dice','Hausdorff','nA','nB'))
 
         for idx, m_idx in enumerate(inter_metrics):
             true_idx = unique_labels[idx]
             for tmp, m_tmp in enumerate(m_idx):
                 for oa, m_oa in enumerate(m_tmp):
                     for ob, m_ob in enumerate(m_oa):
-                        writer.writerow((true_idx, tmp, oa, ob) + m_ob)
-
-
-def load_metrics(fname):
-    """
-    Parse similarity metrics from CSV file
-
-    Parameters
-    ----------
-    fname : CSV filename to parse
-
-    Returns
-    -------
-
-    """
-    with open(fname, "r") as f:
-        reader = csv.reader(f)
-        l = list(reader)
-
-    m = np.array(l[1:], dtype=np.float)
-
-    dice, haus = m[:,5], m[:,6]
-
-
-
-    return dice, haus
+                        writer.writerow((idx, true_idx, tmp, oa, ob) + m_ob)
 
 
 def similarity(mask_a, mask_b, vox_mm):
