@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 """
 Create a report of intra and inter-observer atlas label statistics
-- requires that label_metrics.py has been run previously on the labels directory
+- requires that atlas.py has been run previously on the labels directory
 
 Usage
 ----
-label_report.py -d <labels directory> [-k <ITK-SNAP label key>]
-label_report.py -h
+atlas_report.py -d <labels directory> [-k <ITK-SNAP label key>]
+atlas_report.py -h
 
 Authors
 ----
@@ -14,7 +14,7 @@ Mike Tyszka, Caltech Brain Imaging Center
 
 Dates
 ----
-2017-02-21 JMT Split from label_metrics.py
+2017-02-21 JMT Split from atlas.py
 
 License
 ----
@@ -44,67 +44,87 @@ import os
 import sys
 import csv
 import argparse
-import nibabel as nib
+import jinja2
 import numpy as np
 import pandas as pd
-import multiprocessing as mp
 from glob import glob
+import nibabel as nib
+import multiprocessing as mp
 
 
 def main():
 
     # Parse command line arguments
-    parser = argparse.ArgumentParser(description='Create labeling report from metrics')
-    parser.add_argument('-d','--labeldir', help='Directory containing labels and metrics')
-    parser.add_argument('-k', '--key', help='ITK-SNAP label key file [Atlas_Labels.txt]')
+    parser = argparse.ArgumentParser(description='Create labeling report for a probabilistic atlas')
+    parser.add_argument('-a','--atlasdir', help='Directory containing probabilistic atlas')
+    parser.add_argument('-k', '--key', help='ITK-SNAP label key file [labels.txt]')
 
     # Parse command line arguments
     args = parser.parse_args()
 
-    if args.labeldir:
-        label_dir = args.labeldir
+    if args.atlasdir:
+        atlas_dir = args.atlasdir
     else:
-        label_dir = os.path.realpath(os.getcwd())
+        atlas_dir = os.path.realpath(os.getcwd())
 
-    print('Label directory : %s' % label_dir)
+    print('Atlas directory : %s' % atlas_dir)
 
     # Check for label directory existence
-    if not os.path.isdir(label_dir):
-        print('Label directory does not exist (%s) - exiting' % label_dir)
+    if not os.path.isdir(atlas_dir):
+        print('Atlas directory does not exist (%s) - exiting' % atlas_dir)
         sys.exit(1)
-
-    # Check for metrics directory existence
-    metrics_dir = os.path.join(label_dir, 'metrics')
-    if not os.path.isdir(metrics_dir):
-        print('Metrics directory does not exist (%s) - exiting' % metrics_dir)
-        sys.exit(1)
-    print('Metrics directory : %s' % metrics_dir)
 
     # Load and parse label key if provided
     if args.key:
-        label_key = load_key(os.path.join(label_dir, args.key))
+        label_key = load_key(os.path.join(atlas_dir, args.key))
     else:
         label_key = []
 
-    # Create report directory within label directory
-    report_dir = os.path.join(label_dir, 'report')
+    # Create report directory within atlas directory
+    report_dir = os.path.join(atlas_dir, 'report')
     if not os.path.isdir(report_dir):
         os.mkdir(report_dir)
     print('Report directory : %s' % report_dir)
 
     # Inter/intra-observer metrics CSV files
-    inter_metrics_csv = os.path.join(metrics_dir, 'inter_observer_metrics.csv')
-    intra_metrics_csv = os.path.join(metrics_dir, 'intra_observer_metrics.csv')
+    inter_metrics_csv = os.path.join(atlas_dir, 'inter_observer_metrics.csv')
+    intra_metrics_csv = os.path.join(atlas_dir, 'intra_observer_metrics.csv')
 
     print('Loading similarity metrics')
-    intra_dice, intra_haus = load_metrics(intra_metrics_csv)
-    inter_dice, inter_haus = load_metrics(inter_metrics_csv)
+    intra_stats = load_metrics(intra_metrics_csv)
+    inter_stats = load_metrics(inter_metrics_csv)
 
-    # Create HTML report
+    # Summary report page
+    print('Writing report summary page')
+    summary_report(report_dir, intra_stats, inter_stats)
 
+    # Observer report pages
+    # observer_reports(intra_stats, inter_stats)
+
+    # Label report pages
+    # label_reports()
 
     # Clean exit
     sys.exit(0)
+
+
+def summary_report(report_dir, intra_stats, inter_stats):
+
+    template_loader = jinja2.FileSystemLoader(searchpath="/Users/jmt/GitHub/atlaskit")
+    template_env = jinja2.Environment(loader=template_loader)
+    template_fname = "summary.jinja"
+    template = template_env.get_template(template_fname)
+
+    # Specify any input variables to the template as a dictionary.
+    templateVars = {"title": "Test Example",
+                    "description": "A simple inquiry of function."}
+
+    # Finally, process the template to produce our final text.
+    output_text = template.render(templateVars)
+
+    # Write page to report directory
+    with open(os.path.join(report_dir, 'index.html'), "w") as f:
+        f.write(output_text)
 
 
 def load_metrics(fname):

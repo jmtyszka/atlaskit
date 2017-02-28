@@ -11,8 +11,8 @@ Expects a label directory organized as follows:
 
 Usage
 ----
-label_metrics.py -d <observer labels directory>
-label_metrics.py -h
+atlas.py -d <observer labels directory>
+atlas.py -h
 
 Authors
 ----
@@ -66,7 +66,9 @@ def main():
 
     # Parse command line arguments
     parser = argparse.ArgumentParser(description='Calculate label similarity metrics for multiple observers')
-    parser.add_argument('-d','--labeldir', help='Directory containing observer label subdirectories')
+    parser.add_argument('-d','--labeldir', help='Directory containing observer label subdirectories ["."]')
+    parser.add_argument('-a','--atlasdir', help='Output atlas directory ["<labeldir>/atlas"]')
+    parser.add_argument('-l','--labels', required=False, type=parse_range, help='List of label indices to process (eg 1-5, 7-9, 12)')
 
     # Parse command line arguments
     args = parser.parse_args()
@@ -75,7 +77,17 @@ def main():
         label_dir = args.labeldir
     else:
         label_dir = os.path.realpath(os.getcwd())
-    print('Label directory : %s' % label_dir)
+
+    if args.atlasdir:
+        atlas_dir = args.atlasdir
+    else:
+        atlas_dir = os.path.join(label_dir, 'atlas')
+
+    if not os.path.isdir(atlas_dir):
+        os.mkdir(atlas_dir)
+
+    print('Label directory  : %s' % label_dir)
+    print('Output directory : %s' % atlas_dir)
 
     # Check for label directory existence
     if not os.path.isdir(label_dir):
@@ -86,16 +98,11 @@ def main():
     grand_labels = []
     vox_mm = []  # Voxel dimensions in mm
     vox_ul = []  # Voxel volume in mm^3 (microliters)
-
-    # Create metrics directory within label directory
-    metrics_dir = os.path.join(label_dir, 'metrics')
-    if not os.path.isdir(metrics_dir):
-        os.mkdir(metrics_dir)
-    print('Metrics directory : %s' % metrics_dir)
+    affine_tx = []  # Nifti affine transform
 
     # Similarity metrics output files
-    inter_metrics_csv = os.path.join(metrics_dir, 'inter_observer_metrics.csv')
-    intra_metrics_csv = os.path.join(metrics_dir, 'intra_observer_metrics.csv')
+    inter_metrics_csv = os.path.join(atlas_dir, 'inter_observer_metrics.csv')
+    intra_metrics_csv = os.path.join(atlas_dir, 'intra_observer_metrics.csv')
 
     # Loop over observer directories
     # Any subdirectory of the label directory begining with "obs-"
@@ -119,15 +126,20 @@ def main():
                 d = np.array(this_nii.header.get_zooms())
                 vox_mm.append(d)
                 vox_ul.append(d.prod())
+                affine_tx.append(this_nii.get_affine())
 
             if len(obs_labels) > 0:
                 print("  Loaded %d label images" % len(obs_labels))
                 grand_labels.append(obs_labels)
             else:
-                print("  No label images detected - skipping")
+                print("* No label images detected - skipping")
 
     # Voxel dimensions and volumes
     vox_mm, vox_ul = np.array(vox_mm), np.array(vox_ul)
+
+    if not vox_mm.any():
+        print("* No label images detected in %s - exiting" % label_dir)
+        sys.exit(1)
 
     # Check for any variation in dimensions across templates and observers
     if any(np.nonzero(np.std(vox_mm, axis=1))):
@@ -143,31 +155,38 @@ def main():
     print('Preparing labels')
     labels = np.array(grand_labels)
 
-    # Find unique label numbers within data
-    print('Determining unique label indices')
-    unique_labels = np.int32(np.unique(labels))
+    # Limited list of labels to process
+    if args.labels:
+        unique_labels = args.labels
+    else:
+        unique_labels = np.int32(np.unique(labels))
+        unique_labels = np.delete(unique_labels, np.where(unique_labels == 0))  # Remove background label
 
-    print('Found %d unique label indices' % len(unique_labels))
+    n = len(unique_labels)
+    print('  Analyzing %d unique labels (excluding background)' % n)
+
+    # Construct the probabilistic atlas from all labeled volumes
+    prob_atlas = make_prob_atlas(labels, unique_labels)
+
+    # Save probabilistic atlas in label directory
+    save_prob_atlas(prob_atlas, os.path.join(atlas_dir,'prob_atlas.nii.gz'), affine_tx[0])
 
     intra_metrics_all = []
     inter_metrics_all = []
 
-    # loop over each unique label value
-    # for label_idx in unique_labels:
-    for label_idx in unique_labels[0:3]:
+    # Loop over each unique label value
+    for label_idx in unique_labels:
 
-        if label_idx > 0:
+        print('Analyzing label index %d' % label_idx)
 
-            print('Analyzing label index %d' % label_idx)
+        # Current label mask
+        label_mask = (labels == label_idx)
 
-            # Current label mask
-            label_mask = (labels == label_idx)
+        # Intra-observer metrics
+        intra_metrics_all.append(intra_observer_metrics(label_mask, vox_mm))
 
-            # Intra-observer metrics
-            intra_metrics_all.append(intra_observer_metrics(label_mask, vox_mm))
-
-            # Inter-observer metrics
-            inter_metrics_all.append(inter_observer_metrics(label_mask, vox_mm))
+        # Inter-observer metrics
+        inter_metrics_all.append(inter_observer_metrics(label_mask, vox_mm))
 
     # Write metrics to report directory as CSV
     save_intra_metrics(intra_metrics_csv, intra_metrics_all, unique_labels)
@@ -175,6 +194,58 @@ def main():
 
     # Clean exit
     sys.exit(0)
+
+
+def make_prob_atlas(labels, unique_labels):
+    """
+
+    Parameters
+    ----------
+    labels
+    unique_labels
+
+    Returns
+    -------
+
+    """
+
+    print('Constructing probablistic atlas')
+
+    # Get dimensions of label data
+    n_obs, n_tmp, nx, ny, nz = labels.shape
+
+    # Number of unique labels
+    n = len(unique_labels)
+
+    print('  Initializing probabilistic atlas')
+    prob_atlas = np.zeros((nx, ny, nz, n), dtype='float32')
+
+    # loop over each unique label value
+    for m, label in enumerate(unique_labels):
+        print('    Adding label %d' % label)
+        label_mask = (labels == label).reshape(n_obs * n_tmp, nx, ny, nz)
+        prob_atlas[:,:,:,m] = np.mean(label_mask, axis=0)
+
+    return prob_atlas
+
+
+def save_prob_atlas(prob_atlas, prob_atlas_fname, affine_tx):
+    """
+
+    Parameters
+    ----------
+    prob_atlas
+    prob_atlas_fname
+    affine_tx
+
+    Returns
+    -------
+
+    """
+
+    print('Saving probabilistic atlas to %s' % prob_atlas_fname)
+    prob_nii = nib.Nifti1Image(prob_atlas, affine_tx)
+    prob_nii.to_filename(prob_atlas_fname)
 
 
 def intra_observer_metrics(label_mask, vox_mm):
