@@ -112,7 +112,7 @@ def summary_report(report_dir, intra_stats, inter_stats):
 
     template_loader = jinja2.FileSystemLoader(searchpath="/Users/jmt/GitHub/atlaskit")
     template_env = jinja2.Environment(loader=template_loader)
-    template_fname = "summary.jinja"
+    template_fname = "atlas_summary.jinja"
     template = template_env.get_template(template_fname)
 
     # Specify any input variables to the template as a dictionary.

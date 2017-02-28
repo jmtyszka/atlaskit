@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<html>
+
+<head>
+<STYLE TYPE="text/css">
+BODY {
+  font-family    : arial, sans-serif;
+}
+td, th {
+  padding-left   : 10px;
+  padding-right  : 10px;
+  padding-top    : 0px;
+  padding-bottom : 0px;
+  text-align     : "left";
+}
+</STYLE>
+</head>
+
+<body>
+
+<h1 style="background-color:#E0E0FF">Atlas Labeling Report</h1>
+
+<h3> Labeling Information </h3>
+<table>
+    <tr><td> Labeling Directory </td><td> {{ label_dir }} </td></tr>
+    <tr><td> Number of Observers </td><td> {{ n_obs }} </td></tr>
+    <tr><td> Number of Templates </td><td> {{ n_temp }} </td></tr>
+</table>
+
+<h3> Maximum Probability Projections </h3>
+<table>
+    <tr>
+        <td> <b>SNFR</b><br> <img src={{ mpp_image }} /> </td>
+    </tr>
+</table>
+
+<h3> Observer Report </h3>
+<table>
+% for obs in observers %
+
+    <tr>
+        <td> <b> Parameter </b> </td>
+        <td> <b> Mean </b> </td>
+        <td> <b> Threshold </b> </td>
+        <td> <b> Outliers </b> </td>
+    </tr>
+
+% endfor %
+
+</table>
+
+</body>
+"""
