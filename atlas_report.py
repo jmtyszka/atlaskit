@@ -99,7 +99,7 @@ def main():
     summary_report(report_dir, intra_stats, inter_stats)
 
     # Observer report pages
-    # observer_reports(intra_stats, inter_stats)
+    observer_reports(report_dir, intra_stats, inter_stats)
 
     # Label report pages
     # label_reports()
@@ -109,22 +109,95 @@ def main():
 
 
 def summary_report(report_dir, intra_stats, inter_stats):
+    """
 
+    Parameters
+    ----------
+    report_dir: report directory path
+    intra_stats: numpy array of intra-observer stats (see load_metrics())
+    inter_stats: numpy array of inter-observer stats (see load_metrics())
+
+    Returns
+    -------
+
+    """
+
+    # Unique labels (column 1, trueidx)
+    unique_labels = np.int32(np.unique(intra_stats[:,1]))
+
+    # Intra stats columns: idx, trueidx, obs, tmpA, tmpB, dice, hausdorff
+    n_obs = len(np.unique(intra_stats[:,2]))
+    n_tmp = len(np.unique(intra_stats[:,3]))
+
+    # Setup template
     template_loader = jinja2.FileSystemLoader(searchpath="/Users/jmt/GitHub/atlaskit")
     template_env = jinja2.Environment(loader=template_loader)
     template_fname = "atlas_summary.jinja"
     template = template_env.get_template(template_fname)
 
-    # Specify any input variables to the template as a dictionary.
-    templateVars = {"title": "Test Example",
-                    "description": "A simple inquiry of function."}
+    # Observer report list
+    observers = []
+    for obs in range(0, n_obs):
+        observers.append(dict(href="observer_%02d.html" % obs, caption="Observer %d" % obs))
+
+    # Label report list
+    labels = []
+    for lbl in unique_labels:
+        labels.append(dict(href="label_%02d.html" % lbl, caption="Label %d" % lbl))
+
+    # Template variables
+    template_vars = {"n_obs": n_obs,
+                     "n_tmp": n_tmp,
+                     "observers": observers,
+                     "labels": labels}
 
     # Finally, process the template to produce our final text.
-    output_text = template.render(templateVars)
+    output_text = template.render(template_vars)
 
     # Write page to report directory
     with open(os.path.join(report_dir, 'index.html'), "w") as f:
         f.write(output_text)
+
+
+def observer_reports(report_dir, intra_stats, inter_stats):
+    """
+
+    Parameters
+    ----------
+    report_dir: report directory path
+    intra_stats: numpy array of intra-observer stats (see load_metrics())
+    inter_stats: numpy array of inter-observer stats (see load_metrics())
+
+    Returns
+    -------
+
+    """
+
+    # Unique labels (column 1, trueidx)
+    unique_labels = np.int32(np.unique(intra_stats[:,1]))
+
+    # Intra stats columns: idx, trueidx, obs, tmpA, tmpB, dice, hausdorff
+    n_obs = len(np.unique(intra_stats[:,2]))
+    n_tmp = len(np.unique(intra_stats[:,3]))
+
+    # Setup template
+    template_loader = jinja2.FileSystemLoader(searchpath="/Users/jmt/GitHub/atlaskit")
+    template_env = jinja2.Environment(loader=template_loader)
+    template_fname = "atlas_observer.jinja"
+    template = template_env.get_template(template_fname)
+
+    # Loop over observers
+    for obs in range(0, n_obs):
+
+        # Template variables
+        template_vars = {}
+
+        # Finally, process the template to produce our final text.
+        output_text = template.render(template_vars)
+
+        # Write page to report directory
+        with open(os.path.join(report_dir, "observer_%02d.html" % obs), "w") as f:
+            f.write(output_text)
 
 
 def load_metrics(fname):
@@ -137,6 +210,9 @@ def load_metrics(fname):
 
     Returns
     -------
+    m : numpy array containing label, observer and template indices and metrics
+    For intra-observer file, columns are idx, true idx, obs, tmpA, tmpB, dice, hausdorff
+    For inter-observer file, columns are idx, true idx, tmp, obsA, obsB, dice, hausdorff
 
     """
     with open(fname, "r") as f:
@@ -145,9 +221,7 @@ def load_metrics(fname):
 
     m = np.array(l[1:], dtype=np.float)
 
-    dice, haus = m[:,5], m[:,6]
-
-    return dice, haus
+    return m
 
 
 def get_template_ids(label_dir, obs):
