@@ -15,40 +15,13 @@ td, th {
 
 <body>
 
-<h1 style="background-color:#E0E0FF">Observer Labeling Report</h1>
+<h1 style="background-color:#E0E0FF">Observer {{ observer }} >> </h1>
 
 <div>
-    <h3> Labeling Information </h3>
+    <h3> Inter-template Similarity </h3>
     <table>
-        <tr><td> Number of Observers </td><td> {{ n_obs }} </td></tr>
-        <tr><td> Number of Templates </td><td> {{ n_tmp }} </td></tr>
-    </table>
-</div>
-
-<div>
-    <h3> Maximum Probability Projection </h3>
-    <table>
-        <tr>
-            <td> <img src={{ mpp_image }} /> </td>
-        </tr>
-    </table>
-</div>
-
-<div>
-    <h3> Observer Reports </h3>
-    <table>
-        {% for o in observers %}
-            <tr><td> <a href="{{ o.href }}">{{ o.caption }}</a> </td></tr>
-        {% endfor %}
-    </table>
-</div>
-
-<div>
-    <h3> Label Reports </h3>
-    <table>
-        {% for l in labels %}
-            <tr><td> <a href="{{ l.href }}">{{ l.caption }}</a> </td></tr>
-        {% endfor %}
+        <tr><td> Dice Coefficient </td><td> Hausdorff Distance </td></tr>
+        <tr><td> <img href="{{ dice_img }}" </td><td> <img href="{{ hauss_img }}" </td></tr>
     </table>
 </div>
 

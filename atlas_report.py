@@ -189,15 +189,24 @@ def observer_reports(report_dir, intra_stats, inter_stats):
     # Loop over observers
     for obs in range(0, n_obs):
 
+        sim_img = os.path.join(report_dir, "")
+        dice_mat = intra_stats[:,5].reshape(n_tmp, n_tmp)
+        similarity_image(sim_img, sim_mat)
+
         # Template variables
-        template_vars = {}
+        template_vars = {"observer": obs,
+                         "sim_img": sim_img}
 
         # Finally, process the template to produce our final text.
         output_text = template.render(template_vars)
 
         # Write page to report directory
-        with open(os.path.join(report_dir, "observer_%02d.html" % obs), "w") as f:
+        obs_html = os.path.join(report_dir, "observer_%02d.html" % obs)
+        with open(obs_html, "w") as f:
             f.write(output_text)
+
+
+def similarity_image(sim_img, sim_mat):
 
 
 def load_metrics(fname):
