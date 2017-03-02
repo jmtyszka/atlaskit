@@ -55,6 +55,7 @@ import numpy as np
 import pandas as pd
 import multiprocessing as mp
 from glob import glob
+from shutil import copyfile
 
 
 def main():
@@ -68,6 +69,7 @@ def main():
     parser = argparse.ArgumentParser(description='Calculate label similarity metrics for multiple observers')
     parser.add_argument('-d','--labeldir', help='Directory containing observer label subdirectories ["."]')
     parser.add_argument('-a','--atlasdir', help='Output atlas directory ["<labeldir>/atlas"]')
+    parser.add_argument('-k','--key', help='ITK-SNAP label key text file ["<labeldir>/labels.txt"]')
     parser.add_argument('-l','--labels', required=False, type=parse_range, help='List of label indices to process (eg 1-5, 7-9, 12)')
 
     # Parse command line arguments
@@ -75,6 +77,9 @@ def main():
 
     if args.labeldir:
         label_dir = args.labeldir
+        if not os.path.isdir(label_dir):
+            print('Label directory does not exist (%s) - exiting' % label_dir)
+            sys.exit(1)
     else:
         label_dir = os.path.realpath(os.getcwd())
 
@@ -83,16 +88,24 @@ def main():
     else:
         atlas_dir = os.path.join(label_dir, 'atlas')
 
+    # Copy label key to atlas directory
+    if os.path.isfile(args.key):
+        label_key = args.key
+    else:
+        print('* ITK-SNAP label key is missing (%s) - exiting' % args.key)
+        sys.exit(1)
+
+    # Safely create atlas directory
     if not os.path.isdir(atlas_dir):
         os.mkdir(atlas_dir)
 
     print('Label directory  : %s' % label_dir)
-    print('Output directory : %s' % atlas_dir)
+    print('Atlas directory  : %s' % atlas_dir)
+    print('Label key file   : %s' % label_key)
 
-    # Check for label directory existence
-    if not os.path.isdir(label_dir):
-        print('Label directory does not exist (%s) - existing' % label_dir)
-        sys.exit(1)
+    # Copy label key to atlas directory
+    print('  Copying label key to atlas directory')
+    copyfile(args.key, os.path.join(atlas_dir, 'labels.txt'))
 
     # Init grand lists
     grand_labels = []
