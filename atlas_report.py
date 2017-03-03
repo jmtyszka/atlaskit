@@ -51,7 +51,7 @@ import nibabel as nib
 import matplotlib.pyplot as plt
 from glob import glob
 from scipy.ndimage import measurements, find_objects
-
+from skimage.io import imsave
 
 def main():
 
@@ -105,6 +105,8 @@ def main():
 
 def summary_report(atlas_dir, intra_stats):
     """
+    Summary report for the entire atlas
+    - projections with overlays
 
     Parameters
     ----------
@@ -170,18 +172,88 @@ def tryptic_overlays(atlas_dir):
     # Loop over labels
     for l in range(0, prob_atlas.shape[3]):
 
+        print('  Creating tryptic for label %03d' % l)
+
         p = prob_atlas[:,:,:,l]
 
-        # Find isotropic bounding box of p > 0.01 region
-        cx, cy, cz, w = isobb(p > 0.01)
+        # Find minimum isotropic bounding box of p > 0.01 region
+        bb = isobb(p > 0.01)
 
+        # Create tryptic of ROI central slices
+        tryptic = central_slices(p, isobb(p > 0.01))
 
-        p_xy, p_xz, p_yz = p[:,:,cz], p[:,cy,:], p[cx,:,:]
+        # Write PNG
+        tryptic_fname = os.path.join(atlas_dir, 'report', 'tryptic_%03d.png' % l)
+        imsave(tryptic_fname, tryptic)
 
 
 def isobb(mask):
+    """
+    Determine minimum isotropic bounding box
+
+    Parameters
+    ----------
+    mask: 3D boolean array
+
+    Returns
+    -------
+    sx, sy, sz: isotropic bounding box slices
+    """
+
+    # Locate objects within mask
+    bb = find_objects(mask)
+
+    # Should be only one object, but just in case
+    n_obj = len(bb)
+    if n_obj > 1:
+        print('+ Strange. Found %d objects in label' % n_obj)
+        print('+ Using first object')
+
+    # Parse slices for center of mass and maximum length
+    sx, sy, sz = bb[0]
+    x0 = np.ceil(np.mean([sx.start, sx.stop])).astype(int)
+    y0 = np.ceil(np.mean([sy.start, sy.stop])).astype(int)
+    z0 = np.ceil(np.mean([sz.start, sz.stop])).astype(int)
+
+    xw = sx.stop - sx.start
+    yw = sy.stop - sy.start
+    zw = sz.stop - sz.start
+
+    w = np.max([xw, yw, zw]).astype(int)
+
+    return x0, y0, z0, w
 
 
+def central_slices(p, roi):
+    """
+
+    Parameters
+    ----------
+    img: 3D numpy array
+    roi: tuple containing (x0, y0, z0, w) for ROI
+
+    Returns
+    -------
+    pp: numpy tryptic of central slices
+    """
+
+    # Unpack ROI
+    x0, y0, z0, w = roi
+
+    # Define central slices
+    xx = slice(x0 - w, x0 + w, 1)
+    yy = slice(y0 - w, y0 + w, 1)
+    zz = slice(z0 - w, z0 + w, 1)
+
+    # Extract slices
+    p_xy = p[xx,yy,z0]
+    p_xz = p[xx,y0,zz]
+    p_yz = p[x0,yy,zz]
+
+    # Create tryptic
+    pp = np.concatenate([p_xy, p_xz, p_yz], axis=1)
+
+    return pp
 
 def intra_observer_reports(report_dir, intra_stats, label_nos, label_key):
     """
