@@ -47,10 +47,10 @@ import argparse
 import jinja2
 import numpy as np
 import pandas as pd
-from glob import glob
 import nibabel as nib
-import multiprocessing as mp
 import matplotlib.pyplot as plt
+from glob import glob
+from scipy.ndimage import measurements, find_objects
 
 
 def main():
@@ -88,38 +88,42 @@ def main():
     label_nos = np.int32(np.unique(intra_stats[:,1]))
 
     # Intra-observer reports (one per observer)
-    print('Generating intra-observer report')
-    intra_observer_reports(report_dir, intra_stats, label_nos, label_key)
+    #print('Generating intra-observer report')
+    #intra_observer_reports(report_dir, intra_stats, label_nos, label_key)
 
     # Inter-observer report
-    print('Generating inter-observer report')
-    inter_observer_report(report_dir, inter_stats, label_nos, label_key)
+    #print('Generating inter-observer report')
+    #inter_observer_report(report_dir, inter_stats, label_nos, label_key)
 
     # Summary report page
-    # print('Writing report summary page')
-    # summary_report(report_dir, )
+    print('Writing report summary page')
+    summary_report(atlas_dir, intra_stats)
 
     # Clean exit
     sys.exit(0)
 
 
-def summary_report(report_dir, intra_stats, inter_stats, label_nos, label_key):
+def summary_report(atlas_dir, intra_stats):
     """
 
     Parameters
     ----------
     report_dir: report directory path
-    intra_stats: numpy array of intra-observer stats (see load_metrics())
-    inter_stats: numpy array of inter-observer stats (see load_metrics())
+    intra_stats: numpy array of intra-observer stats
 
     Returns
     -------
 
     """
 
+    report_dir = os.path.join(atlas_dir, 'report')
+
     # Intra stats columns: idx, trueidx, obs, tmpA, tmpB, dice, hausdorff
     n_obs = len(np.unique(intra_stats[:,2]))
     n_tmp = len(np.unique(intra_stats[:,3]))
+
+    # Create tryptic overlays through CoM of label
+    tryptic_overlays(atlas_dir)
 
     # Setup template
     template_loader = jinja2.FileSystemLoader(searchpath="/Users/jmt/GitHub/atlaskit")
@@ -135,8 +139,48 @@ def summary_report(report_dir, intra_stats, inter_stats, label_nos, label_key):
     output_text = template.render(template_vars)
 
     # Write page to report directory
-    with open(os.path.join(report_dir, 'index.html'), "w") as f:
+    with open(os.path.join(os.path.join(atlas_dir), 'report', 'index.html'), "w") as f:
         f.write(output_text)
+
+
+def tryptic_overlays(atlas_dir):
+    """
+
+    Parameters
+    ----------
+    atlas_dir
+
+    Returns
+    -------
+
+    """
+
+    report_dir = os.path.join(atlas_dir, 'report')
+
+    # Load prob atlas
+    prob_nii = nib.load(os.path.join(atlas_dir, 'prob_atlas.nii.gz'))
+    # try:
+    #     prob_nii = nib.load(os.path.join(atlas_dir), 'prob_atlas.nii.gz')
+    # except:
+    #     print('* Could not open probabilistic atlas')
+    #     return
+
+    prob_atlas = prob_nii.get_data()
+
+    # Loop over labels
+    for l in range(0, prob_atlas.shape[3]):
+
+        p = prob_atlas[:,:,:,l]
+
+        # Find isotropic bounding box of p > 0.01 region
+        cx, cy, cz, w = isobb(p > 0.01)
+
+
+        p_xy, p_xz, p_yz = p[:,:,cz], p[:,cy,:], p[cx,:,:]
+
+
+def isobb(mask):
+
 
 
 def intra_observer_reports(report_dir, intra_stats, label_nos, label_key):
@@ -214,8 +258,8 @@ def inter_observer_report(report_dir, inter_stats, label_key):
     """
 
     # Unique labels (column 1, trueidx)
-    unique_labels = np.int32(np.unique(inter_stats[:,1]))
-    n_lab = len(unique_labels)
+    label_nos = np.int32(np.unique(inter_stats[:,1]))
+    n_lab = len(label_nos)
 
     # Inter stats columns: idx, trueidx, tmp, obsA, obsB, dice, hausdorff
     n_tmp = len(np.unique(inter_stats[:,2]))
@@ -237,7 +281,7 @@ def inter_observer_report(report_dir, inter_stats, label_key):
 
     # Construct images
     inter_similarity_image(inter_dice_img, dice_matrix, label_nos, label_key)
-    inter_similarity_image(inter_haus_img, haus_matrix)
+    inter_similarity_image(inter_haus_img, haus_matrix, label_nos, label_key)
 
     # Template variables
     template_vars = {"inter_dice_img": inter_dice_img,
