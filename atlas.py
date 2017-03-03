@@ -516,53 +516,6 @@ def get_template_ids(label_dir, obs):
         print(ims)
 
 
-def load_key(key_fname):
-    '''
-    Parse an ITK-SNAP label key file
-
-    Parameters
-    ----------
-    key_fname
-
-    Returns
-    -------
-
-    '''
-
-    # Import key as a data table
-    # Note the partially undocumented delim_whitespace flag
-    data = pd.read_table(key_fname,
-                         comment='#',
-                         header=None,
-                         names=['Index','R','G','B','A','Vis','Mesh','Name'],
-                         delim_whitespace=True)
-
-    return data
-
-
-def get_label_name(label_idx, label_key):
-    '''
-    Search label key for label index and return name
-
-    Parameters
-    ----------
-    label_idx
-    label_key
-
-    Returns
-    -------
-
-    '''
-
-    label_name = 'Unknown Label'
-
-    for i, idx in enumerate(label_key.Index):
-        if label_idx == idx:
-            label_name = label_key.Name[i]
-
-    return label_name
-
-
 def parse_range(astr):
     '''
     Parse compound list of integers and integer ranges
