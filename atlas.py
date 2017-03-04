@@ -55,7 +55,6 @@ import numpy as np
 import pandas as pd
 import multiprocessing as mp
 from glob import glob
-from shutil import copyfile
 
 
 def main():
@@ -103,9 +102,8 @@ def main():
     print('Atlas directory  : %s' % atlas_dir)
     print('Label key file   : %s' % label_key)
 
-    # Copy label key to atlas directory
-    print('  Copying label key to atlas directory')
-    copyfile(args.key, os.path.join(atlas_dir, 'labels.txt'))
+    # Load the label key from the atlas directory as a data frame
+    label_key = load_key(os.path.join(atlas_dir, 'labels.txt'))
 
     # Init grand lists
     grand_labels = []
@@ -170,16 +168,16 @@ def main():
 
     # Limited list of labels to process
     if args.labels:
-        unique_labels = args.labels
+        label_nos = args.labels
     else:
-        unique_labels = np.int32(np.unique(labels))
-        unique_labels = np.delete(unique_labels, np.where(unique_labels == 0))  # Remove background label
+        label_nos = np.int32(np.unique(labels))
+        label_nos = np.delete(label_nos, np.where(label_nos == 0))  # Remove background label
 
-    n = len(unique_labels)
+    n = len(label_nos)
     print('  Analyzing %d unique labels (excluding background)' % n)
 
     # Construct the probabilistic atlas from all labeled volumes
-    prob_atlas = make_prob_atlas(labels, unique_labels)
+    prob_atlas = make_prob_atlas(labels, label_nos)
 
     # Save probabilistic atlas in label directory
     save_prob_atlas(prob_atlas, os.path.join(atlas_dir,'prob_atlas.nii.gz'), affine_tx[0])
@@ -188,12 +186,12 @@ def main():
     inter_metrics_all = []
 
     # Loop over each unique label value
-    for label_idx in unique_labels:
+    for label_no in label_nos:
 
-        print('Analyzing label index %d' % label_idx)
+        print('Analyzing label index %d' % label_no)
 
         # Current label mask
-        label_mask = (labels == label_idx)
+        label_mask = (labels == label_no)
 
         # Intra-observer metrics
         intra_metrics_all.append(intra_observer_metrics(label_mask, vox_mm))
@@ -202,8 +200,8 @@ def main():
         inter_metrics_all.append(inter_observer_metrics(label_mask, vox_mm))
 
     # Write metrics to report directory as CSV
-    save_intra_metrics(intra_metrics_csv, intra_metrics_all, unique_labels)
-    save_inter_metrics(inter_metrics_csv, inter_metrics_all, unique_labels)
+    save_intra_metrics(intra_metrics_csv, intra_metrics_all, label_nos, label_key)
+    save_inter_metrics(inter_metrics_csv, inter_metrics_all, label_nos, label_key)
 
     # Clean exit
     sys.exit(0)
@@ -371,13 +369,15 @@ def inter_observer_metrics(label_mask, vox_mm):
     return inter_metrics
 
 
-def save_intra_metrics(fname, intra_metrics, unique_labels):
+def save_intra_metrics(fname, intra_metrics, label_nos, label_key):
     """
 
     Parameters
     ----------
     fname: CSV filename
     intra_metrics: nobs x ntmp x ntmp nested list
+    label_nos:
+    label_key:
 
     Returns
     -------
@@ -395,20 +395,23 @@ def save_intra_metrics(fname, intra_metrics, unique_labels):
         writer.writerow(('Index','TrueIndex','Observer','TmpA','TmpB','Dice','Hausdorff','nA','nB'))
 
         for idx, m_idx in enumerate(intra_metrics):
-            true_idx = unique_labels[idx]
+            label_no = label_nos[idx]
+            label_name = get_label_name(label_no, label_key)
             for obs, m_obs in enumerate(m_idx):
                 for ta, m_ta in enumerate(m_obs):
                     for tb, m_tb in enumerate(m_ta):
-                        writer.writerow((idx, true_idx, obs, ta, tb) + m_tb)
+                        writer.writerow((label_name, label_no, obs, ta, tb) + m_tb)
 
 
-def save_inter_metrics(fname, inter_metrics, unique_labels):
+def save_inter_metrics(fname, inter_metrics, label_nos, label_key):
     """
 
     Parameters
     ----------
     fname: CSV filename
     inter_metrics: ntmp x nobs x nobs nested list
+    label_nos:
+    label_key:
 
     Returns
     -------
@@ -425,11 +428,12 @@ def save_inter_metrics(fname, inter_metrics, unique_labels):
         writer.writerow(('Index','TrueIndex','Template','ObsA','ObsB','Dice','Hausdorff','nA','nB'))
 
         for idx, m_idx in enumerate(inter_metrics):
-            true_idx = unique_labels[idx]
+            label_no = label_nos[idx]
+            label_name = get_label_name(label_no, label_key)
             for tmp, m_tmp in enumerate(m_idx):
                 for oa, m_oa in enumerate(m_tmp):
                     for ob, m_ob in enumerate(m_oa):
-                        writer.writerow((idx, true_idx, tmp, oa, ob) + m_ob)
+                        writer.writerow((label_name, label_no, tmp, oa, ob) + m_ob)
 
 
 def similarity(mask_a, mask_b, vox_mm):
@@ -534,6 +538,53 @@ def parse_range(astr):
         result.update(range(int(x[0]), int(x[-1]) + 1))
 
     return sorted(result)
+
+
+def load_key(key_fname):
+    """
+    Parse an ITK-SNAP label key file
+
+    Parameters
+    ----------
+    key_fname: ITK-SNAP label key filename
+
+    Returns
+    -------
+    key: Data table containing ITK-SNAP style label key
+    """
+
+    # Import key as a data table
+    # Note the partially undocumented delim_whitespace flag
+    key = pd.read_table(key_fname,
+                         comment='#',
+                         header=None,
+                         names=['Index','R','G','B','A','Vis','Mesh','Name'],
+                         delim_whitespace=True)
+
+    return key
+
+
+def get_label_name(label_idx, label_key):
+    """
+    Search label key for label index and return name
+
+    Parameters
+    ----------
+    label_idx
+    label_key
+
+    Returns
+    -------
+
+    """
+
+    label_name = 'Unknown Label'
+
+    for i, idx in enumerate(label_key.Index):
+        if label_idx == idx:
+            label_name = label_key.Name[i]
+
+    return label_name
 
 
 # This is the standard boilerplate that calls the main() function.

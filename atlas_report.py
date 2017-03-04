@@ -69,9 +69,6 @@ def main():
         print('Atlas directory does not exist (%s) - exiting' % atlas_dir)
         sys.exit(1)
 
-    # Load the label key from the atlas directory as a data frame
-    label_key = load_key(os.path.join(atlas_dir, 'labels.txt'))
-
     # Create report directory within atlas directory
     report_dir = os.path.join(atlas_dir, 'report')
     if not os.path.isdir(report_dir):
@@ -79,21 +76,15 @@ def main():
     print('Report directory : %s' % report_dir)
 
     print('Loading similarity metrics')
-    inter_metrics_csv = os.path.join(atlas_dir, 'inter_observer_metrics.csv')
-    intra_metrics_csv = os.path.join(atlas_dir, 'intra_observer_metrics.csv')
-    intra_stats = load_metrics(intra_metrics_csv)
-    inter_stats = load_metrics(inter_metrics_csv)
-
-    # Determine label numbers present (column 1, trueidx)
-    label_nos = np.int32(np.unique(intra_stats[:,1]))
+    intra_stats, inter_stats = load_metrics(atlas_dir)
 
     # Intra-observer reports (one per observer)
-    #print('Generating intra-observer report')
-    #intra_observer_reports(report_dir, intra_stats, label_nos, label_key)
+    print('Generating intra-observer report')
+    intra_observer_reports(report_dir, intra_stats)
 
     # Inter-observer report
-    #print('Generating inter-observer report')
-    #inter_observer_report(report_dir, inter_stats, label_nos, label_key)
+    print('Generating inter-observer report')
+    inter_observer_report(report_dir, inter_stats)
 
     # Summary report page
     print('Writing report summary page')
@@ -110,7 +101,7 @@ def summary_report(atlas_dir, intra_stats):
 
     Parameters
     ----------
-    report_dir: report directory path
+    atlas_dir: report directory path
     intra_stats: numpy array of intra-observer stats
 
     Returns
@@ -255,7 +246,8 @@ def central_slices(p, roi):
 
     return pp
 
-def intra_observer_reports(report_dir, intra_stats, label_nos, label_key):
+
+def intra_observer_reports(report_dir, intra_stats):
     """
     Generate intra-observer reports (one per observer)
 
@@ -263,35 +255,44 @@ def intra_observer_reports(report_dir, intra_stats, label_nos, label_key):
     ----------
     report_dir: report directory path
     intra_stats: numpy array of intra-observer stats (see load_metrics())
-    label_nos: list of unique labels in the atlas
-    label_key: label key dictionary
 
     Returns
     -------
 
     """
 
-    # Intra stats columns: idx, trueidx, obs, tmpA, tmpB, dice, hausdorff
-    n_lab = len(label_nos)
-    n_obs = len(np.unique(intra_stats[:,2]))
-    n_tmp = len(np.unique(intra_stats[:,3]))
+    # Parse stats array
+    # Columns: LabelName, LabelNo, Observer, TemplateA, TemplateB, Dice, Hausdorff
+
+    label_names, label_nos, observers, tmp_a, tmp_b, dice, haus = np.transpose(intra_stats)
+
+    # Eliminate duplicates
+    label_names = np.unique(label_names)
+    label_nos = np.unique(label_nos)
+    observers = np.unique(observers)
+    tmp_a = np.unique(tmp_a)
+
+    # Count unique labels, observers, templates
+    n_lab = len(label_names)
+    n_obs = len(observers)
+    n_tmp = len(tmp_a)
 
     # Reshape Dice and Hausdorff matrices
-    dice_matrix = intra_stats[:,5].reshape(n_lab, n_obs, n_tmp, n_tmp)
-    haus_matrix = intra_stats[:,6].reshape(n_lab, n_obs, n_tmp, n_tmp)
+    dice_matrix = dice.reshape(n_lab, n_obs, n_tmp, n_tmp)
+    haus_matrix = haus.reshape(n_lab, n_obs, n_tmp, n_tmp)
 
-    # Setup template
+    # Setup Jinja2 template
     template_loader = jinja2.FileSystemLoader(searchpath="/Users/jmt/GitHub/atlaskit")
     template_env = jinja2.Environment(loader=template_loader)
     template_fname = "atlas_intra_observer.jinja"
     template = template_env.get_template(template_fname)
 
     # Loop over observers
-    for obs in range(0, n_obs):
+    for obs in observers:
 
         # Extract intra similarities for this observer
-        this_dice = dice_matrix[:,obs,:,:]
-        this_haus = haus_matrix[:,obs,:,:]
+        this_dice = dice_matrix[:, obs, :, :]
+        this_haus = haus_matrix[:, obs, :, :]
 
         # Intra similarity image filenames
         intra_dice_img = os.path.join(report_dir, "intra_dice_obs_%02d.png" % obs)
@@ -407,7 +408,7 @@ def inter_similarity_image(inter_img, inter_mat):
     """
 
 
-def load_metrics(fname):
+def load_metrics(atlas_dir):
     """
     Parse similarity metrics from CSV file
 
@@ -418,17 +419,21 @@ def load_metrics(fname):
     Returns
     -------
     m : numpy array containing label, observer and template indices and metrics
-    For intra-observer file, columns are idx, true idx, obs, tmpA, tmpB, dice, hausdorff
-    For inter-observer file, columns are idx, true idx, tmp, obsA, obsB, dice, hausdorff
 
     """
-    with open(fname, "r") as f:
+
+    # For intra-observer file, columns are idx, true idx, obs, tmpA, tmpB, dice, hausdorff
+
+    intra_csv = os.path.join(atlas_dir, 'intra_observer_metrics.csv')
+    with open(intra_csv, "r") as f:
         reader = csv.reader(f)
         l = list(reader)
 
-    m = np.array(l[1:], dtype=np.float)
+    # Parse metrics list
 
-    return m
+    m = np.array(l[1:])
+
+    return intra_stats, inter_stats
 
 
 def get_template_ids(label_dir, obs):
@@ -437,53 +442,6 @@ def get_template_ids(label_dir, obs):
     if os.path.isdir(obs_dir):
         ims = glob(os.path_join(obs_dir, '*.nii.gz'))
         print(ims)
-
-
-def load_key(key_fname):
-    """
-    Parse an ITK-SNAP label key file
-
-    Parameters
-    ----------
-    key_fname: ITK-SNAP label key filename
-
-    Returns
-    -------
-    key: Data table containing ITK-SNAP style label key
-    """
-
-    # Import key as a data table
-    # Note the partially undocumented delim_whitespace flag
-    key = pd.read_table(key_fname,
-                         comment='#',
-                         header=None,
-                         names=['Index','R','G','B','A','Vis','Mesh','Name'],
-                         delim_whitespace=True)
-
-    return key
-
-
-def get_label_name(label_idx, label_key):
-    """
-    Search label key for label index and return name
-
-    Parameters
-    ----------
-    label_idx
-    label_key
-
-    Returns
-    -------
-
-    """
-
-    label_name = 'Unknown Label'
-
-    for i, idx in enumerate(label_key.Index):
-        if label_idx == idx:
-            label_name = label_key.Name[i]
-
-    return label_name
 
 
 # This is the standard boilerplate that calls the main() function.
