@@ -173,15 +173,21 @@ def intra_observer_report(report_dir, intra_metrics):
         dice_fstub = os.path.join(report_dir, "intra_dice_obs%02d" % obs)
 
         for idx, label_name in enumerate(label_names):
-            fname = dice_fstub + '_%s.png' % label_name
-            plt.imsave(fname, dd[idx, :, :])
+            ddi = dd[idx, :, :]
+            plt.matshow(ddi)
+            fname = "intra_dice_obs%02d_%s.png" % (obs, label_name)
+            plt.savefig(os.path.join(report_dir, fname))
+            plt.close()
             intra_dice_imgs.append(dict(observer=obs, label=label_name, href=fname))
 
         haus_fstub = os.path.join(report_dir, "intra_haus_obs%02d" % obs)
 
         for idx, label_name in enumerate(label_names):
-            fname = haus_fstub + '_%s.png' % label_name
-            plt.imsave(fname, hh[idx, :, :])
+            hhi = hh[idx, :, :]
+            plt.matshow(hhi)
+            fname = "intra_haus_obs%02d_%s.png" % (obs, label_name)
+            plt.savefig(os.path.join(report_dir, fname))
+            plt.close()
             intra_haus_imgs.append(dict(observer=obs, label=label_name, href=fname))
 
     # Template variables
@@ -232,18 +238,20 @@ def inter_observer_report(report_dir, inter_metrics):
         dd = dice[:, tmp, :, :]
         hh = haus[:, tmp, :, :]
 
-        dice_fstub = os.path.join(report_dir, "inter_dice_tmp%02d" % tmp)
-
         for idx, label_name in enumerate(label_names):
-            fname = dice_fstub + '_%s.png' % label_name
-            plt.imsave(fname, dd[idx, :, :])
+            ddi = dd[idx, :, :]
+            plt.matshow(ddi)
+            fname = "inter_dice_tmp%02d_%s.png" % (tmp, label_name)
+            plt.savefig(os.path.join(report_dir, fname))
+            plt.close()
             inter_dice_imgs.append(dict(template=tmp, label=label_name, href=fname))
 
-        haus_fstub = os.path.join(report_dir, "inter_haus_tmp%02d" % tmp)
-
         for idx, label_name in enumerate(label_names):
-            fname = haus_fstub + '_%s.png' % label_name
-            plt.imsave(fname, hh[idx, :, :])
+            hhi = hh[idx, :, :]
+            plt.matshow(hhi)
+            fname = "inter_haus_tmp%02d_%s.png" % (tmp, label_name)
+            plt.savefig(os.path.join(report_dir, fname))
+            plt.close()
             inter_haus_imgs.append(dict(template=tmp, label=label_name, href=fname))
 
     # Template variables
@@ -258,21 +266,6 @@ def inter_observer_report(report_dir, inter_metrics):
     obs_html = os.path.join(report_dir, "inter_report.html")
     with open(obs_html, "w") as f:
         f.write(html_text)
-
-
-def inter_similarity_image(inter_img, inter_mat):
-    """
-    Create inter-observer similarity matrix image
-
-    Parameters
-    ----------
-    inter_img: output image path
-    inter_mat: inter-obs similarity coefficient matrix (n_label x n_obs x n_obs)
-
-    Returns
-    -------
-
-    """
 
 
 def tryptic_overlays(atlas_dir):
@@ -437,7 +430,7 @@ def load_metrics(atlas_dir):
                       delimiter=',', skip_header=1)
 
     # Parse array
-    label_names = np.unique(m['labelName'])
+    label_names = np.unique(m['labelName']).astype(str)
     label_nos = np.unique(m['labelNo'])
     templates = np.unique(m['template'])
     observers = np.unique(m['obsA'])
