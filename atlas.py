@@ -392,15 +392,15 @@ def save_intra_metrics(fname, intra_metrics, label_nos, label_key):
         writer = csv.writer(f)
 
         # Column headers
-        writer.writerow(('Index','TrueIndex','Observer','TmpA','TmpB','Dice','Hausdorff','nA','nB'))
+        writer.writerow(('labelName','labelNo','observer','tmpA','tmpB','dice','hausdorff','nA','nB'))
 
         for idx, m_idx in enumerate(intra_metrics):
             label_no = label_nos[idx]
             label_name = get_label_name(label_no, label_key)
             for obs, m_obs in enumerate(m_idx):
-                for ta, m_ta in enumerate(m_obs):
-                    for tb, m_tb in enumerate(m_ta):
-                        writer.writerow((label_name, label_no, obs, ta, tb) + m_tb)
+                for tA, m_ta in enumerate(m_obs):
+                    for tB, m_tb in enumerate(m_ta):
+                        writer.writerow((label_name, label_no, obs, tA, tB) + m_tb)
 
 
 def save_inter_metrics(fname, inter_metrics, label_nos, label_key):
@@ -425,15 +425,15 @@ def save_inter_metrics(fname, inter_metrics, label_nos, label_key):
         writer = csv.writer(f)
 
         # Column headers
-        writer.writerow(('Index','TrueIndex','Template','ObsA','ObsB','Dice','Hausdorff','nA','nB'))
+        writer.writerow(('labelName','labelNo','template','obsA','obsB','dice','hausdorff','nA','nB'))
 
         for idx, m_idx in enumerate(inter_metrics):
             label_no = label_nos[idx]
             label_name = get_label_name(label_no, label_key)
             for tmp, m_tmp in enumerate(m_idx):
-                for oa, m_oa in enumerate(m_tmp):
-                    for ob, m_ob in enumerate(m_oa):
-                        writer.writerow((label_name, label_no, tmp, oa, ob) + m_ob)
+                for obsA, m_oa in enumerate(m_tmp):
+                    for obsB, m_ob in enumerate(m_oa):
+                        writer.writerow((label_name, label_no, tmp, obsA, obsB) + m_ob)
 
 
 def similarity(mask_a, mask_b, vox_mm):

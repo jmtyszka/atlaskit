@@ -15,15 +15,16 @@ td, th {
 
 <body>
 
-<h1 style="background-color:#E0E0FF">Observer {{ observer }} >> </h1>
-
 <div>
-    <h3> Intra-observer Similarities </h3>
+    <h3> Intra-observer Dice Coefficients </h3>
     <table>
-        <tr><td> Dice Coefficient </td></tr>
-        <tr><td> <img href="{{ dice_img }}"> </td></tr>
-        <tr><td> Hausdorff Distance </td></tr>
-        <tr><td> <img href="{{ haus_img }}"> </td></tr>
+        {% for img in intra_dice_imgs %}
+            <tr>
+                <td> <img href="{{ img.href }}"></img> </td>
+                <td>{{ img.label }}</td>
+                <td>{{ img.observer }}</td>
+            </tr>
+        {% endfor %}
     </table>
 </div>
 

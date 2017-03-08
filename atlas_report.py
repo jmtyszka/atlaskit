@@ -80,7 +80,7 @@ def main():
 
     # Intra-observer reports (one per observer)
     print('Generating intra-observer report')
-    intra_observer_reports(report_dir, intra_stats)
+    intra_observer_report(report_dir, intra_stats)
 
     # Inter-observer report
     print('Generating inter-observer report')
@@ -134,6 +134,145 @@ def summary_report(atlas_dir, intra_stats):
     # Write page to report directory
     with open(os.path.join(os.path.join(atlas_dir), 'report', 'index.html'), "w") as f:
         f.write(output_text)
+
+
+def intra_observer_report(report_dir, intra_metrics):
+    """
+    Generate intra-observer report
+
+    Parameters
+    ----------
+    report_dir: report directory path
+    intra_metrics: tuple containing labelNames, labelNos, observers, templates, dice and haussdorff metrics
+
+    Returns
+    -------
+
+    """
+
+    # Setup Jinja2 template
+    html_loader = jinja2.FileSystemLoader(searchpath="/Users/jmt/GitHub/atlaskit")
+    html_env = jinja2.Environment(loader=html_loader)
+    html_fname = "atlas_intra_observer.jinja"
+    html = html_env.get_template(html_fname)
+
+    # Parse metrics tuple
+    label_names, label_nos, observers, templates, dice, haus = intra_metrics
+
+    # Init image filename lists
+    intra_dice_imgs = []
+    intra_haus_imgs = []
+
+    # Loop over observers
+    for obs in observers:
+
+        # Extract intra similarities for this observer
+        dd = dice[:, obs, :, :]
+        hh = haus[:, obs, :, :]
+
+        dice_fstub = os.path.join(report_dir, "intra_dice_obs%02d" % obs)
+
+        for idx, label_name in enumerate(label_names):
+            fname = dice_fstub + '_%s.png' % label_name
+            plt.imsave(fname, dd[idx, :, :])
+            intra_dice_imgs.append(dict(observer=obs, label=label_name, href=fname))
+
+        haus_fstub = os.path.join(report_dir, "intra_haus_obs%02d" % obs)
+
+        for idx, label_name in enumerate(label_names):
+            fname = haus_fstub + '_%s.png' % label_name
+            plt.imsave(fname, hh[idx, :, :])
+            intra_haus_imgs.append(dict(observer=obs, label=label_name, href=fname))
+
+    # Template variables
+    html_vars = {"observers": observers,
+                 "intra_dice_imgs": intra_dice_imgs,
+                 "intra_haus_imgs": intra_haus_imgs}
+
+    # Render page
+    html_text = html.render(html_vars)
+
+    # Write report
+    obs_html = os.path.join(report_dir, "intra_report.html")
+    with open(obs_html, "w") as f:
+        f.write(html_text)
+
+
+def inter_observer_report(report_dir, inter_metrics):
+    """
+    Generate inter-observer report
+
+    Parameters
+    ----------
+    report_dir: report directory path
+    inter_metrics: tuple containing labelNames, labelNos, observers, templates, dice and haussdorff metrics
+
+    Returns
+    -------
+
+    """
+
+    # Setup Jinja2 template
+    html_loader = jinja2.FileSystemLoader(searchpath="/Users/jmt/GitHub/atlaskit")
+    html_env = jinja2.Environment(loader=html_loader)
+    html_fname = "atlas_inter_observer.jinja"
+    html = html_env.get_template(html_fname)
+
+    # Parse metrics tuple
+    label_names, label_nos, observers, templates, dice, haus = inter_metrics
+
+    # Init image filename lists
+    inter_dice_imgs = []
+    inter_haus_imgs = []
+
+    # Loop over templates
+    for tmp in templates:
+
+        # Extract inter-observer similarities for this template
+        dd = dice[:, tmp, :, :]
+        hh = haus[:, tmp, :, :]
+
+        dice_fstub = os.path.join(report_dir, "inter_dice_tmp%02d" % tmp)
+
+        for idx, label_name in enumerate(label_names):
+            fname = dice_fstub + '_%s.png' % label_name
+            plt.imsave(fname, dd[idx, :, :])
+            inter_dice_imgs.append(dict(template=tmp, label=label_name, href=fname))
+
+        haus_fstub = os.path.join(report_dir, "inter_haus_tmp%02d" % tmp)
+
+        for idx, label_name in enumerate(label_names):
+            fname = haus_fstub + '_%s.png' % label_name
+            plt.imsave(fname, hh[idx, :, :])
+            inter_haus_imgs.append(dict(template=tmp, label=label_name, href=fname))
+
+    # Template variables
+    html_vars = {"observers": observers,
+                 "intra_dice_imgs": inter_dice_imgs,
+                 "intra_haus_imgs": inter_haus_imgs}
+
+    # Render page
+    html_text = html.render(html_vars)
+
+    # Write report
+    obs_html = os.path.join(report_dir, "inter_report.html")
+    with open(obs_html, "w") as f:
+        f.write(html_text)
+
+
+def inter_similarity_image(inter_img, inter_mat):
+    """
+    Create inter-observer similarity matrix image
+
+    Parameters
+    ----------
+    inter_img: output image path
+    inter_mat: inter-obs similarity coefficient matrix (n_label x n_obs x n_obs)
+
+    Returns
+    -------
+
+    """
 
 
 def tryptic_overlays(atlas_dir):
@@ -247,167 +386,6 @@ def central_slices(p, roi):
     return pp
 
 
-def intra_observer_reports(report_dir, intra_stats):
-    """
-    Generate intra-observer reports (one per observer)
-
-    Parameters
-    ----------
-    report_dir: report directory path
-    intra_stats: numpy array of intra-observer stats (see load_metrics())
-
-    Returns
-    -------
-
-    """
-
-    # Parse stats array
-    # Columns: LabelName, LabelNo, Observer, TemplateA, TemplateB, Dice, Hausdorff
-
-    label_names, label_nos, observers, tmp_a, tmp_b, dice, haus = np.transpose(intra_stats)
-
-    # Eliminate duplicates
-    label_names = np.unique(label_names)
-    label_nos = np.unique(label_nos)
-    observers = np.unique(observers)
-    tmp_a = np.unique(tmp_a)
-
-    # Count unique labels, observers, templates
-    n_lab = len(label_names)
-    n_obs = len(observers)
-    n_tmp = len(tmp_a)
-
-    # Reshape Dice and Hausdorff matrices
-    dice_matrix = dice.reshape(n_lab, n_obs, n_tmp, n_tmp)
-    haus_matrix = haus.reshape(n_lab, n_obs, n_tmp, n_tmp)
-
-    # Setup Jinja2 template
-    template_loader = jinja2.FileSystemLoader(searchpath="/Users/jmt/GitHub/atlaskit")
-    template_env = jinja2.Environment(loader=template_loader)
-    template_fname = "atlas_intra_observer.jinja"
-    template = template_env.get_template(template_fname)
-
-    # Loop over observers
-    for obs in observers:
-
-        # Extract intra similarities for this observer
-        this_dice = dice_matrix[:, obs, :, :]
-        this_haus = haus_matrix[:, obs, :, :]
-
-        # Intra similarity image filenames
-        intra_dice_img = os.path.join(report_dir, "intra_dice_obs_%02d.png" % obs)
-        intra_haus_img = os.path.join(report_dir, "intra_haus_obs_%02d.png" % obs)
-
-        # Construct images
-        intra_similarity_image(intra_dice_img, this_dice)
-        intra_similarity_image(intra_haus_img, this_haus)
-
-        # Template variables
-        template_vars = {"observer": obs,
-                         "intra_dice_img": intra_dice_img,
-                         "intra_haus_img": intra_haus_img}
-
-        # Render page
-        output_text = template.render(template_vars)
-
-        # Write report for this observer
-        obs_html = os.path.join(report_dir, "intra_observer_%02d.html" % obs)
-        with open(obs_html, "w") as f:
-            f.write(output_text)
-
-
-def inter_observer_report(report_dir, inter_stats, label_key):
-    """
-
-    Parameters
-    ----------
-    report_dir
-    inter_stats
-    label_key
-
-    Returns
-    -------
-
-    """
-
-    # Unique labels (column 1, trueidx)
-    label_nos = np.int32(np.unique(inter_stats[:,1]))
-    n_lab = len(label_nos)
-
-    # Inter stats columns: idx, trueidx, tmp, obsA, obsB, dice, hausdorff
-    n_tmp = len(np.unique(inter_stats[:,2]))
-    n_obs = len(np.unique(inter_stats[:,3]))
-
-    # Reshape dice and hausdorff matrices
-    dice_matrix = inter_stats[:, 5].reshape(n_lab, n_tmp, n_obs, n_obs)
-    haus_matrix = inter_stats[:, 6].reshape(n_lab, n_tmp, n_obs, n_obs)
-
-    # Setup template
-    template_loader = jinja2.FileSystemLoader(searchpath="/Users/jmt/GitHub/atlaskit")
-    template_env = jinja2.Environment(loader=template_loader)
-    template_fname = "atlas_intra_observer.jinja"
-    template = template_env.get_template(template_fname)
-
-    # Inter similarity image filenames
-    inter_dice_img = os.path.join(report_dir, "inter_dice.png")
-    inter_haus_img = os.path.join(report_dir, "inter_haus.png")
-
-    # Construct images
-    inter_similarity_image(inter_dice_img, dice_matrix, label_nos, label_key)
-    inter_similarity_image(inter_haus_img, haus_matrix, label_nos, label_key)
-
-    # Template variables
-    template_vars = {"inter_dice_img": inter_dice_img,
-                     "inter_haus_img": inter_haus_img}
-
-    # Finally, process the template to produce our final text.
-    output_text = template.render(template_vars)
-
-    # Write page to report directory
-    obs_html = os.path.join(report_dir, "inter_observer.html")
-    with open(obs_html, "w") as f:
-        f.write(output_text)
-
-
-def intra_similarity_image(intra_img, intra_mat, label_nos, label_key):
-    """
-    Create intra-observer similarity matrix image
-
-    Parameters
-    ----------
-    intra_img: output image path
-    intra_mat: intra-obs similarity coefficient matrix (n_label x n_tmp x n_tmp)
-
-    Returns
-    -------
-
-    """
-
-    # Loop over labels
-    for l in label_nos:
-
-        label_name = get_label_name(l, label_key)
-
-        plt.matshow(m)
-        plt.title(label_name)
-        plt.imsave(intra_img)
-
-
-def inter_similarity_image(inter_img, inter_mat):
-    """
-    Create inter-observer similarity matrix image
-
-    Parameters
-    ----------
-    inter_img: output image path
-    inter_mat: inter-obs similarity coefficient matrix (n_label x n_obs x n_obs)
-
-    Returns
-    -------
-
-    """
-
-
 def load_metrics(atlas_dir):
     """
     Parse similarity metrics from CSV file
@@ -422,26 +400,59 @@ def load_metrics(atlas_dir):
 
     """
 
-    # For intra-observer file, columns are idx, true idx, obs, tmpA, tmpB, dice, hausdorff
-
+    # ----------------------------
+    # Load intra-observer metrics
+    # Ignore number of voxels in each label (nA, nB) for now
     intra_csv = os.path.join(atlas_dir, 'intra_observer_metrics.csv')
-    with open(intra_csv, "r") as f:
-        reader = csv.reader(f)
-        l = list(reader)
+    m = np.genfromtxt(intra_csv,
+                      dtype=None,
+                      names=['labelName', 'labelNo', 'observer', 'tmpA', 'tmpB', 'dice', 'haus', 'nA', 'nB'],
+                      delimiter=',', skip_header=1)
 
-    # Parse metrics list
+    # Parse array
+    label_names = np.unique(m['labelName']).astype(str) # Convert from byte to unicode
+    label_nos = np.unique(m['labelNo'])
+    observers = np.unique(m['observer'])
+    templates = np.unique(m['tmpA'])
 
-    m = np.array(l[1:])
+    # Count labels, templates and observers
+    nLabels, nTemplates, nObservers = len(label_names), len(templates), len(observers)
 
-    return intra_stats, inter_stats
+    # Cast to float and reshape metrics
+    dice = m['dice'].reshape(nLabels, nObservers, nTemplates, nTemplates)
+    haus = m['haus'].reshape(nLabels, nObservers, nTemplates, nTemplates)
 
+    # Composite into intra_metrics tuple
+    intra_metrics = label_names, label_nos, observers, templates, dice, haus
 
-def get_template_ids(label_dir, obs):
+    #----------------------------
+    # Load inter-observer metrics
+    # Ignore number of voxels in each label (nA, nB) for now
+    inter_csv = os.path.join(atlas_dir, 'inter_observer_metrics.csv')
+    m = np.genfromtxt(inter_csv,
+                      dtype=[('labelName', 'a32'), ('labelNo', 'u8'),
+                             ('template', 'u8'), ('obsA', 'u8'), ('obsB', 'u8'),
+                             ('dice', 'f8'), ('haus', 'f8'),
+                             ('nA', 'u8'), ('nB', 'u8')],
+                      delimiter=',', skip_header=1)
 
-    obs_dir = os.path.join(label_dir, obs)
-    if os.path.isdir(obs_dir):
-        ims = glob(os.path_join(obs_dir, '*.nii.gz'))
-        print(ims)
+    # Parse array
+    label_names = np.unique(m['labelName'])
+    label_nos = np.unique(m['labelNo'])
+    templates = np.unique(m['template'])
+    observers = np.unique(m['obsA'])
+
+    # Count labels, templates and observers
+    nLabels, nTemplates, nObservers = len(label_names), len(templates), len(observers)
+
+    # Cast to float and reshape metrics
+    dice = m['dice'].reshape(nLabels, nTemplates, nObservers, nObservers)
+    haus = m['haus'].reshape(nLabels, nTemplates, nObservers, nObservers)
+
+    # Composite into inter_metrics tuple
+    inter_metrics = label_names, label_nos, observers, templates, dice, haus
+
+    return intra_metrics, inter_metrics
 
 
 # This is the standard boilerplate that calls the main() function.
