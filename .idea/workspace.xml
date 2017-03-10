@@ -1,11 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="5e02d061-5636-4555-8bcb-f1804eb82bd7" name="Default" comment="">
-      <change type="DELETED" beforePath="$PROJECT_DIR$/Lesions/atlas2lesion.py" afterPath="" />
+    <list default="true" id="5e02d061-5636-4555-8bcb-f1804eb82bd7" name="Default" comment="Working summary, intra and inter reports. Need to complete summary of similarity metrics by observer and label">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/atlas.py" afterPath="$PROJECT_DIR$/atlas.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/atlas2lesion.py" afterPath="$PROJECT_DIR$/atlas2lesion.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/atlas_inter_observer.jinja" afterPath="$PROJECT_DIR$/atlas_inter_observer.jinja" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/atlas_intra_observer.jinja" afterPath="$PROJECT_DIR$/atlas_intra_observer.jinja" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/atlas_report.py" afterPath="$PROJECT_DIR$/atlas_report.py" />
@@ -27,7 +24,7 @@
     <SUITE FILE_PATH="coverage/atlaskit$hausdorff.coverage" NAME="dice Coverage Results" MODIFIED="1458077898517" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$USER_HOME$/Box/CIT_Midbrain_Atlas/Labeling/jmt" />
     <SUITE FILE_PATH="coverage/atlaskit$label_report.coverage" NAME="label_report Coverage Results" MODIFIED="1487973803095" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$USER_HOME$/HCP/Atlases/CIT168/labeling" />
     <SUITE FILE_PATH="coverage/atlaskit$dice.coverage" NAME="dice Coverage Results" MODIFIED="1460398742837" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$USER_HOME$/Box/CIT_Midbrain_Atlas/Labeling/jmt" />
-    <SUITE FILE_PATH="coverage/atlaskit$atlas_report.coverage" NAME="atlas_report Coverage Results" MODIFIED="1489106521323" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$USER_HOME$/HCP/Atlases/CIT168/labeling" />
+    <SUITE FILE_PATH="coverage/atlaskit$atlas_report.coverage" NAME="atlas_report Coverage Results" MODIFIED="1489172678625" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$USER_HOME$/HCP/Atlases/CIT168/labeling" />
     <SUITE FILE_PATH="coverage/atlaskit$nifti2png.coverage" NAME="nifti2png Coverage Results" MODIFIED="1480528519760" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$USER_HOME$/Data/Blender/HeadSliceUp/JMT-2005-11-22" />
   </component>
   <component name="CreatePatchCommitExecutor">
@@ -42,7 +39,7 @@
       <file leaf-file-name="atlas.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/atlas.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-92">
+            <state relative-caret-position="6900">
               <caret line="469" column="12" lean-forward="false" selection-start-line="469" selection-start-column="12" selection-end-line="469" selection-end-column="12" />
               <folding>
                 <element signature="e#1129#1138#0" expanded="true" />
@@ -54,35 +51,27 @@
       <file leaf-file-name="atlas_report.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/atlas_report.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="605">
-              <caret line="156" column="35" lean-forward="false" selection-start-line="156" selection-start-column="35" selection-end-line="156" selection-end-column="35" />
+            <state relative-caret-position="60">
+              <caret line="4" column="64" lean-forward="false" selection-start-line="4" selection-start-column="64" selection-end-line="4" selection-end-column="64" />
               <folding>
-                <element signature="e#23#1103#1" expanded="false" />
-                <element signature="e#1128#1137#0" expanded="true" />
-                <element signature="e#1910#1996#0" expanded="false" />
-                <element signature="e#2942#3269#1" expanded="false" />
-                <element signature="e#5060#6937#0" expanded="false" />
-                <element signature="e#5060#5327#1" expanded="false" />
-                <element signature="e#6588#6667#0" expanded="false" />
-                <element signature="e#6998#8945#0" expanded="false" />
-                <element signature="e#6998#7265#1" expanded="false" />
-                <element signature="e#7632#7691#0" expanded="false" />
-                <element signature="e#8596#8675#0" expanded="false" />
-                <element signature="e#9047#10811#0" expanded="false" />
-                <element signature="e#9930#10057#0" expanded="false" />
-                <element signature="e#10893#12443#0" expanded="false" />
-                <element signature="e#10893#11297#1" expanded="false" />
-                <element signature="e#12467#13435#0" expanded="false" />
-                <element signature="e#12467#12652#1" expanded="false" />
-                <element signature="e#12845#12940#0" expanded="false" />
-                <element signature="e#13470#13697#1" expanded="false" />
-                <element signature="e#14355#17264#0" expanded="false" />
-                <element signature="e#14355#14580#1" expanded="false" />
-                <element signature="e#14586#14616#0" expanded="false" />
-                <element signature="e#15845#15874#0" expanded="false" />
-                <element signature="e#16101#16341#0" expanded="false" />
-                <element signature="e#17300#17590#0" expanded="false" />
-                <element signature="e#17300#17502#1" expanded="false" />
+                <element signature="e#1163#1172#0" expanded="true" />
+                <element signature="e#2000#2086#0" expanded="false" />
+                <element signature="e#3028#3355#1" expanded="false" />
+                <element signature="e#5758#7612#0" expanded="false" />
+                <element signature="e#5758#6025#1" expanded="false" />
+                <element signature="e#7188#7267#0" expanded="false" />
+                <element signature="e#7673#9597#0" expanded="false" />
+                <element signature="e#7673#7940#1" expanded="false" />
+                <element signature="e#9173#9252#0" expanded="false" />
+                <element signature="e#9679#11275#0" expanded="false" />
+                <element signature="e#13300#14268#0" expanded="false" />
+                <element signature="e#13300#13485#1" expanded="false" />
+                <element signature="e#13678#13773#0" expanded="false" />
+                <element signature="e#14303#15152#0" expanded="false" />
+                <element signature="e#14303#14530#1" expanded="false" />
+                <element signature="e#15188#18097#0" expanded="false" />
+                <element signature="e#15419#15449#0" expanded="false" />
+                <element signature="e#18121#18453#0" expanded="false" />
               </folding>
             </state>
           </provider>
@@ -91,11 +80,9 @@
       <file leaf-file-name="atlas_summary.jinja" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/atlas_summary.jinja">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="89">
-              <caret line="20" column="39" lean-forward="false" selection-start-line="20" selection-start-column="39" selection-end-line="20" selection-end-column="39" />
-              <folding>
-                <element signature="n#style#0;n#h1#0;n#body#0;n#html#0;n#!!top" expanded="true" />
-              </folding>
+            <state relative-caret-position="591">
+              <caret line="67" column="0" lean-forward="true" selection-start-line="67" selection-start-column="0" selection-end-line="70" selection-end-column="9" />
+              <folding />
             </state>
           </provider>
         </entry>
@@ -103,11 +90,9 @@
       <file leaf-file-name="atlas_intra_observer.jinja" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/atlas_intra_observer.jinja">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="360">
-              <caret line="24" column="0" lean-forward="false" selection-start-line="24" selection-start-column="0" selection-end-line="24" selection-end-column="110" />
-              <folding>
-                <element signature="n#style#0;n#h1#0;n#body#0;n#html#0;n#!!top" expanded="true" />
-              </folding>
+            <state relative-caret-position="651">
+              <caret line="47" column="0" lean-forward="true" selection-start-line="47" selection-start-column="0" selection-end-line="53" selection-end-column="0" />
+              <folding />
             </state>
           </provider>
         </entry>
@@ -115,11 +100,9 @@
       <file leaf-file-name="atlas_inter_observer.jinja" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/atlas_inter_observer.jinja">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="135">
-              <caret line="9" column="12" lean-forward="false" selection-start-line="9" selection-start-column="12" selection-end-line="9" selection-end-column="12" />
-              <folding>
-                <element signature="n#style#0;n#h1#0;n#body#0;n#html#0;n#!!top" expanded="true" />
-              </folding>
+            <state relative-caret-position="621">
+              <caret line="47" column="0" lean-forward="true" selection-start-line="47" selection-start-column="0" selection-end-line="47" selection-end-column="0" />
+              <folding />
             </state>
           </provider>
         </entry>
@@ -153,6 +136,7 @@
       <find>trypt</find>
       <find>hauss</find>
       <find>imresize</find>
+      <find>metric_nans</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -193,9 +177,9 @@
         <option value="$PROJECT_DIR$/summary.jinja" />
         <option value="$PROJECT_DIR$/atlas_observer.jinja" />
         <option value="$PROJECT_DIR$/atlas.py" />
+        <option value="$PROJECT_DIR$/atlas_summary.jinja" />
         <option value="$PROJECT_DIR$/atlas_intra_observer.jinja" />
         <option value="$PROJECT_DIR$/atlas_inter_observer.jinja" />
-        <option value="$PROJECT_DIR$/atlas_summary.jinja" />
         <option value="$PROJECT_DIR$/atlas_report.py" />
       </list>
     </option>
@@ -207,10 +191,10 @@
     <sorting>DEFINITION_ORDER</sorting>
   </component>
   <component name="ProjectFrameBounds">
-    <option name="x" value="736" />
-    <option name="y" value="23" />
+    <option name="x" value="454" />
+    <option name="y" value="61" />
     <option name="width" value="1883" />
-    <option name="height" value="1302" />
+    <option name="height" value="1289" />
   </component>
   <component name="ProjectInspectionProfilesVisibleTreeState">
     <entry key="Project Default">
@@ -250,7 +234,7 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="Scratches" />
+      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <PATH>
@@ -265,7 +249,7 @@
           </PATH>
         </subPane>
       </pane>
-      <pane id="Scope" />
+      <pane id="Scratches" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -783,31 +767,38 @@
       <option name="project" value="LOCAL" />
       <updated>1488934152895</updated>
     </task>
-    <option name="localTasksCounter" value="24" />
+    <task id="LOCAL-00024" summary="Working summary, intra and inter reports. Need to complete summary of similarity metrics by observer and label">
+      <created>1489106625749</created>
+      <option name="number" value="00024" />
+      <option name="presentableId" value="LOCAL-00024" />
+      <option name="project" value="LOCAL" />
+      <updated>1489106625749</updated>
+    </task>
+    <option name="localTasksCounter" value="25" />
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="736" y="23" width="1883" height="1302" extended-state="0" />
+    <frame x="454" y="61" width="1883" height="1289" extended-state="0" />
     <editor active="true" />
     <layout>
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.20339884" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32725766" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.27311644" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.31400165" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.32394367" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.32328308" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
-      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.35542667" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.35929647" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32725766" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
     </layout>
   </component>
@@ -843,7 +834,8 @@
     <MESSAGE value="Move label key processing to atlas_report.py" />
     <MESSAGE value="Redo metrics array and list structures in atlas_report.py" />
     <MESSAGE value="Skeleton version of intra and inter reports" />
-    <option name="LAST_COMMIT_MESSAGE" value="Skeleton version of intra and inter reports" />
+    <MESSAGE value="Working summary, intra and inter reports. Need to complete summary of similarity metrics by observer and label" />
+    <option name="LAST_COMMIT_MESSAGE" value="Working summary, intra and inter reports. Need to complete summary of similarity metrics by observer and label" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -857,7 +849,7 @@
           </properties>
         </breakpoint>
       </default-breakpoints>
-      <option name="time" value="81" />
+      <option name="time" value="86" />
     </breakpoint-manager>
     <watches-manager />
   </component>
@@ -1032,13 +1024,12 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="940">
           <caret line="320" column="74" lean-forward="true" selection-start-line="320" selection-start-column="74" selection-end-line="320" selection-end-column="74" />
-          <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/atlas.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-92">
+        <state relative-caret-position="6900">
           <caret line="469" column="12" lean-forward="false" selection-start-line="469" selection-start-column="12" selection-end-line="469" selection-end-column="12" />
           <folding>
             <element signature="e#1129#1138#0" expanded="true" />
@@ -1046,67 +1037,53 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/atlas_summary.jinja">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="591">
+          <caret line="67" column="0" lean-forward="true" selection-start-line="67" selection-start-column="0" selection-end-line="70" selection-end-column="9" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/atlas_intra_observer.jinja">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="360">
-          <caret line="24" column="0" lean-forward="false" selection-start-line="24" selection-start-column="0" selection-end-line="24" selection-end-column="110" />
-          <folding>
-            <element signature="n#style#0;n#h1#0;n#body#0;n#html#0;n#!!top" expanded="true" />
-          </folding>
+        <state relative-caret-position="651">
+          <caret line="47" column="0" lean-forward="true" selection-start-line="47" selection-start-column="0" selection-end-line="53" selection-end-column="0" />
+          <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/atlas_inter_observer.jinja">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="135">
-          <caret line="9" column="12" lean-forward="false" selection-start-line="9" selection-start-column="12" selection-end-line="9" selection-end-column="12" />
-          <folding>
-            <element signature="n#style#0;n#h1#0;n#body#0;n#html#0;n#!!top" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/atlas_summary.jinja">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="89">
-          <caret line="20" column="39" lean-forward="false" selection-start-line="20" selection-start-column="39" selection-end-line="20" selection-end-column="39" />
-          <folding>
-            <element signature="n#style#0;n#h1#0;n#body#0;n#html#0;n#!!top" expanded="true" />
-          </folding>
+        <state relative-caret-position="621">
+          <caret line="47" column="0" lean-forward="true" selection-start-line="47" selection-start-column="0" selection-end-line="47" selection-end-column="0" />
+          <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/atlas_report.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="605">
-          <caret line="156" column="35" lean-forward="false" selection-start-line="156" selection-start-column="35" selection-end-line="156" selection-end-column="35" />
+        <state relative-caret-position="60">
+          <caret line="4" column="64" lean-forward="false" selection-start-line="4" selection-start-column="64" selection-end-line="4" selection-end-column="64" />
           <folding>
-            <element signature="e#23#1103#1" expanded="false" />
-            <element signature="e#1128#1137#0" expanded="true" />
-            <element signature="e#1910#1996#0" expanded="false" />
-            <element signature="e#2942#3269#1" expanded="false" />
-            <element signature="e#5060#6937#0" expanded="false" />
-            <element signature="e#5060#5327#1" expanded="false" />
-            <element signature="e#6588#6667#0" expanded="false" />
-            <element signature="e#6998#8945#0" expanded="false" />
-            <element signature="e#6998#7265#1" expanded="false" />
-            <element signature="e#7632#7691#0" expanded="false" />
-            <element signature="e#8596#8675#0" expanded="false" />
-            <element signature="e#9047#10811#0" expanded="false" />
-            <element signature="e#9930#10057#0" expanded="false" />
-            <element signature="e#10893#12443#0" expanded="false" />
-            <element signature="e#10893#11297#1" expanded="false" />
-            <element signature="e#12467#13435#0" expanded="false" />
-            <element signature="e#12467#12652#1" expanded="false" />
-            <element signature="e#12845#12940#0" expanded="false" />
-            <element signature="e#13470#13697#1" expanded="false" />
-            <element signature="e#14355#17264#0" expanded="false" />
-            <element signature="e#14355#14580#1" expanded="false" />
-            <element signature="e#14586#14616#0" expanded="false" />
-            <element signature="e#15845#15874#0" expanded="false" />
-            <element signature="e#16101#16341#0" expanded="false" />
-            <element signature="e#17300#17590#0" expanded="false" />
-            <element signature="e#17300#17502#1" expanded="false" />
+            <element signature="e#1163#1172#0" expanded="true" />
+            <element signature="e#2000#2086#0" expanded="false" />
+            <element signature="e#3028#3355#1" expanded="false" />
+            <element signature="e#5758#7612#0" expanded="false" />
+            <element signature="e#5758#6025#1" expanded="false" />
+            <element signature="e#7188#7267#0" expanded="false" />
+            <element signature="e#7673#9597#0" expanded="false" />
+            <element signature="e#7673#7940#1" expanded="false" />
+            <element signature="e#9173#9252#0" expanded="false" />
+            <element signature="e#9679#11275#0" expanded="false" />
+            <element signature="e#13300#14268#0" expanded="false" />
+            <element signature="e#13300#13485#1" expanded="false" />
+            <element signature="e#13678#13773#0" expanded="false" />
+            <element signature="e#14303#15152#0" expanded="false" />
+            <element signature="e#14303#14530#1" expanded="false" />
+            <element signature="e#15188#18097#0" expanded="false" />
+            <element signature="e#15419#15449#0" expanded="false" />
+            <element signature="e#18121#18453#0" expanded="false" />
           </folding>
         </state>
       </provider>
