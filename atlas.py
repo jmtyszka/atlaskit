@@ -54,15 +54,16 @@ import nibabel as nib
 import numpy as np
 import pandas as pd
 import multiprocessing as mp
+import shutil
 from glob import glob
 
 
 def main():
 
     print()
-    print('--------------------')
-    print('Similarity Metrics')
-    print('--------------------')
+    print('-------------------------------------------------------')
+    print('Probablistic Atlas Construction with Similarity Metrics')
+    print('-------------------------------------------------------')
 
     # Parse command line arguments
     parser = argparse.ArgumentParser(description='Calculate label similarity metrics for multiple observers')
@@ -87,9 +88,9 @@ def main():
     else:
         atlas_dir = os.path.join(label_dir, 'atlas')
 
-    # Copy label key to atlas directory
+    # Check for label key file
     if os.path.isfile(args.key):
-        label_key = args.key
+        label_keyfile = args.key
     else:
         print('* ITK-SNAP label key is missing (%s) - exiting' % args.key)
         sys.exit(1)
@@ -100,10 +101,14 @@ def main():
 
     print('Label directory  : %s' % label_dir)
     print('Atlas directory  : %s' % atlas_dir)
-    print('Label key file   : %s' % label_key)
+    print('Label key file   : %s' % label_keyfile)
 
-    # Load the label key from the atlas directory as a data frame
-    label_key = load_key(os.path.join(atlas_dir, 'labels.txt'))
+    # Save a copy of label key file in the atlas directory
+    label_keyfile_save = os.path.join(atlas_dir, 'labels.txt')
+    shutil.copyfile(label_keyfile, label_keyfile_save)
+
+    # Load the label key as a data frame
+    label_key = load_key(label_keyfile_save)
 
     # Init grand lists
     grand_labels = []
@@ -173,6 +178,15 @@ def main():
         label_nos = np.int32(np.unique(labels))
         label_nos = np.delete(label_nos, np.where(label_nos == 0))  # Remove background label
 
+    # Remove labels not present in key
+    label_unknown = []
+    for ll, label_no in enumerate(label_nos):
+        if get_label_name(label_no, label_key) == 'Unknown':
+            print('* Label %d unknown - removing from list' % label_no)
+            label_unknown.append(ll)
+    label_nos = np.delete(label_nos, label_unknown)
+
+    # Count remaining labels
     n = len(label_nos)
     print('  Analyzing %d unique labels (excluding background)' % n)
 
@@ -565,20 +579,8 @@ def load_key(key_fname):
 
 
 def get_label_name(label_idx, label_key):
-    """
-    Search label key for label index and return name
 
-    Parameters
-    ----------
-    label_idx
-    label_key
-
-    Returns
-    -------
-
-    """
-
-    label_name = 'Unknown Label'
+    label_name = 'Unknown'
 
     for i, idx in enumerate(label_key.Index):
         if label_idx == idx:

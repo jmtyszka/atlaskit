@@ -42,16 +42,13 @@ __version__ = '0.1.0'
 
 import os
 import sys
-import csv
 import argparse
 import jinja2
 import numpy as np
-import pandas as pd
 import nibabel as nib
 import matplotlib.pyplot as plt
-from glob import glob
-from scipy.ndimage import measurements, find_objects
-from skimage.io import imsave
+from scipy.misc import imresize
+from scipy.ndimage import find_objects
 
 def main():
 
@@ -62,7 +59,12 @@ def main():
     # Parse command line arguments
     args = parser.parse_args()
     atlas_dir = args.atlasdir
-    print('Atlas directory : %s' % atlas_dir)
+
+
+    print('')
+    print('-----------------------------')
+    print('Atlas label similarity report')
+    print('-----------------------------')
 
     # Check for atlas directory existence
     if not os.path.isdir(atlas_dir):
@@ -73,63 +75,92 @@ def main():
     report_dir = os.path.join(atlas_dir, 'report')
     if not os.path.isdir(report_dir):
         os.mkdir(report_dir)
+
+    print('Atlas directory  : %s' % atlas_dir)
     print('Report directory : %s' % report_dir)
+    print('')
 
     print('Loading similarity metrics')
     intra_stats, inter_stats = load_metrics(atlas_dir)
 
     # Intra-observer reports (one per observer)
+    print('')
     print('Generating intra-observer report')
-    intra_observer_report(report_dir, intra_stats)
+    # intra_observer_report(report_dir, intra_stats)
 
     # Inter-observer report
+    print('')
     print('Generating inter-observer report')
-    inter_observer_report(report_dir, inter_stats)
+    # inter_observer_report(report_dir, inter_stats)
 
     # Summary report page
+    print('')
     print('Writing report summary page')
-    summary_report(atlas_dir, intra_stats)
+    summary_report(atlas_dir, report_dir, intra_stats, inter_stats)
 
     # Clean exit
     sys.exit(0)
 
 
-def summary_report(atlas_dir, intra_stats):
+def summary_report(atlas_dir, report_dir, intra_metrics, inter_metrics):
     """
     Summary report for the entire atlas
-    - projections with overlays
+    - maximum probability projections for all labels
 
     Parameters
     ----------
-    atlas_dir: report directory path
-    intra_stats: numpy array of intra-observer stats
+    atlas_dir: atlas directory path
+    report_dir: report directory path
+    intra_stats: intra-observer metrics tuple
+    inter_stats: inter-observer metrics tuple
 
     Returns
     -------
 
     """
 
-    report_dir = os.path.join(atlas_dir, 'report')
+    # Setup Jinja2 template
+    html_loader = jinja2.FileSystemLoader(searchpath="/Users/jmt/GitHub/atlaskit")
+    html_env = jinja2.Environment(loader=html_loader)
+    html_fname = "atlas_summary.jinja"
+    html = html_env.get_template(html_fname)
 
-    # Intra stats columns: idx, trueidx, obs, tmpA, tmpB, dice, hausdorff
-    n_obs = len(np.unique(intra_stats[:,2]))
-    n_tmp = len(np.unique(intra_stats[:,3]))
+    # Parse metrics tuples
+    label_names, label_nos, observers, templates, intra_dice, intra_haus = intra_metrics
+    _, _, _, _, inter_dice, inter_haus = inter_metrics
+
+    # Determine montage size from number of labels
+    ncols = 4
+    nrows = np.ceil(len(label_names)/ncols).astype(int)
 
     # Create tryptic overlays through CoM of label
-    tryptic_overlays(atlas_dir)
+    print('  Generating maximum probability projections for each label')
+    mpp_fname = maxprob_projections(atlas_dir, report_dir, label_names, nrows, ncols)
 
-    # Setup template
-    template_loader = jinja2.FileSystemLoader(searchpath="/Users/jmt/GitHub/atlaskit")
-    template_env = jinja2.Environment(loader=template_loader)
-    template_fname = "atlas_summary.jinja"
-    template = template_env.get_template(template_fname)
+    # Construct list of results for each label
+    obs_list = []
+    for obs in observers:
+
+        print('    Observer %d' % obs)
+
+        for ll, label_name in enumerate(label_names):
+
+            this_intra_dice = intra_dice[ll, obs, :, :]
+            this_intra_haus = intra_haus[ll, obs, :, :]
+
+            intra_dice_mean = np.mean(this_intra_dice)
+            intra_haus_mean = np.mean(this_intra_haus)
+
+            # Find unfinished template labels
+            # Search for NaNs on leading diagonals in intra dice data
+            unfinished = np.where(np.isnan(np.diagonal(this_intra_dice)))
+            print(str(unfinished[0]))
 
     # Template variables
-    template_vars = {"n_obs": n_obs,
-                     "n_tmp": n_tmp}
+    template_vars = {"mpp_fname": mpp_fname}
 
     # Finally, process the template to produce our final text.
-    output_text = template.render(template_vars)
+    output_text = html.render(template_vars)
 
     # Write page to report directory
     with open(os.path.join(os.path.join(atlas_dir), 'report', 'index.html'), "w") as f:
@@ -138,7 +169,7 @@ def summary_report(atlas_dir, intra_stats):
 
 def intra_observer_report(report_dir, intra_metrics):
     """
-    Generate intra-observer report
+    Generate intra-observer report for each observer
 
     Parameters
     ----------
@@ -159,41 +190,31 @@ def intra_observer_report(report_dir, intra_metrics):
     # Parse metrics tuple
     label_names, label_nos, observers, templates, dice, haus = intra_metrics
 
-    # Init image filename lists
-    intra_dice_imgs = []
-    intra_haus_imgs = []
+    # Determine montage size from number of labels
+    ncols = 4
+    nrows = np.ceil(len(label_names)/ncols).astype(int)
 
-    # Loop over observers
-    for obs in observers:
+    # Replace NaNs in dice and haus with 0.0 and 1e6 respectively
+    dice, haus = metric_nans(dice, haus)
 
-        # Extract intra similarities for this observer
-        dd = dice[:, obs, :, :]
-        hh = haus[:, obs, :, :]
+    # Metric limits
+    dlims = 0.0, 1.0
+    hlims = 0.0, 10.0
 
-        dice_fstub = os.path.join(report_dir, "intra_dice_obs%02d" % obs)
+    # Create similarity figures over all labels and observers
+    intra_dice_imgs = similarity_figure(dice, observers, "Observer %d Dice Coefficient", "intra_obs_%0d_dice.png",
+                                        report_dir, label_names, dlims, nrows, ncols)
+    intra_haus_imgs = similarity_figure(haus, observers, "Observer %d Hausdorff Distance (mm)", "intra_obs_%0d_haus.png",
+                                        report_dir, label_names, hlims, nrows, ncols)
 
-        for idx, label_name in enumerate(label_names):
-            ddi = dd[idx, :, :]
-            plt.matshow(ddi)
-            fname = "intra_dice_obs%02d_%s.png" % (obs, label_name)
-            plt.savefig(os.path.join(report_dir, fname))
-            plt.close()
-            intra_dice_imgs.append(dict(observer=obs, label=label_name, href=fname))
-
-        haus_fstub = os.path.join(report_dir, "intra_haus_obs%02d" % obs)
-
-        for idx, label_name in enumerate(label_names):
-            hhi = hh[idx, :, :]
-            plt.matshow(hhi)
-            fname = "intra_haus_obs%02d_%s.png" % (obs, label_name)
-            plt.savefig(os.path.join(report_dir, fname))
-            plt.close()
-            intra_haus_imgs.append(dict(observer=obs, label=label_name, href=fname))
+    # Composite all images into a single dictionary list
+    intra_imgs = []
+    for i, dimg in enumerate(intra_dice_imgs):
+        himg = intra_haus_imgs[i]
+        intra_imgs.append(dict(dimg=dimg, himg=himg))
 
     # Template variables
-    html_vars = {"observers": observers,
-                 "intra_dice_imgs": intra_dice_imgs,
-                 "intra_haus_imgs": intra_haus_imgs}
+    html_vars = {"intra_imgs": intra_imgs}
 
     # Render page
     html_text = html.render(html_vars)
@@ -206,7 +227,7 @@ def intra_observer_report(report_dir, intra_metrics):
 
 def inter_observer_report(report_dir, inter_metrics):
     """
-    Generate inter-observer report
+    Generate inter-observer report for each template
 
     Parameters
     ----------
@@ -227,37 +248,32 @@ def inter_observer_report(report_dir, inter_metrics):
     # Parse metrics tuple
     label_names, label_nos, observers, templates, dice, haus = inter_metrics
 
-    # Init image filename lists
-    inter_dice_imgs = []
-    inter_haus_imgs = []
+    # Determine subplot matrix dimensions from number of labels
+    # nrows x ncols where nrows = ceil(n_labels/ncols)
+    ncols = 4
+    nrows = np.ceil(len(label_names)/ncols).astype(int)
 
-    # Loop over templates
-    for tmp in templates:
+    # Replace NaNs in dice and haus with 0.0 and 1e6 respectively
+    dice, haus = metric_nans(dice, haus)
 
-        # Extract inter-observer similarities for this template
-        dd = dice[:, tmp, :, :]
-        hh = haus[:, tmp, :, :]
+    # Metric limits
+    dlims = 0.0, 1.0
+    hlims = 0.0, 10.0
 
-        for idx, label_name in enumerate(label_names):
-            ddi = dd[idx, :, :]
-            plt.matshow(ddi)
-            fname = "inter_dice_tmp%02d_%s.png" % (tmp, label_name)
-            plt.savefig(os.path.join(report_dir, fname))
-            plt.close()
-            inter_dice_imgs.append(dict(template=tmp, label=label_name, href=fname))
+    # Create similarity figures over all labels and observers
+    inter_dice_imgs = similarity_figure(dice, templates, "Template %d : Dice Coefficient", "inter_tmp_%0d_dice.png",
+                                        report_dir, label_names, dlims, nrows, ncols)
+    inter_haus_imgs = similarity_figure(haus, templates, "Template %d Hausdorff Distance (mm)", "inter_tmp_%0d_haus.png",
+                                        report_dir, label_names, hlims, nrows, ncols)
 
-        for idx, label_name in enumerate(label_names):
-            hhi = hh[idx, :, :]
-            plt.matshow(hhi)
-            fname = "inter_haus_tmp%02d_%s.png" % (tmp, label_name)
-            plt.savefig(os.path.join(report_dir, fname))
-            plt.close()
-            inter_haus_imgs.append(dict(template=tmp, label=label_name, href=fname))
+    # Composite all images into a single dictionary list
+    inter_imgs = []
+    for i, dimg in enumerate(inter_dice_imgs):
+        himg = inter_haus_imgs[i]
+        inter_imgs.append(dict(dimg=dimg, himg=himg))
 
     # Template variables
-    html_vars = {"observers": observers,
-                 "intra_dice_imgs": inter_dice_imgs,
-                 "intra_haus_imgs": inter_haus_imgs}
+    html_vars = {"inter_imgs": inter_imgs}
 
     # Render page
     html_text = html.render(html_vars)
@@ -268,46 +284,134 @@ def inter_observer_report(report_dir, inter_metrics):
         f.write(html_text)
 
 
-def tryptic_overlays(atlas_dir):
+def similarity_figure(metric, inds, tfmt, ffmt, report_dir, label_names, mlims, nrows, ncols):
     """
+    Plot an array of similarity matrix figures
 
     Parameters
     ----------
-    atlas_dir
+    metric: similarity metric array to plot
+    inds: index iterator (observers or templates)
+    tfmt: title format for each figure
+    ffmt: file format string
+    report_dir: report directory
+    label_names: list of label names
+    mlims: scale limits for metric
+    nrows: plot grid rows
+    ncols: plot grid columns
 
     Returns
     -------
-
+    img_list: list of image filenames
     """
 
-    report_dir = os.path.join(atlas_dir, 'report')
+    # Init image file list
+    img_list = []
+
+    # Loop over indices (observers or templates)
+    for ii in inds:
+
+        # Create figure with subplot array
+        fig, axs = plt.subplots(nrows, ncols)
+        axs = np.array(axs).reshape(-1)
+
+        # Construct subplot matrix
+        mm = metric[:, ii, :, :]
+        for aa, ax in enumerate(axs):
+
+            if aa < len(label_names):
+                im = ax.pcolor(np.flipud(mm[aa, :, :]), vmin=mlims[0], vmax=mlims[1])
+                ax.set_title(label_names[aa], fontsize=8)
+            else:
+                ax.axis('off')
+
+            ax.get_xaxis().set_visible(False)
+            ax.get_yaxis().set_visible(False)
+            ax.set(adjustable='box-forced', aspect='equal')
+
+        # Tidy up spacing
+        plt.tight_layout()
+
+        # Make space for title and colorbar
+        fig.subplots_adjust(bottom=0.1, top=0.9, left=0.1, right=0.8)
+        plt.suptitle(tfmt % ii, x=0.5, y=0.99)
+        cax = fig.add_axes([0.85, 0.1, 0.05, 0.8]) # [x0, y0, w, h]
+        fig.colorbar(im, cax=cax)
+
+        # Save figure to PNG
+        fname = ffmt % ii
+        print('  %s' % fname)
+        img_list.append(fname)
+        plt.savefig(os.path.join(report_dir, fname))
+
+        # Clean up
+        plt.close(fig)
+
+    return img_list
+
+
+def maxprob_projections(atlas_dir, report_dir, label_names, nrows, ncols):
+    """
+    Construct an array of maximum probablity projections through each label
+    over all observers and templates
+
+    Parameters
+    ----------
+    atlas_dir: atlas directory path
+    report_dir: report directory path
+    label_names: list of unique label names (in label number order)
+    nrows, ncols: figure matrix size
+
+    Returns
+    -------
+    mpp_png: maxprob projection PNG filename
+    """
+
+    # Probability threshold for minimum BB
+    p_thresh = 0.25
 
     # Load prob atlas
     prob_nii = nib.load(os.path.join(atlas_dir, 'prob_atlas.nii.gz'))
-    # try:
-    #     prob_nii = nib.load(os.path.join(atlas_dir), 'prob_atlas.nii.gz')
-    # except:
-    #     print('* Could not open probabilistic atlas')
-    #     return
-
     prob_atlas = prob_nii.get_data()
 
-    # Loop over labels
-    for l in range(0, prob_atlas.shape[3]):
+    # Create figure with subplot array
+    fig, axs = plt.subplots(nrows, ncols)
+    axs = np.array(axs).reshape(-1)
 
-        print('  Creating tryptic for label %03d' % l)
+    # Loop over axes
+    for aa, ax in enumerate(axs):
 
-        p = prob_atlas[:,:,:,l]
+        if aa < len(label_names):
 
-        # Find minimum isotropic bounding box of p > 0.01 region
-        bb = isobb(p > 0.01)
+            print('    %s' % label_names[aa])
 
-        # Create tryptic of ROI central slices
-        tryptic = central_slices(p, isobb(p > 0.01))
+            # Current prob label
+            p = prob_atlas[:, :, :, aa]
 
-        # Write PNG
-        tryptic_fname = os.path.join(atlas_dir, 'report', 'tryptic_%03d.png' % l)
-        imsave(tryptic_fname, tryptic)
+            # Create tryptic of central slices through ROI defined by p > p_thresh
+            tryptic = central_slices(p, isobb(p > p_thresh))
+
+            ax.pcolor(tryptic)
+            ax.set_title(label_names[aa], fontsize=8)
+
+        else:
+            ax.axis('off')
+
+        ax.get_xaxis().set_visible(False)
+        ax.get_yaxis().set_visible(False)
+        ax.set(adjustable='box-forced', aspect='equal')
+
+    # Tidy up spacing
+    plt.tight_layout()
+
+    # Save figure to PNG
+    mpp_fname = 'mpp.png'
+    plt.savefig(os.path.join(report_dir, mpp_fname))
+
+    # Clean up
+    plt.close(fig)
+
+    return mpp_fname
 
 
 def isobb(mask):
@@ -326,29 +430,36 @@ def isobb(mask):
     # Locate objects within mask
     bb = find_objects(mask)
 
-    # Should be only one object, but just in case
-    n_obj = len(bb)
-    if n_obj > 1:
-        print('+ Strange. Found %d objects in label' % n_obj)
-        print('+ Using first object')
+    if any(bb):
 
-    # Parse slices for center of mass and maximum length
-    sx, sy, sz = bb[0]
-    x0 = np.ceil(np.mean([sx.start, sx.stop])).astype(int)
-    y0 = np.ceil(np.mean([sy.start, sy.stop])).astype(int)
-    z0 = np.ceil(np.mean([sz.start, sz.stop])).astype(int)
+        # Should be only one object, but just in case
+        n_obj = len(bb)
+        if n_obj > 1:
+            print('+ Strange. Found %d objects in label' % n_obj)
+            print('+ Using first object')
 
-    xw = sx.stop - sx.start
-    yw = sy.stop - sy.start
-    zw = sz.stop - sz.start
+        # Parse slices for center of mass and maximum length
+        sx, sy, sz = bb[0]
+        x0 = np.ceil(np.mean([sx.start, sx.stop])).astype(int)
+        y0 = np.ceil(np.mean([sy.start, sy.stop])).astype(int)
+        z0 = np.ceil(np.mean([sz.start, sz.stop])).astype(int)
 
-    w = np.max([xw, yw, zw]).astype(int)
+        xw = sx.stop - sx.start
+        yw = sy.stop - sy.start
+        zw = sz.stop - sz.start
+
+        w = np.max([xw, yw, zw]).astype(int)
+
+    else:
+
+        x0, y0, z0, w = 0, 0, 0, -1
 
     return x0, y0, z0, w
 
 
 def central_slices(p, roi):
     """
+    Create tryptic of central slices from ROI
 
     Parameters
     ----------
@@ -360,21 +471,34 @@ def central_slices(p, roi):
     pp: numpy tryptic of central slices
     """
 
+    # Base output image dimensions
+    base_dims = 64, 3*64
+
     # Unpack ROI
     x0, y0, z0, w = roi
 
-    # Define central slices
-    xx = slice(x0 - w, x0 + w, 1)
-    yy = slice(y0 - w, y0 + w, 1)
-    zz = slice(z0 - w, z0 + w, 1)
+    if w > 0:
 
-    # Extract slices
-    p_xy = p[xx,yy,z0]
-    p_xz = p[xx,y0,zz]
-    p_yz = p[x0,yy,zz]
+        # Define central slices
+        xx = slice(x0 - w, x0 + w, 1)
+        yy = slice(y0 - w, y0 + w, 1)
+        zz = slice(z0 - w, z0 + w, 1)
 
-    # Create tryptic
-    pp = np.concatenate([p_xy, p_xz, p_yz], axis=1)
+        # Extract slices
+        p_xy = p[xx,yy,z0]
+        p_xz = p[xx,y0,zz]
+        p_yz = p[x0,yy,zz]
+
+        # Create horizontal tryptic
+        pp = np.hstack([p_xy, p_xz, p_yz])
+
+        # Resize to base size
+        pp = imresize(pp, base_dims, interp='bicubic')
+
+    else:
+
+        # Blank tryptic
+        pp = np.zeros(base_dims)
 
     return pp
 
@@ -402,9 +526,13 @@ def load_metrics(atlas_dir):
                       names=['labelName', 'labelNo', 'observer', 'tmpA', 'tmpB', 'dice', 'haus', 'nA', 'nB'],
                       delimiter=',', skip_header=1)
 
-    # Parse array
-    label_names = np.unique(m['labelName']).astype(str) # Convert from byte to unicode
-    label_nos = np.unique(m['labelNo'])
+    # Find unique label numbers with initial row indices for each
+    label_nos, idx = np.unique(m['labelNo'], return_index=True)
+
+    # Extract corresponding label names to unique label numbers
+    label_names = m['labelName'][idx].astype(str)
+
+    # Unique template and observer lists can be sorted as usual
     observers = np.unique(m['observer'])
     templates = np.unique(m['tmpA'])
 
@@ -429,9 +557,13 @@ def load_metrics(atlas_dir):
                              ('nA', 'u8'), ('nB', 'u8')],
                       delimiter=',', skip_header=1)
 
-    # Parse array
-    label_names = np.unique(m['labelName']).astype(str)
-    label_nos = np.unique(m['labelNo'])
+    # Find unique label numbers with initial row indices for each
+    label_nos, idx = np.unique(m['labelNo'], return_index=True)
+
+    # Extract corresponding label names to unique label numbers
+    label_names = m['labelName'][idx].astype(str)
+
+    # Unique template and observer lists can be sorted as usual
     templates = np.unique(m['template'])
     observers = np.unique(m['obsA'])
 
@@ -446,6 +578,25 @@ def load_metrics(atlas_dir):
     inter_metrics = label_names, label_nos, observers, templates, dice, haus
 
     return intra_metrics, inter_metrics
+
+
+def metric_nans(dice, haus):
+    """
+    Replace NaNs in dice and haus with 0.0 and 1e6 respectively
+
+    Parameters
+    ----------
+    dice, haus: NaN containing arrays
+
+    Returns
+    -------
+    dice, haus: NaN fixed arrays
+    """
+
+    dice[np.isnan(dice)] = 0.0
+    haus[np.isnan(haus)] = 1.0e6
+
+    return dice, haus
 
 
 # This is the standard boilerplate that calls the main() function.

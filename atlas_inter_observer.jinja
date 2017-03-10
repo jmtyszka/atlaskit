@@ -8,22 +8,39 @@ BODY {
 }
 td, th {
   padding: 0 10px;
-  text-align     : left;
+  text-align: left;
 }
 </STYLE>
 </head>
 
 <body>
 
-<h1 style="background-color:#E0E0FF">Observer {{ observer }} >> </h1>
+<h1 style="background-color:#E0E0FF">Between Observer Label Similarities</h1>
 
 <div>
-    <h3> Intra-observer Similarities </h3>
     <table>
-        <tr><td> Dice Coefficient </td></tr>
-        <tr><td> <img href="{{ dice_img }}"> </td></tr>
-        <tr><td> Hausdorff Distance </td></tr>
-        <tr><td> <img href="{{ haus_img }}"> </td></tr>
+        <tr>
+            <td>
+                Between-observer Dice coefficient and Hausdorff distance matrices for each atlas label.<br>
+                The matrix rows and columns represent the first and second observers in a pairwise comparison.
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <a href="index.html">Return to summary page</a>
+            </td>
+        </tr>
+    </table>
+</div>
+
+<div>
+    <table>
+        {% for img in inter_imgs %}
+            <tr>
+                <td> <img src="{{ img.dimg }}"></img> </td>
+                <td> <img src="{{ img.himg }}"></img> </td>
+            </tr>
+        {% endfor %}
     </table>
 </div>
 

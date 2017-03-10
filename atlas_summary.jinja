@@ -8,40 +8,65 @@ BODY {
 }
 td, th {
   padding: 0 10px;
-  text-align     : left;
+  text-align: left;
 }
 </STYLE>
 </head>
 
 <body>
 
-<h1 style="background-color:#E0E0FF">Atlas Labeling Report</h1>
+<h1 style="background-color:#E0E0FF">Labeling Similarity Report</h1>
 
 <div>
-    <h3> Labeling Information </h3>
-    <table>
-        <tr><td> Number of Observers </td><td> {{ n_obs }} </td></tr>
-        <tr><td> Number of Templates </td><td> {{ n_tmp }} </td></tr>
-    </table>
+    <h3>Maximum Probability Projections</h3>
+    <img src="{{ mpp_fname }}">
 </div>
 
 <div>
-    <h3> Maximum Probability Projection </h3>
-    <table>
-        <tr>
-            <td> <img src={{ mpp_image }} /> </td>
-        </tr>
-    </table>
+
+    {% for obs in observers %}
+
+        <h3> Observer {{ obs.obs_no }}</h3>
+        <table>
+
+            <tr>
+                <td>MPP</td>
+                <td>Name</td>
+                <td>Number</td>
+                <td>Mean Intra Dice</td>
+                <td>Mean Intra Hausdorff</td>
+                <td>Mean Inter Dice</td>
+                <td>Mean Inter Hausdorff</td>
+                <td>Unfinished Templates</td>
+            </tr>
+
+            {% for tmp in obs.templates %}
+                <tr>
+                    <td>MPP</td>
+                    <td>Label Name</td>
+                    <td>Label Number</td>
+                    <td>Mean Intra Dice</td>
+                    <td>Mean Intra Hausdorff</td>
+                    <td>Mean Inter Dice</td>
+                    <td>Mean Inter Hausdorff</td>
+                    <td>Unfinished Templates</td>
+                </tr>
+            {% endfor %}
+
+        </table>
+
+    {% endfor %}
+
 </div>
 
 <div>
-    <h3> Intra-observer Similarities </h3>
-    <a href="intra_observer_report.html">Inter-observer report</a>
+    <h3> Within-observer Similarities </h3>
+    <a href="intra_report.html">Within-observer report</a>
 </div>
 
 <div>
-    <h3> Inter-observer Similarities </h3>
-    <a href="inter_observer_report.html">Inter-observer report</a>
+    <h3> Between-observer Similarities </h3>
+    <a href="inter_report.html">Between-observer report</a>
 </div>
 
 

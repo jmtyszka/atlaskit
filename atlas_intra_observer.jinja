@@ -8,21 +8,37 @@ BODY {
 }
 td, th {
   padding: 0 10px;
-  text-align     : left;
+  text-align: left;
 }
 </STYLE>
 </head>
 
 <body>
 
+<h1 style="background-color:#E0E0FF">Within Observer Label Similarities</h1>
+
 <div>
-    <h3> Intra-observer Dice Coefficients </h3>
     <table>
-        {% for img in intra_dice_imgs %}
+        <tr>
+            <td>
+                Within-observer Dice coefficient and Hausdorff distance matrices for each atlas label.<br>
+                The matrix rows and columns represent the first and second templates in a pairwise comparison.
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <a href="index.html">Return to summary page</a>
+            </td>
+        </tr>
+    </table>
+</div>
+
+<div>
+    <table>
+        {% for img in intra_imgs %}
             <tr>
-                <td> <img src="{{ img.href }}"></img> </td>
-                <td>{{ img.label }}</td>
-                <td>{{ img.observer }}</td>
+                <td> <img src="{{ img.dimg }}"></img> </td>
+                <td> <img src="{{ img.himg }}"></img> </td>
             </tr>
         {% endfor %}
     </table>
