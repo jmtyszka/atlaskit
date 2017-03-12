@@ -124,7 +124,7 @@ def summary_report(atlas_dir, report_dir, intra_metrics, inter_metrics):
     """
 
     # Setup Jinja2 template
-    html_loader = jinja2.FileSystemLoader(searchpath="/Users/jmt/GitHub/atlaskit")
+    html_loader = jinja2.FileSystemLoader(searchpath="./")
     html_env = jinja2.Environment(loader=html_loader)
     html_fname = "atlas_summary.jinja"
     html = html_env.get_template(html_fname)
@@ -203,7 +203,7 @@ def intra_observer_report(report_dir, intra_metrics):
     """
 
     # Setup Jinja2 template
-    html_loader = jinja2.FileSystemLoader(searchpath="/Users/jmt/GitHub/atlaskit")
+    html_loader = jinja2.FileSystemLoader(searchpath="./")
     html_env = jinja2.Environment(loader=html_loader)
     html_fname = "atlas_intra_observer.jinja"
     html = html_env.get_template(html_fname)
@@ -259,7 +259,7 @@ def inter_observer_report(report_dir, inter_metrics):
     """
 
     # Setup Jinja2 template
-    html_loader = jinja2.FileSystemLoader(searchpath="/Users/jmt/GitHub/atlaskit")
+    html_loader = jinja2.FileSystemLoader(searchpath="./")
     html_env = jinja2.Environment(loader=html_loader)
     html_fname = "atlas_inter_observer.jinja"
     html = html_env.get_template(html_fname)

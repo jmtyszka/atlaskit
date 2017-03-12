@@ -122,7 +122,7 @@ def main():
 
     # Loop over observer directories
     # Any subdirectory of the label directory begining with "obs-"
-    for obs_dir in glob(os.path.join(label_dir, "obs-*")):
+    for obs_dir in sorted(glob(os.path.join(label_dir, "obs-*"))):
 
         if os.path.isdir(obs_dir):
 
@@ -132,7 +132,7 @@ def main():
             obs_labels = []
 
             # Loop over all template label images
-            for im in glob(os.path.join(obs_dir, '*.nii.gz')):
+            for im in sorted(glob(os.path.join(obs_dir, '*.nii.gz'))):
 
                 # Load label image and add to list
                 this_nii = nib.load(im)
@@ -529,7 +529,7 @@ def get_template_ids(label_dir, obs):
 
     if os.path.isdir(obs_dir):
 
-        ims = glob(os.path_join(obs_dir, '*.nii.gz'))
+        ims = sorted(glob(os.path_join(obs_dir, '*.nii.gz')))
 
         print(ims)
 
