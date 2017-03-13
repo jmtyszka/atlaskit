@@ -83,25 +83,30 @@ def main():
     else:
         label_dir = os.path.realpath(os.getcwd())
 
+    print('Label directory  : %s' % label_dir)
+
     if args.atlasdir:
         atlas_dir = args.atlasdir
     else:
         atlas_dir = os.path.join(label_dir, 'atlas')
 
-    # Check for label key file
-    if os.path.isfile(args.key):
+    print('Atlas directory  : %s' % atlas_dir)
+
+    # Handle label key file
+    if args.key:
         label_keyfile = args.key
     else:
-        print('* ITK-SNAP label key is missing (%s) - exiting' % args.key)
+        label_keyfile = os.path.join(label_dir, 'labels.txt')
+
+    print('Label key file   : %s' % label_keyfile)
+
+    if not os.path.isfile(label_keyfile):
+        print('* ITK-SNAP label key is missing (%s) - exiting' % label_keyfile)
         sys.exit(1)
 
     # Safely create atlas directory
     if not os.path.isdir(atlas_dir):
         os.mkdir(atlas_dir)
-
-    print('Label directory  : %s' % label_dir)
-    print('Atlas directory  : %s' % atlas_dir)
-    print('Label key file   : %s' % label_keyfile)
 
     # Save a copy of label key file in the atlas directory
     label_keyfile_save = os.path.join(atlas_dir, 'labels.txt')
