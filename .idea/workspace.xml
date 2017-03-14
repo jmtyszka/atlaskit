@@ -4,10 +4,8 @@
     <bookmark url="file://$PROJECT_DIR$/atlas.py" description="&#10;    # Check for label key file&#10;    if args.key:&#10; ..." line="92" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="5e02d061-5636-4555-8bcb-f1804eb82bd7" name="Default" comment="First release v1.0.0">
+    <list default="true" id="5e02d061-5636-4555-8bcb-f1804eb82bd7" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/atlas.py" afterPath="$PROJECT_DIR$/atlas.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/atlas_report.py" afterPath="$PROJECT_DIR$/atlas_report.py" />
     </list>
     <ignored path="atlaskit.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -52,8 +50,8 @@
       <file leaf-file-name="atlas_report.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/atlas_report.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="626">
-              <caret line="53" column="20" lean-forward="false" selection-start-line="53" selection-start-column="20" selection-end-line="53" selection-end-column="20" />
+            <state relative-caret-position="176">
+              <caret line="23" column="65" lean-forward="true" selection-start-line="23" selection-start-column="65" selection-end-line="23" selection-end-column="65" />
               <folding>
                 <element signature="e#1163#1172#0" expanded="true" />
                 <element signature="e#2000#2086#0" expanded="false" />
@@ -178,8 +176,8 @@
     <sorting>DEFINITION_ORDER</sorting>
   </component>
   <component name="ProjectFrameBounds">
-    <option name="x" value="356" />
-    <option name="y" value="47" />
+    <option name="x" value="652" />
+    <option name="y" value="48" />
     <option name="width" value="1883" />
     <option name="height" value="1289" />
   </component>
@@ -879,14 +877,21 @@
       <option name="project" value="LOCAL" />
       <updated>1489172964932</updated>
     </task>
-    <option name="localTasksCounter" value="26" />
+    <task id="LOCAL-00026" summary="Set jinja search path to atlas_report.py script directory (sys.path[0])">
+      <created>1489447164358</created>
+      <option name="number" value="00026" />
+      <option name="presentableId" value="LOCAL-00026" />
+      <option name="project" value="LOCAL" />
+      <updated>1489447164358</updated>
+    </task>
+    <option name="localTasksCounter" value="27" />
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="356" y="47" width="1883" height="1289" extended-state="0" />
-    <editor active="true" />
+    <frame x="652" y="48" width="1883" height="1289" extended-state="0" />
+    <editor active="false" />
     <layout>
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.20339884" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.20339884" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
@@ -941,7 +946,8 @@
     <MESSAGE value="Skeleton version of intra and inter reports" />
     <MESSAGE value="Working summary, intra and inter reports. Need to complete summary of similarity metrics by observer and label" />
     <MESSAGE value="First release v1.0.0" />
-    <option name="LAST_COMMIT_MESSAGE" value="First release v1.0.0" />
+    <MESSAGE value="Set jinja search path to atlas_report.py script directory (sys.path[0])" />
+    <option name="LAST_COMMIT_MESSAGE" value="Set jinja search path to atlas_report.py script directory (sys.path[0])" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -1175,8 +1181,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/atlas_report.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="626">
-          <caret line="53" column="20" lean-forward="false" selection-start-line="53" selection-start-column="20" selection-end-line="53" selection-end-column="20" />
+        <state relative-caret-position="176">
+          <caret line="23" column="65" lean-forward="true" selection-start-line="23" selection-start-column="65" selection-end-line="23" selection-end-column="65" />
           <folding>
             <element signature="e#1163#1172#0" expanded="true" />
             <element signature="e#2000#2086#0" expanded="false" />
