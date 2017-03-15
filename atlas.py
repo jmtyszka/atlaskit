@@ -56,6 +56,7 @@ import pandas as pd
 import multiprocessing as mp
 import shutil
 from glob import glob
+from scipy.ndimage.morphology import binary_erosion
 
 
 def main():
@@ -310,16 +311,16 @@ def intra_observer_metrics(label_mask, vox_mm):
         for ta in range(0, ntmp):
 
             mask_a = label_mask[obs, ta, :, :, :]
-            data_a = []
+            data_list = []
 
             for tb in range(0, ntmp):
 
                 mask_b = label_mask[obs,tb,:,:,:]
-                data_a.append((mask_a, mask_b, vox_mm))
+                data_list.append((mask_a, mask_b, vox_mm))
 
             # Run similarity metric function in parallel on template A data list
             with mp.Pool(mp.cpu_count()-2) as pool:
-                res = pool.starmap(similarity, data_a)
+                res = pool.starmap(similarity, data_list)
 
             # Add to current observer results
             obs_res.append(res)
@@ -365,17 +366,17 @@ def inter_observer_metrics(label_mask, vox_mm):
 
             mask_a = label_mask[obs_a, tmp, :, :, :]
 
-            data_a = []
+            data_list = []
 
             for obs_b in range(0, nobs):
 
                 mask_b = label_mask[obs_b, tmp, :, :, :]
 
-                data_a.append((mask_a, mask_b, vox_mm))
+                data_list.append((mask_a, mask_b, vox_mm))
 
             # Run similarity metric function in parallel on data list
             with mp.Pool(mp.cpu_count()-2) as pool:
-                res = pool.starmap(similarity, data_a)
+                res = pool.starmap(similarity, data_list)
 
             # Add to current template results
             tmp_res.append(res)
@@ -456,6 +457,19 @@ def save_inter_metrics(fname, inter_metrics, label_nos, label_key):
 
 
 def similarity(mask_a, mask_b, vox_mm):
+    """
+
+    Parameters
+    ----------
+    mask_a: 3D logical array
+    mask_b: 3D logical array
+    vox_mm: tuple of voxel dimensions in mm
+
+    Returns
+    -------
+    dice, haus: similarity metrics
+    na, nb: number of voxels in each mask
+    """
 
     # Count voxels in each mask
     na, nb = np.sum(mask_a), np.sum(mask_b)
@@ -481,7 +495,7 @@ def similarity(mask_a, mask_b, vox_mm):
 
 def hausdorff_distance(A, B, vox_mm):
     """
-    Calculate the hausdorff_distance distance in mm between two binary masks in 3D
+    Calculate the Hausdorff distance in mm between two binary masks in 3D
 
     Parameters
     ----------
@@ -498,9 +512,13 @@ def hausdorff_distance(A, B, vox_mm):
         hausdorff_distance distance between labels
     """
 
-    # Create lists of all True points in both masks
-    xA, yA, zA = np.nonzero(A)
-    xB, yB, zB = np.nonzero(B)
+    # Only need to calculate distances for surface voxels in each mask
+    sA = surface_voxels(A)
+    sB = surface_voxels(B)
+
+    # Create lists of all True points in both surface masks
+    xA, yA, zA = np.nonzero(sA)
+    xB, yB, zB = np.nonzero(sB)
 
     # Count elements in each point set
     nA = xA.size
@@ -526,6 +544,30 @@ def hausdorff_distance(A, B, vox_mm):
         H = np.nan
 
     return H
+
+
+def surface_voxels(x):
+
+    return x - binary_erosion(x, structure=np.ones([3,3,3]), iterations=1)
+
+
+def bounding_box(x):
+
+    # Projections onto x, y and z axes
+    px = np.any(x, axis=(1, 2))
+    py = np.any(x, axis=(0, 2))
+    pz = np.any(x, axis=(0, 1))
+
+    px_min, px_max = np.where(px)[0][[0, -1]]
+    py_min, py_max = np.where(py)[0][[0, -1]]
+    pz_min, pz_max = np.where(pz)[0][[0, -1]]
+
+    return px_min, px_max, py_min, py_max, pz_min, pz_max
+
+
+def extract_box(x, bb):
+
+    return x[bb[0]:bb[1],bb[2]:bb[3],bb[4]:bb[5]]
 
 
 def get_template_ids(label_dir, obs):
