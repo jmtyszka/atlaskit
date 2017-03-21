@@ -49,6 +49,7 @@ import matplotlib.pyplot as plt
 from scipy.misc import imresize
 from scipy.ndimage import find_objects
 from datetime import datetime
+from six import BytesIO
 
 
 __version__ = '1.0.1'
@@ -158,8 +159,11 @@ def summary_report(atlas_dir, report_dir, intra_metrics, inter_metrics):
             this_intra_dice = intra_dice[ll, obs, :, :]
             this_intra_haus = intra_haus[ll, obs, :, :]
 
-            intra_dice_mean = mean_str(this_intra_dice)
-            intra_haus_mean = mean_str(this_intra_haus)
+            # Similarity matrices are upper triangle symmetric
+            # so calculate upper triangle mean, excluding leading diagonal
+            # Returns a string (to allow for '-')
+            intra_dice_mean = mean_triu_str(this_intra_dice)
+            intra_haus_mean = mean_triu_str(this_intra_haus)
 
             # Find unfinished template labels
             # Search for NaNs on leading diagonals in intra dice data
@@ -498,12 +502,15 @@ def central_slices(p, roi):
     # Unpack ROI
     x0, y0, z0, w = roi
 
+    # Half width of ROI
+    hw = np.ceil(w/2.0).astype(int) + 1
+
     if w > 0:
 
         # Define central slices
-        xx = slice(x0 - w, x0 + w, 1)
-        yy = slice(y0 - w, y0 + w, 1)
-        zz = slice(z0 - w, z0 + w, 1)
+        xx = slice(x0 - hw, x0 + hw, 1)
+        yy = slice(y0 - hw, y0 + hw, 1)
+        zz = slice(z0 - hw, z0 + hw, 1)
 
         # Extract slices
         p_xy = p[xx,yy,z0]
@@ -601,10 +608,10 @@ def load_metrics(atlas_dir):
     return intra_metrics, inter_metrics
 
 
-def mean_str(x):
+def mean_triu_str(x):
     """
-    Create formated string containing mean of x[]
-    Handle NaNs
+    Calculate mean of upper triangle (excluding NaNs)
+    Returns '-' when upper triangle is entirely NaNs
 
     Parameters
     ----------
@@ -616,12 +623,19 @@ def mean_str(x):
 
     """
 
-    n_nans = np.sum(np.isnan(x))
+    # Size of square matrix, x
+    n = x.shape[0]
 
-    if n_nans == x.size:
+    # Upper triangle values, excluding leading diagonal
+    xut = x[np.triu_indices(n, 1)]
+
+    # Number of NaNs in upper triangle
+    n_nans = np.sum(np.isnan(xut))
+
+    if n_nans == xut.size:
         xms = "-"
     else:
-        xms = "%0.3f" % np.nanmean(x)
+        xms = "%0.3f" % np.nanmean(xut)
 
     return xms
 

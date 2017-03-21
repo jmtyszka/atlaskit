@@ -50,6 +50,7 @@ import os
 import sys
 import csv
 import argparse
+from six import BytesIO
 import nibabel as nib
 import numpy as np
 import pandas as pd
