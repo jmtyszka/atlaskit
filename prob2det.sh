@@ -9,7 +9,7 @@
 
 if [ $# -lt 3 ]
 then
-  echo "USAGE : prob2ind.sh <4D prob atlas> <3D label atlas> <threshold>"
+  echo "USAGE : prob2ind.sh <4D prob atlas> <3D label atlas> <p threshold>"
   exit
 fi
 
