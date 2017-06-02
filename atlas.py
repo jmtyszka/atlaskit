@@ -282,7 +282,7 @@ def save_prob_atlas(prob_atlas, prob_atlas_fname, affine_tx):
 
 def intra_observer_metrics(label_mask, vox_mm):
     """
-    Calculate within-observer Dice, Hausdorf and related metrics
+    Calculate within-observer Dice, Hausdorff and related metrics
 
     Parameters
     ----------
@@ -336,7 +336,7 @@ def intra_observer_metrics(label_mask, vox_mm):
 
 def inter_observer_metrics(label_mask, vox_mm):
     """
-     Calculate between-observer Dice, Hausdorf and related metrics
+     Calculate between-observer Dice, Hausdorff and related metrics
 
      Parameters
      ----------

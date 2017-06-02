@@ -56,7 +56,7 @@ def main():
     parser = argparse.ArgumentParser(description='Smooth one or more atlas labels')
     parser.add_argument('-i','--in_file', help="source atlas labels filename")
     parser.add_argument('-o','--out_file', help="smoothed atlas labels filename")
-    parser.add_argument('labels', metavar='N', type=int, nargs='+',
+    parser.add_argument('labels', metavar='label', type=int, nargs='+',
                         help='label numbers to smooth')
 
     args = parser.parse_args()
