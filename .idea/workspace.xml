@@ -2,10 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="5e02d061-5636-4555-8bcb-f1804eb82bd7" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/atlas_lesion_atlas.py" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/lesion_atlas_analysis.py" afterPath="" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/atlas_report.py" afterPath="$PROJECT_DIR$/atlas_report.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/atlas_lesion_analysis.py" afterPath="$PROJECT_DIR$/atlas_lesion_analysis.py" />
     </list>
     <ignored path="atlaskit.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -21,7 +19,7 @@
     <SUITE FILE_PATH="coverage/atlaskit$allen_download.coverage" NAME="allen_download Coverage Results" MODIFIED="1495816636354" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$USER_HOME$/sandbox" />
     <SUITE FILE_PATH="coverage/atlaskit$atlas.coverage" NAME="atlas Coverage Results" MODIFIED="1490035646843" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$USER_HOME$/HCP/Atlases/CIT168/labeling" />
     <SUITE FILE_PATH="coverage/atlaskit$dice.coverage" NAME="dice Coverage Results" MODIFIED="1460398742837" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$USER_HOME$/Box/CIT_Midbrain_Atlas/Labeling/jmt" />
-    <SUITE FILE_PATH="coverage/atlaskit$lesion_atlas_analysis.coverage" NAME="lesion_atlas_analysis Coverage Results" MODIFIED="1497483996520" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="/Volumes/Data/jmt/Amygdala/UWD/Structural_Analysis/BG/20170417/derivatives" />
+    <SUITE FILE_PATH="coverage/atlaskit$lesion_atlas_analysis.coverage" NAME="lesion_atlas_analysis Coverage Results" MODIFIED="1497567465141" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="/Volumes/Data/jmt/Amygdala/UWD/Structural_Analysis/BG/20170417/derivatives" />
     <SUITE FILE_PATH="coverage/atlaskit$atlas_montage.coverage" NAME="atlas_montage Coverage Results" MODIFIED="1495662665836" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$USER_HOME$/Box/CIT_DeepBrain_Atlas/Labeling/basal_ganglia_atlas" />
     <SUITE FILE_PATH="coverage/atlaskit$nifti2png.coverage" NAME="nifti2png Coverage Results" MODIFIED="1480528519760" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$USER_HOME$/Data/Blender/HeadSliceUp/JMT-2005-11-22" />
     <SUITE FILE_PATH="coverage/atlaskit$atlas_report.coverage" NAME="atlas_report Coverage Results" MODIFIED="1490136382395" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$USER_HOME$/HCP/Atlases/CIT168/labeling" />
@@ -52,20 +50,20 @@
       <file leaf-file-name="atlas_report.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/atlas_report.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="10605">
-              <caret line="717" column="0" lean-forward="false" selection-start-line="717" selection-start-column="0" selection-end-line="740" selection-end-column="14" />
+            <state relative-caret-position="385">
+              <caret line="421" column="22" lean-forward="true" selection-start-line="421" selection-start-column="22" selection-end-line="421" selection-end-column="22" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="atlas_lesion_atlas.py" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/atlas_lesion_atlas.py">
+      <file leaf-file-name="atlas_lesion_analysis.py" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/atlas_lesion_analysis.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1575">
-              <caret line="202" column="24" lean-forward="false" selection-start-line="202" selection-start-column="24" selection-end-line="202" selection-end-column="24" />
+            <state relative-caret-position="286">
+              <caret line="249" column="86" lean-forward="true" selection-start-line="249" selection-start-column="86" selection-end-line="249" selection-end-column="86" />
               <folding>
-                <element signature="e#1201#1210#0" expanded="true" />
+                <element signature="e#1204#1213#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -124,7 +122,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>tryp</find>
       <find>get_label_name</find>
       <find>label_nam</find>
       <find>parse_range</find>
@@ -148,12 +145,13 @@
       <find>hauss</find>
       <find>hausdorf</find>
       <find>max</find>
-      <find>isobb</find>
       <find>nii</find>
       <find>label_key</find>
       <find>load_key</find>
       <find>maxprob</find>
       <find>key</find>
+      <find>maxprob_pr</find>
+      <find>isobb</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -200,9 +198,10 @@
         <option value="$PROJECT_DIR$/atlas_montage.py" />
         <option value="$PROJECT_DIR$/atlas_montage.sh" />
         <option value="$PROJECT_DIR$/allen_download.py" />
-        <option value="$PROJECT_DIR$/atlas_report.py" />
         <option value="$PROJECT_DIR$/lesion_atlas_analysis.py" />
         <option value="$PROJECT_DIR$/atlas_lesion_atlas.py" />
+        <option value="$PROJECT_DIR$/atlas_report.py" />
+        <option value="$PROJECT_DIR$/atlas_lesion_analysis.py" />
       </list>
     </option>
   </component>
@@ -213,8 +212,8 @@
     <sorting>DEFINITION_ORDER</sorting>
   </component>
   <component name="ProjectFrameBounds">
-    <option name="x" value="96" />
-    <option name="y" value="76" />
+    <option name="x" value="400" />
+    <option name="y" value="90" />
     <option name="width" value="1463" />
     <option name="height" value="1162" />
   </component>
@@ -626,7 +625,7 @@
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <module name="atlaskit" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/atlas_lesion_atlas.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/atlas_lesion_analysis.py" />
       <option name="PARAMETERS" value="-l sub-BG_ses-20170417_crop_lesions.nii.gz -a CIT168_crop_pAmyNuc_syn.nii.gz -lk UWD_Lesions.txt -ak ~/Box/CIT_DeepBrain_Atlas/+Release+/CIT168_Amygdala_v1.0.3/CIT168_700um/CIT168_AmyLabels.txt" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -893,16 +892,29 @@
       <option name="project" value="LOCAL" />
       <updated>1496423624110</updated>
     </task>
-    <option name="localTasksCounter" value="32" />
+    <task id="LOCAL-00032" summary="Rewrite lesion_atlas_analysis.py (renamed to atlas_lesion_analysis.py). Now using Bokeh for HTML reporting. Fixed normalization of lesion-atlas intersection volumes - previously normalized to total bilateral volume of atlas label, not unilateral volume.">
+      <created>1497547681952</created>
+      <option name="number" value="00032" />
+      <option name="presentableId" value="LOCAL-00032" />
+      <option name="project" value="LOCAL" />
+      <updated>1497547681952</updated>
+    </task>
+    <task id="LOCAL-00033" summary="Rewrite lesion_atlas_analysis.py (renamed to atlas_lesion_analysis.py). Now using Bokeh for HTML reporting. Fixed normalization of lesion-atlas intersection volumes - previously normalized to total bilateral volume of atlas label, not unilateral volume.">
+      <created>1497566440123</created>
+      <option name="number" value="00033" />
+      <option name="presentableId" value="LOCAL-00033" />
+      <option name="project" value="LOCAL" />
+      <updated>1497566440123</updated>
+    </task>
+    <option name="localTasksCounter" value="34" />
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="96" y="76" width="1463" height="1162" extended-state="0" />
-    <editor active="true" />
+    <frame x="400" y="90" width="1463" height="1162" extended-state="0" />
     <layout>
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33926898" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.33926898" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.27248907" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.31337163" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
@@ -938,7 +950,6 @@
     <option name="myLimit" value="2678400000" />
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Added Hausdorff distance metric" />
     <MESSAGE value="Scale Hausdorff distance to mm. Add mirror_warp shell scripts." />
     <MESSAGE value="First pass tidy up for general release. Remove historical artifacts, broken scripts, etc." />
     <MESSAGE value="Correct extensions for all scripts." />
@@ -963,7 +974,8 @@
     <MESSAGE value="Fixed central slice extraction from projections. Clipped ROIs caused tryptic failures." />
     <MESSAGE value="Updated usage for prob2det.sh" />
     <MESSAGE value="Add support for Allen Brain Atlas download (SVG and JPG), creating prob atlas montages." />
-    <option name="LAST_COMMIT_MESSAGE" value="Add support for Allen Brain Atlas download (SVG and JPG), creating prob atlas montages." />
+    <MESSAGE value="Rewrite lesion_atlas_analysis.py (renamed to atlas_lesion_analysis.py). Now using Bokeh for HTML reporting. Fixed normalization of lesion-atlas intersection volumes - previously normalized to total bilateral volume of atlas label, not unilateral volume." />
+    <option name="LAST_COMMIT_MESSAGE" value="Rewrite lesion_atlas_analysis.py (renamed to atlas_lesion_analysis.py). Now using Bokeh for HTML reporting. Fixed normalization of lesion-atlas intersection volumes - previously normalized to total bilateral volume of atlas label, not unilateral volume." />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -1252,14 +1264,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/atlas_report.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="10605">
-          <caret line="717" column="0" lean-forward="false" selection-start-line="717" selection-start-column="0" selection-end-line="740" selection-end-column="14" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$USER_HOME$/Downloads/factorplot_bars.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
@@ -1267,12 +1271,20 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/atlas_lesion_atlas.py">
+    <entry file="file://$PROJECT_DIR$/atlas_report.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1575">
-          <caret line="202" column="24" lean-forward="false" selection-start-line="202" selection-start-column="24" selection-end-line="202" selection-end-column="24" />
+        <state relative-caret-position="385">
+          <caret line="421" column="22" lean-forward="true" selection-start-line="421" selection-start-column="22" selection-end-line="421" selection-end-column="22" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/atlas_lesion_analysis.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="286">
+          <caret line="249" column="86" lean-forward="true" selection-start-line="249" selection-start-column="86" selection-end-line="249" selection-end-column="86" />
           <folding>
-            <element signature="e#1201#1210#0" expanded="true" />
+            <element signature="e#1204#1213#0" expanded="true" />
           </folding>
         </state>
       </provider>

@@ -246,6 +246,9 @@ def report_results(results, out_dir):
                         title="%s : Intersection Volume (ul)" % lesion_name,
                         legend=[])
 
+        bar_i_vol.xaxis.axis_label = ""
+        bar_i_vol.yaxis.axis_label = "(Lesion)-(Atlas Label) Intersection Volume (ul)"
+
         bar_l_perc = Bar(data,
                         values='Lesion Perc',
                         label='Atlas Label',
@@ -253,12 +256,18 @@ def report_results(results, out_dir):
                         title="%s : Intersection / Lesion Volume (%%)" % lesion_name,
                         legend=[])
 
+        bar_l_perc.xaxis.axis_label = ""
+        bar_l_perc.yaxis.axis_label = "Intersection / Lesion Volume (%)"
+
         bar_a_perc = Bar(data,
                         values='Atlas Perc',
                         label='Atlas Label',
                         color='Atlas Label', palette=pal,
                         title="%s : Intersection / Atlas Label Volume (%%)" % lesion_name,
                         legend=[])
+
+        bar_a_perc.xaxis.axis_label = ""
+        bar_a_perc.yaxis.axis_label = "Intersection / Atlas Label Volume (%)"
 
         plots.append([bar_i_vol, bar_l_perc, bar_a_perc])
 
