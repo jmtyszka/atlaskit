@@ -306,6 +306,8 @@ def inter_observer_report(report_dir, inter_metrics):
 
 def maxprob_projections(atlas_dir, report_dir, label_names, nrows, ncols):
     """
+    *** CURRENTLY UNUSED ***
+
     Construct an array of maximum probablity projections through each label
     over all observers and templates
 
@@ -371,6 +373,8 @@ def maxprob_projections(atlas_dir, report_dir, label_names, nrows, ncols):
 
 def prob_montage(atlas_dir, report_dir, label_names):
     """
+    *** REPLACES MAXPROB PROJECTIONS ***
+
     Construct an array of overlays of all prob labels on a T1w background
     - Each label is colored according to the ITK-SNAP label key
     - Calculate coronal slice skip from minimum BB for 4 x 4 montage (16 slices)
@@ -396,53 +400,26 @@ def prob_montage(atlas_dir, report_dir, label_names):
     prob_nii = nib.load(os.path.join(atlas_dir, 'prob_atlas.nii.gz'))
     prob_atlas = prob_nii.get_data()
 
-    # Probabilistic OR all labels (collapse to single 3D volume)
-    print('  Collapsing all labels')
-    prob_any = np.sum(prob_atlas, axis=3)
+    n_labels = (prob_atlas.shape)[3]
 
-    # Determine minimum isotropic bounding box for prob labels > threshold
+    # Find minimum bounding box for prob labels > 0.25
     print('  Determining minimum isotropic bounding box')
-    bb = isobb(prob_atlas, p_thresh)
+    p_all = np.sum(prob_atlas, axis=3)
+    bb = isobb(p_all > p_thresh)
 
-    # Create figure with subplot array
-    fig, axs = plt.subplots(nrows, ncols, figsize=(8,4))
-    axs = np.array(axs).reshape(-1)
+    for l_c in range(0, n_labels):
 
-    # Loop over subplot axes
-    for aa, ax in enumerate(axs):
+        p = prob_atlas[:,:,:,l_c]
+        p = p[bb]
 
-        if aa < len(label_names):
-
-            print('    %s' % label_names[aa])
-
-            # Current prob label
-            p = prob_atlas[:, :, :, aa]
-
-            # Create tryptic of central slices through ROI defined by p > p_thresh
-            tryptic = central_slices(p, isobb(p > p_thresh))
-
-            ax.pcolor(tryptic)
-            ax.set_title(label_names[aa], fontsize=8)
-
-        else:
-            ax.axis('off')
-
-        ax.get_xaxis().set_visible(False)
-        ax.get_yaxis().set_visible(False)
-        ax.set(adjustable='box-forced', aspect='equal')
-        ax.set(aspect='equal')
-
-    # Tidy up spacing
-    plt.tight_layout()
-
-    # Save figure to PNG
-    mpp_fname = 'mpp.png'
-    plt.savefig(os.path.join(report_dir, mpp_fname))
+    # Save probabilistic montage to PNG
+    pmont_fname = 'prob_montage.png'
+    plt.savefig(os.path.join(report_dir, pmont_fname))
 
     # Clean up
     plt.close(fig)
 
-    return mpp_fname
+    return pmont_fname
 
 
 def similarity_figure(metric, inds, tfmt, ffmt, report_dir, label_names, mlims, nrows, ncols, nansub=0.0):

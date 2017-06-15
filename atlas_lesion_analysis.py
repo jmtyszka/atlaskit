@@ -6,7 +6,7 @@ Analyse mutual volume overlap of lesion labels with probabilistic atlas labels
 
 Usage
 ----
-atlas_lesion_atlas.py
+atlas_lesion_analysis.py
     -l <3D lesion label image>
     -a <4D prob atlas image>
     [-lk <lesion label key>]
