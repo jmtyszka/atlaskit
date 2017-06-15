@@ -134,13 +134,12 @@ def summary_report(atlas_dir, report_dir, intra_metrics, inter_metrics):
     label_names, label_nos, observers, templates, intra_dice, intra_haus = intra_metrics
     _, _, _, _, inter_dice, inter_haus = inter_metrics
 
-    # Determine montage size from number of labels
-    ncols = 4
-    nrows = np.ceil(len(label_names)/ncols).astype(int)
+    # Load label key from atlas directory
+    label_key = load_key(os.path.join(atlas_dir, 'index.txt'))
 
     # Create tryptic overlays through CoM of label
     print('  Generating maximum probability projections for each label')
-    mpp_fname = maxprob_projections(atlas_dir, report_dir, label_names, nrows, ncols)
+    montage_fname = prob_montage(atlas_dir, report_dir, label_key)
 
     # Init observer stats list to pass to HTML template
     stats = []
@@ -180,7 +179,7 @@ def summary_report(atlas_dir, report_dir, intra_metrics, inter_metrics):
         stats.append(obs_stats)
 
     # Template variables
-    template_vars = {"mpp_fname": mpp_fname,
+    template_vars = {"montage_fname": montage_fname,
                      "stats": stats,
                      "report_time": datetime.now().strftime('%Y-%m-%d %H:%M')}
 
@@ -334,6 +333,82 @@ def maxprob_projections(atlas_dir, report_dir, label_names, nrows, ncols):
     axs = np.array(axs).reshape(-1)
 
     # Loop over axes
+    for aa, ax in enumerate(axs):
+
+        if aa < len(label_names):
+
+            print('    %s' % label_names[aa])
+
+            # Current prob label
+            p = prob_atlas[:, :, :, aa]
+
+            # Create tryptic of central slices through ROI defined by p > p_thresh
+            tryptic = central_slices(p, isobb(p > p_thresh))
+
+            ax.pcolor(tryptic)
+            ax.set_title(label_names[aa], fontsize=8)
+
+        else:
+            ax.axis('off')
+
+        ax.get_xaxis().set_visible(False)
+        ax.get_yaxis().set_visible(False)
+        ax.set(adjustable='box-forced', aspect='equal')
+        ax.set(aspect='equal')
+
+    # Tidy up spacing
+    plt.tight_layout()
+
+    # Save figure to PNG
+    mpp_fname = 'mpp.png'
+    plt.savefig(os.path.join(report_dir, mpp_fname))
+
+    # Clean up
+    plt.close(fig)
+
+    return mpp_fname
+
+
+def prob_montage(atlas_dir, report_dir, label_names):
+    """
+    Construct an array of overlays of all prob labels on a T1w background
+    - Each label is colored according to the ITK-SNAP label key
+    - Calculate coronal slice skip from minimum BB for 4 x 4 montage (16 slices)
+
+    Parameters
+    ----------
+    atlas_dir: atlas directory path
+    report_dir: report directory path
+    label_colors: label colors (RGB tuples) from ITK-SNAP label key
+
+    Returns
+    -------
+    montage_png: prob label montage
+    """
+
+    # Probability threshold for minimum BB
+    p_thresh = 0.25
+
+    # Size of montage
+    nrows, ncols = 4, 4
+
+    # Load the 4D probabilistic atlas
+    prob_nii = nib.load(os.path.join(atlas_dir, 'prob_atlas.nii.gz'))
+    prob_atlas = prob_nii.get_data()
+
+    # Probabilistic OR all labels (collapse to single 3D volume)
+    print('  Collapsing all labels')
+    prob_any = np.sum(prob_atlas, axis=3)
+
+    # Determine minimum isotropic bounding box for prob labels > threshold
+    print('  Determining minimum isotropic bounding box')
+    bb = isobb(prob_atlas, p_thresh)
+
+    # Create figure with subplot array
+    fig, axs = plt.subplots(nrows, ncols, figsize=(8,4))
+    axs = np.array(axs).reshape(-1)
+
+    # Loop over subplot axes
     for aa, ax in enumerate(axs):
 
         if aa < len(label_names):
@@ -638,6 +713,33 @@ def mean_triu_str(x):
         xms = "%0.3f" % np.nanmean(xut)
 
     return xms
+
+
+def load_key(key_fname):
+    """
+    Parse an ITK-SNAP label key file
+
+    Parameters
+    ----------
+    key_fname: ITK-SNAP label key filename
+
+    Returns
+    -------
+    key: Data table containing ITK-SNAP style label key
+    """
+
+    import pandas as pd
+
+    # Import key as a data table
+    # Note the partially undocumented delim_whitespace flag
+    key = pd.read_table(key_fname,
+                         comment='#',
+                         header=None,
+                         names=['Index','R','G','B','A','Vis','Mesh','Name'],
+                         delim_whitespace=True)
+
+    return key
+
 
 # This is the standard boilerplate that calls the main() function.
 if __name__ == '__main__':
