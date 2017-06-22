@@ -61,7 +61,7 @@ def main():
 
     ribbon_fname = os.path.join(subj_dir, 'mri', 'ribbon.mgz')
     wmparc_fname = os.path.join(subj_dir, 'mri', 'wmparc.mgz')
-    t1_fname = os.path.join(subj_dir, 'mri', 'T1.mgz')
+    t1_fname = os.path.join(subj_dir, 'mri', 'brain.mgz')
 
     # Load FS parcellations
     try:
@@ -82,7 +82,7 @@ def main():
 
     # Load FS T1 reference
     try:
-        print('+ Loading reference T1')
+        print('+ Loading T1 brain')
         t1_mgz = nib.load(t1_fname)
         t1_img = t1_mgz.get_data()
     except:
@@ -160,8 +160,8 @@ def main():
     prob_nii = nib.Nifti1Image(gm_mask, ribbon_mgz.get_affine())
     prob_nii.to_filename(gm_fname)
 
-    t1_fname = os.path.join(out_dir, 'fs_t1.nii.gz')
-    print('Saving reference T1 to %s' % t1_fname)
+    t1_fname = os.path.join(out_dir, 'fs_t1_brain.nii.gz')
+    print('+ Saving T1 brain to %s' % t1_fname)
     prob_nii = nib.Nifti1Image(t1_img, ribbon_mgz.get_affine())
     prob_nii.to_filename(t1_fname)
 
