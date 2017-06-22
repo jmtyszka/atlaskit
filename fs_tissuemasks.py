@@ -61,7 +61,7 @@ def main():
 
     ribbon_fname = os.path.join(subj_dir, 'mri', 'ribbon.mgz')
     wmparc_fname = os.path.join(subj_dir, 'mri', 'wmparc.mgz')
-    t1_fname = os.path.join(subj_dir, 'mri', 'T1.mgz')
+    t1_fname = os.path.join(subj_dir, 'mri', 'nu.mgz')
 
     # Load FS parcellations
     try:
