@@ -103,7 +103,7 @@ def main():
     
     # Save smoothed labels image
     print('Saving smoothed labels to %s' % out_file)
-    out_nii = nib.Nifti1Image(out_labels, in_nii.get_affine())
+    out_nii = nib.Nifti1Image(out_labels, in_nii.affine)
     out_nii.to_filename(out_file)
     
     print('Done')

@@ -46,11 +46,9 @@ import jinja2
 import numpy as np
 import nibabel as nib
 import matplotlib.pyplot as plt
-from scipy.misc import imresize
-from scipy.ndimage import find_objects
 from datetime import datetime
-from six import BytesIO
-
+from skimage.util.montage import montage2d
+from skimage import color
 
 __version__ = '1.0.1'
 
@@ -59,12 +57,13 @@ def main():
 
     # Parse command line arguments
     parser = argparse.ArgumentParser(description='Create labeling report for a probabilistic atlas')
-    parser.add_argument('-a','--atlasdir', required=True, help='Directory containing probabilistic atlas')
+    parser.add_argument('-a', '--atlasdir', required=True, help='Directory containing probabilistic atlas')
+    parser.add_argument('-b', '--background', required=True, help='Background structural image')
 
     # Parse command line arguments
     args = parser.parse_args()
     atlas_dir = args.atlasdir
-
+    bg_fname = args.background
 
     print('')
     print('-----------------------------')
@@ -82,32 +81,33 @@ def main():
         os.mkdir(report_dir)
 
     print('Atlas directory  : %s' % atlas_dir)
+    print('Background image : %s' % bg_fname)
     print('Report directory : %s' % report_dir)
     print('')
 
     print('Loading similarity metrics')
     intra_stats, inter_stats = load_metrics(atlas_dir)
 
-    # Intra-observer reports (one per observer)
-    print('')
-    print('Generating intra-observer report')
-    intra_observer_report(report_dir, intra_stats)
-
-    # Inter-observer report
-    print('')
-    print('Generating inter-observer report')
-    inter_observer_report(report_dir, inter_stats)
+    # # Intra-observer reports (one per observer)
+    # print('')
+    # print('Generating intra-observer report')
+    # intra_observer_report(report_dir, intra_stats)
+    #
+    # # Inter-observer report
+    # print('')
+    # print('Generating inter-observer report')
+    # inter_observer_report(report_dir, inter_stats)
 
     # Summary report page
     print('')
     print('Writing report summary page')
-    summary_report(atlas_dir, report_dir, intra_stats, inter_stats)
+    summary_report(atlas_dir, report_dir, intra_stats, inter_stats, bg_fname)
 
     # Clean exit
     sys.exit(0)
 
 
-def summary_report(atlas_dir, report_dir, intra_metrics, inter_metrics):
+def summary_report(atlas_dir, report_dir, intra_metrics, inter_metrics, bg_fname):
     """
     Summary report for the entire atlas
     - maximum probability projections for all labels
@@ -116,8 +116,9 @@ def summary_report(atlas_dir, report_dir, intra_metrics, inter_metrics):
     ----------
     atlas_dir: atlas directory path
     report_dir: report directory path
-    intra_stats: intra-observer metrics tuple
-    inter_stats: inter-observer metrics tuple
+    intra_metrics: intra-observer metrics tuple
+    inter_metrics: inter-observer metrics tuple
+    bg_fname: background image filename
 
     Returns
     -------
@@ -134,12 +135,9 @@ def summary_report(atlas_dir, report_dir, intra_metrics, inter_metrics):
     label_names, label_nos, observers, templates, intra_dice, intra_haus = intra_metrics
     _, _, _, _, inter_dice, inter_haus = inter_metrics
 
-    # Load label key from atlas directory
-    label_key = load_key(os.path.join(atlas_dir, 'index.txt'))
-
-    # Create tryptic overlays through CoM of label
-    print('  Generating maximum probability projections for each label')
-    montage_fname = prob_montage(atlas_dir, report_dir, label_key)
+    # Create prob label overlays on bg image
+    print('  Generating probability montages')
+    montage_fname = prob_montage(atlas_dir, report_dir, bg_fname)
 
     # Init observer stats list to pass to HTML template
     stats = []
@@ -223,9 +221,11 @@ def intra_observer_report(report_dir, intra_metrics):
     hlims = 0.0, 10.0
 
     # Create similarity figures over all labels and observers
-    intra_dice_imgs = similarity_figure(dice, observers, "Observer %d Dice Coefficient", "intra_obs_%0d_dice.png",
+    intra_dice_imgs = similarity_figure(dice, observers,
+                                        "Observer %d Dice Coefficient", "intra_obs_%0d_dice.png",
                                         report_dir, label_names, dlims, nrows, ncols, 0.0)
-    intra_haus_imgs = similarity_figure(haus, observers, "Observer %d Hausdorff Distance (mm)", "intra_obs_%0d_haus.png",
+    intra_haus_imgs = similarity_figure(haus, observers,
+                                        "Observer %d Hausdorff Distance (mm)", "intra_obs_%0d_haus.png",
                                         report_dir, label_names, hlims, nrows, ncols, 1e6)
 
     # Composite all images into a single dictionary list
@@ -280,9 +280,11 @@ def inter_observer_report(report_dir, inter_metrics):
     hlims = 0.0, 10.0
 
     # Create similarity figures over all labels and observers
-    inter_dice_imgs = similarity_figure(dice, templates, "Template %d : Dice Coefficient", "inter_tmp_%0d_dice.png",
+    inter_dice_imgs = similarity_figure(dice, templates,
+                                        "Template %d : Dice Coefficient", "inter_tmp_%0d_dice.png",
                                         report_dir, label_names, dlims, nrows, ncols, 0.0)
-    inter_haus_imgs = similarity_figure(haus, templates, "Template %d Hausdorff Distance (mm)", "inter_tmp_%0d_haus.png",
+    inter_haus_imgs = similarity_figure(haus, templates,
+                                        "Template %d Hausdorff Distance (mm)", "inter_tmp_%0d_haus.png",
                                         report_dir, label_names, hlims, nrows, ncols, 1e6)
 
     # Composite all images into a single dictionary list
@@ -304,77 +306,8 @@ def inter_observer_report(report_dir, inter_metrics):
         f.write(html_text)
 
 
-def maxprob_projections(atlas_dir, report_dir, label_names, nrows, ncols):
+def prob_montage(atlas_dir, report_dir, bg_fname):
     """
-    *** CURRENTLY UNUSED ***
-
-    Construct an array of maximum probablity projections through each label
-    over all observers and templates
-
-    Parameters
-    ----------
-    atlas_dir: atlas directory path
-    report_dir: report directory path
-    label_names: list of unique label names (in label number order)
-    nrows, ncols: figure matrix size
-
-    Returns
-    -------
-    mpp_png: maxprob projection PNG filename
-    """
-
-    # Probability threshold for minimum BB
-    p_thresh = 0.25
-
-    # Load prob atlas
-    prob_nii = nib.load(os.path.join(atlas_dir, 'prob_atlas.nii.gz'))
-    prob_atlas = prob_nii.get_data()
-
-    # Create figure with subplot array
-    fig, axs = plt.subplots(nrows, ncols, figsize=(8,4))
-    axs = np.array(axs).reshape(-1)
-
-    # Loop over axes
-    for aa, ax in enumerate(axs):
-
-        if aa < len(label_names):
-
-            print('    %s' % label_names[aa])
-
-            # Current prob label
-            p = prob_atlas[:, :, :, aa]
-
-            # Create tryptic of central slices through ROI defined by p > p_thresh
-            tryptic = central_slices(p, isobb(p > p_thresh))
-
-            ax.pcolor(tryptic)
-            ax.set_title(label_names[aa], fontsize=8)
-
-        else:
-            ax.axis('off')
-
-        ax.get_xaxis().set_visible(False)
-        ax.get_yaxis().set_visible(False)
-        ax.set(adjustable='box-forced', aspect='equal')
-        ax.set(aspect='equal')
-
-    # Tidy up spacing
-    plt.tight_layout()
-
-    # Save figure to PNG
-    mpp_fname = 'mpp.png'
-    plt.savefig(os.path.join(report_dir, mpp_fname))
-
-    # Clean up
-    plt.close(fig)
-
-    return mpp_fname
-
-
-def prob_montage(atlas_dir, report_dir, label_names):
-    """
-    *** REPLACES MAXPROB PROJECTIONS ***
-
     Construct an array of overlays of all prob labels on a T1w background
     - Each label is colored according to the ITK-SNAP label key
     - Calculate coronal slice skip from minimum BB for 4 x 4 montage (16 slices)
@@ -383,43 +316,126 @@ def prob_montage(atlas_dir, report_dir, label_names):
     ----------
     atlas_dir: atlas directory path
     report_dir: report directory path
-    label_colors: label colors (RGB tuples) from ITK-SNAP label key
+    bg_fname: background image filename
 
     Returns
     -------
     montage_png: prob label montage
     """
 
+    # Load label key from atlas directory
+    label_key = load_key(os.path.join(atlas_dir, 'labels.txt'))
+
     # Probability threshold for minimum BB
     p_thresh = 0.25
 
-    # Size of montage
-    nrows, ncols = 4, 4
+    # Size of coronal section montage
+    n_rows, n_cols = 4, 4
+
+    # Load background image
+    print('  Loading background image')
+    bg_nii = nib.load(bg_fname)
+    bg_img = bg_nii.get_data()
+
+    # Normalize background intensity range to [0,1]
+    bg_img = bg_img / np.max(bg_img)
 
     # Load the 4D probabilistic atlas
-    prob_nii = nib.load(os.path.join(atlas_dir, 'prob_atlas.nii.gz'))
-    prob_atlas = prob_nii.get_data()
+    print('  Loading probabilistic image')
+    p_nii = nib.load(os.path.join(atlas_dir, 'prob_atlas.nii.gz'))
+    p_atlas = p_nii.get_data()
 
-    n_labels = (prob_atlas.shape)[3]
+    # Count prob labels
+    n_labels = p_atlas.shape[3]
 
-    # Find minimum bounding box for prob labels > 0.25
+    # Find minimum bounding box for all prob labels > 0.25
+    # x0, y0, z0 : minimum corner of BB (closest to origin)
     print('  Determining minimum isotropic bounding box')
-    p_all = np.sum(prob_atlas, axis=3)
-    bb = isobb(p_all > p_thresh)
+    p_all = np.sum(p_atlas, axis=3)
+    x0, x1, y0, y1, z0, z1 = bb(p_all > p_thresh, padding=4)
 
-    for l_c in range(0, n_labels):
+    # Crop bg image and prob atlas
+    bg_crop = bg_img[x0:x1, y0:y1, z0:z1]
+    p_crop = p_atlas[x0:x1, y0:y1, z0:z1, :]
 
-        p = prob_atlas[:,:,:,l_c]
-        p = p[bb]
+    # Create montage of coronal sections through cropped bg image
+    bg_mont = coronal_montage(bg_crop, n_rows, n_cols)
+
+    # Initialize the composite montage with the grayscale bg image
+    mont_rgb = colorize(bg_mont, hue=0.0, saturation=0.0)
+
+    # Create equivalent montage for all prob labels with varying hues
+    for lc in range(0, n_labels):
+
+        p_mont = coronal_montage(p_crop[:,:,:,lc], n_rows, n_cols)
+        p_rgb = colorize(p_mont, hue=float(lc)/n_labels, saturation=0.5)
+        mont_rgb = mont_rgb + p_rgb
+
+    # Flip montage vertically
+    mont_rgb = np.flip(mont_rgb, axis=0)
+
+    plt.imshow(mont_rgb)
+    plt.show()
 
     # Save probabilistic montage to PNG
-    pmont_fname = 'prob_montage.png'
-    plt.savefig(os.path.join(report_dir, pmont_fname))
+    mont_fname = 'prob_montage.png'
 
-    # Clean up
-    plt.close(fig)
+    return mont_fname
 
-    return pmont_fname
+
+def coronal_montage(img, n_rows=4, n_cols=4, rot=2):
+    """
+
+    Parameters
+    ----------
+    img: 3D image to montage
+    n_rows: number of montage rows
+    n_cols: number of montage columns
+    rot: CCW 90deg rotations to apply to each section
+
+    Returns
+    -------
+
+    cor_mont: coronal slice montage of img
+    """
+
+    # Total number of sections to extract
+    n = n_rows * n_cols
+
+    # Source image dimensions
+    nx, ny, nz = img.shape
+
+    # Coronal (XZ) section indices
+    yy = np.linspace(0, ny-1, n).astype(int)
+
+    # Permute image axes for montage2d: original y becomes new x
+    img = np.transpose(img[:,yy,:], (1,2,0))
+
+    cor_mont = montage2d(img, fill=0)
+
+    return cor_mont
+
+
+def colorize(image, hue=0.0, saturation=1.0):
+    """
+    Add color of the given hue to an RGB image
+
+    Parameters
+    ----------
+    image
+    hue
+    saturation
+
+    Returns
+    -------
+    """
+
+    hsv = np.zeros([image.shape[0], image.shape[1], 3])
+    hsv[:, :, 0] = hue
+    hsv[:, :, 1] = saturation
+    hsv[:, :, 2] = image
+
+    return color.hsv2rgb(hsv)
 
 
 def similarity_figure(metric, inds, tfmt, ffmt, report_dir, label_names, mlims, nrows, ncols, nansub=0.0):
@@ -454,8 +470,11 @@ def similarity_figure(metric, inds, tfmt, ffmt, report_dir, label_names, mlims, 
         fig, axs = plt.subplots(nrows, ncols)
         axs = np.array(axs).reshape(-1)
 
+        im = []
+
         # Construct subplot matrix
         mm = metric[:, ii, :, :]
+
         for aa, ax in enumerate(axs):
 
             if aa < len(label_names):
@@ -476,7 +495,7 @@ def similarity_figure(metric, inds, tfmt, ffmt, report_dir, label_names, mlims, 
         # Make space for title and colorbar
         fig.subplots_adjust(bottom=0.1, top=0.9, left=0.1, right=0.8)
         plt.suptitle(tfmt % ii, x=0.5, y=0.99)
-        cax = fig.add_axes([0.85, 0.1, 0.05, 0.8]) # [x0, y0, w, h]
+        cax = fig.add_axes([0.85, 0.1, 0.05, 0.8])  # [x0, y0, w, h]
         fig.colorbar(im, cax=cax)
 
         # Save figure to PNG
@@ -491,96 +510,49 @@ def similarity_figure(metric, inds, tfmt, ffmt, report_dir, label_names, mlims, 
     return img_list
 
 
-def isobb(mask):
+def bb(mask, padding=8):
     """
-    Determine minimum isotropic bounding box
+    Determine minimum bounding box containing all non-zero voxels in mask
 
     Parameters
     ----------
     mask: 3D boolean array
+        binary mask containing all regions
+    padding: integer
+        voxel padding around minimum BB
 
     Returns
     -------
-    sx, sy, sz: isotropic bounding box slices
+    x0, x1, y0, y1, z0, z1: bounding box limits
     """
 
-    # Locate objects within mask
-    bb = find_objects(mask)
+    # Mask dimensions
+    nx, ny, nz = mask.shape
 
-    if any(bb):
+    # MIP in x, y, z
+    xproj = np.max(np.max(mask, axis=2), axis=1)
+    yproj = np.max(np.max(mask, axis=2), axis=0)
+    zproj = np.max(np.max(mask, axis=1), axis=0)
 
-        # Should be only one object, but just in case
-        n_obj = len(bb)
-        if n_obj > 1:
-            print('+ Strange. Found %d objects in label' % n_obj)
-            print('+ Using first object')
+    # Non-zero indices in each projection
+    xnz = np.nonzero(xproj)[0]
+    ynz = np.nonzero(yproj)[0]
+    znz = np.nonzero(zproj)[0]
 
-        # Parse slices for center of mass and maximum length
-        sx, sy, sz = bb[0]
-        x0 = np.ceil(np.mean([sx.start, sx.stop])).astype(int)
-        y0 = np.ceil(np.mean([sy.start, sy.stop])).astype(int)
-        z0 = np.ceil(np.mean([sz.start, sz.stop])).astype(int)
+    # Min and max limits of non-zero projection
+    x0, x1 = np.min(xnz), np.max(xnz)
+    y0, y1 = np.min(ynz), np.max(ynz)
+    z0, z1 = np.min(znz), np.max(znz)
 
-        xw = sx.stop - sx.start
-        yw = sy.stop - sy.start
-        zw = sz.stop - sz.start
+    # Add padding then clip to image bounds
+    x0 = np.clip(x0 - padding, 0, nx-1)
+    x1 = np.clip(x1 + padding, 0, nx-1)
+    y0 = np.clip(y0 - padding, 0, ny-1)
+    y1 = np.clip(y1 + padding, 0, ny-1)
+    z0 = np.clip(z0 - padding, 0, nz-1)
+    z1 = np.clip(z1 + padding, 0, nz-1)
 
-        w = np.max([xw, yw, zw]).astype(int)
-
-    else:
-
-        x0, y0, z0, w = 0, 0, 0, -1
-
-    return x0, y0, z0, w
-
-
-def central_slices(p, roi):
-    """
-    Create tryptic of central slices from ROI
-
-    Parameters
-    ----------
-    img: 3D numpy array
-    roi: tuple containing (x0, y0, z0, w) for ROI
-
-    Returns
-    -------
-    pp: numpy tryptic of central slices
-    """
-
-    # Base output image dimensions
-    base_dims = 64, 3*64
-
-    # Unpack ROI
-    x0, y0, z0, w = roi
-
-    # Half width of ROI
-    hw = np.ceil(w/2.0).astype(int) + 1
-
-    if w > 0:
-
-        # Define central slices
-        xx = slice(x0 - hw, x0 + hw, 1)
-        yy = slice(y0 - hw, y0 + hw, 1)
-        zz = slice(z0 - hw, z0 + hw, 1)
-
-        # Extract slices
-        p_xy = p[xx,yy,z0]
-        p_xz = p[xx,y0,zz]
-        p_yz = p[x0,yy,zz]
-
-        # Create horizontal tryptic
-        pp = np.hstack([p_xy, p_xz, p_yz])
-
-        # Resize to base size
-        pp = imresize(pp, base_dims, interp='bicubic')
-
-    else:
-
-        # Blank tryptic
-        pp = np.zeros(base_dims)
-
-    return pp
+    return x0, x1, y0, y1, z0, z1
 
 
 def load_metrics(atlas_dir):
@@ -589,17 +561,18 @@ def load_metrics(atlas_dir):
 
     Parameters
     ----------
-    fname : CSV filename to parse
+    atlas_dir: atlas directory
 
     Returns
     -------
     m : numpy array containing label, observer and template indices and metrics
-
     """
 
-    # ----------------------------
+    #
     # Load intra-observer metrics
     # Ignore number of voxels in each label (nA, nB) for now
+    #
+
     intra_csv = os.path.join(atlas_dir, 'intra_observer_metrics.csv')
     m = np.genfromtxt(intra_csv,
                       dtype=None,
@@ -617,18 +590,20 @@ def load_metrics(atlas_dir):
     templates = np.unique(m['tmpA'])
 
     # Count labels, templates and observers
-    nLabels, nTemplates, nObservers = len(label_names), len(templates), len(observers)
+    n_labels, n_templates, n_observers = len(label_names), len(templates), len(observers)
 
     # Cast to float and reshape metrics
-    dice = m['dice'].reshape(nLabels, nObservers, nTemplates, nTemplates)
-    haus = m['haus'].reshape(nLabels, nObservers, nTemplates, nTemplates)
+    dice = m['dice'].reshape(n_labels, n_observers, n_templates, n_templates)
+    haus = m['haus'].reshape(n_labels, n_observers, n_templates, n_templates)
 
     # Composite into intra_metrics tuple
     intra_metrics = label_names, label_nos, observers, templates, dice, haus
 
-    #----------------------------
+    #
     # Load inter-observer metrics
     # Ignore number of voxels in each label (nA, nB) for now
+    #
+
     inter_csv = os.path.join(atlas_dir, 'inter_observer_metrics.csv')
     m = np.genfromtxt(inter_csv,
                       dtype=[('labelName', 'a32'), ('labelNo', 'u8'),
@@ -648,11 +623,11 @@ def load_metrics(atlas_dir):
     observers = np.unique(m['obsA'])
 
     # Count labels, templates and observers
-    nLabels, nTemplates, nObservers = len(label_names), len(templates), len(observers)
+    n_labels, n_templates, n_observers = len(label_names), len(templates), len(observers)
 
     # Cast to float and reshape metrics
-    dice = m['dice'].reshape(nLabels, nTemplates, nObservers, nObservers)
-    haus = m['haus'].reshape(nLabels, nTemplates, nObservers, nObservers)
+    dice = m['dice'].reshape(n_labels, n_templates, n_observers, n_observers)
+    haus = m['haus'].reshape(n_labels, n_templates, n_observers, n_observers)
 
     # Composite into inter_metrics tuple
     inter_metrics = label_names, label_nos, observers, templates, dice, haus
@@ -710,13 +685,130 @@ def load_key(key_fname):
     # Import key as a data table
     # Note the partially undocumented delim_whitespace flag
     key = pd.read_table(key_fname,
-                         comment='#',
-                         header=None,
-                         names=['Index','R','G','B','A','Vis','Mesh','Name'],
-                         delim_whitespace=True)
+                        comment='#',
+                        header=None,
+                        names=['Index', 'R', 'G', 'B', 'A', 'Vis', 'Mesh', 'Name'],
+                        delim_whitespace=True)
 
     return key
 
+
+# def maxprob_projections(atlas_dir, report_dir, label_names, nrows, ncols):
+#     """
+#     *** CURRENTLY UNUSED ***
+#
+#     Construct an array of maximum probablity projections through each label
+#     over all observers and templates
+#
+#     Parameters
+#     ----------
+#     atlas_dir: atlas directory path
+#     report_dir: report directory path
+#     label_names: list of unique label names (in label number order)
+#     nrows, ncols: figure matrix size
+#
+#     Returns
+#     -------
+#     mpp_png: maxprob projection PNG filename
+#     """
+#
+#     # Probability threshold for minimum BB
+#     p_thresh = 0.25
+#
+#     # Load prob atlas
+#     prob_nii = nib.load(os.path.join(atlas_dir, 'prob_atlas.nii.gz'))
+#     prob_atlas = prob_nii.get_data()
+#
+#     # Create figure with subplot array
+#     fig, axs = plt.subplots(nrows, ncols, figsize=(8,4))
+#     axs = np.array(axs).reshape(-1)
+#
+#     # Loop over axes
+#     for aa, ax in enumerate(axs):
+#
+#         if aa < len(label_names):
+#
+#             print('    %s' % label_names[aa])
+#
+#             # Current prob label
+#             p = prob_atlas[:, :, :, aa]
+#
+#             # Create tryptic of central slices through ROI defined by p > p_thresh
+#             tryptic = central_slices(p, isobb(p > p_thresh))
+#
+#             ax.pcolor(tryptic)
+#             ax.set_title(label_names[aa], fontsize=8)
+#
+#         else:
+#             ax.axis('off')
+#
+#         ax.get_xaxis().set_visible(False)
+#         ax.get_yaxis().set_visible(False)
+#         ax.set(adjustable='box-forced', aspect='equal')
+#         ax.set(aspect='equal')
+#
+#     # Tidy up spacing
+#     plt.tight_layout()
+#
+#     # Save figure to PNG
+#     mpp_fname = 'mpp.png'
+#     plt.savefig(os.path.join(report_dir, mpp_fname))
+#
+#     # Clean up
+#     plt.close(fig)
+#
+#     return mpp_fname
+
+
+# def central_slices(p, roi):
+#     """
+#     *** RETIRED ***
+#
+#     Create tryptic of central slices from ROI
+#
+#     Parameters
+#     ----------
+#     img: 3D numpy array
+#     roi: tuple containing (x0, y0, z0, w) for ROI
+#
+#     Returns
+#     -------
+#     pp: numpy tryptic of central slices
+#     """
+#
+#     # Base output image dimensions
+#     base_dims = 64, 3 * 64
+#
+#     # Unpack ROI
+#     x0, y0, z0, w = roi
+#
+#     # Half width of ROI
+#     hw = np.ceil(w / 2.0).astype(int) + 1
+#
+#     if w > 0:
+#
+#         # Define central slices
+#         xx = slice(x0 - hw, x0 + hw, 1)
+#         yy = slice(y0 - hw, y0 + hw, 1)
+#         zz = slice(z0 - hw, z0 + hw, 1)
+#
+#         # Extract slices
+#         p_xy = p[xx, yy, z0]
+#         p_xz = p[xx, y0, zz]
+#         p_yz = p[x0, yy, zz]
+#
+#         # Create horizontal tryptic
+#         pp = np.hstack([p_xy, p_xz, p_yz])
+#
+#         # Resize to base size
+#         pp = imresize(pp, base_dims, interp='bicubic')
+#
+#     else:
+#
+#         # Blank tryptic
+#         pp = np.zeros(base_dims)
+#
+#     return pp
 
 # This is the standard boilerplate that calls the main() function.
 if __name__ == '__main__':

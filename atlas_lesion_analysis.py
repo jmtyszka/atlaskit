@@ -132,6 +132,7 @@ def main():
 
         print('Processing %s' % l_name)
 
+        # Lesion results and column header
         lesion_results = []
 
         # Loop over each atlas label
@@ -168,7 +169,7 @@ def main():
 
         results.append(lesion_results)
 
-    # Create HTML results report
+    # Create HTML and CSV reports
     out_dir = os.path.dirname(os.path.abspath(lesion_fname))
     report_results(results, out_dir)
 
@@ -194,10 +195,11 @@ def report_results(results, out_dir):
     from bokeh.layouts import gridplot
     from bokeh.charts import Bar, defaults
     import bokeh.palettes as bp
+    import csv
 
     # Init output HTML report page
-    out_fname = os.path.join(out_dir, 'lesion_intersection_report.html')
-    output_file(out_fname)
+    html_fname = os.path.join(out_dir, 'lesion_intersection_report.html')
+    output_file(html_fname)
 
     # Init bar chart defaults
     defaults.width = 500
@@ -272,6 +274,18 @@ def report_results(results, out_dir):
         plots.append([bar_i_vol, bar_l_perc, bar_a_perc])
 
     show(gridplot(plots))
+
+    # Write results to a CSV file
+    column_names = 'Lesion_Name', 'Atlas_Label', 'Lesion_Vol_ul', 'Atlas_Label_Vol_ul', 'Intersect_Vol_ul', 'Intersect_Lesion_%', 'Intersect_Atlas_Label_%'
+    csv_fname = os.path.join(out_dir, 'lesion_intersection_report.csv')
+    print('Exporting results table to %s' % csv_fname)
+
+    with open(csv_fname, 'w', newline='') as csv_file:
+        writer = csv.writer(csv_file)
+        writer.writerow(column_names)
+        for lesion_results in results:
+            for atlas_result in lesion_results:
+                writer.writerow(atlas_result)
 
 
 def load_key(key_fname):
