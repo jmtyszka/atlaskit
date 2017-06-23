@@ -151,6 +151,7 @@ def main():
                 vox_ul.append(d.prod())
                 affine_tx.append(this_nii.get_affine())
 
+            # Add observer labels to grand list
             if len(obs_labels) > 0:
                 print("  Loaded %d label images" % len(obs_labels))
                 grand_labels.append(obs_labels)
@@ -197,7 +198,7 @@ def main():
     n = len(label_nos)
     print('  Analyzing %d unique labels (excluding background)' % n)
 
-    # Construct the probabilistic atlas from all labeled volumes
+    # Construct grand probabilistic atlase from all labeled volumes
     prob_atlas = make_prob_atlas(labels, label_nos)
 
     # Save probabilistic atlas in label directory
@@ -228,35 +229,51 @@ def main():
     sys.exit(0)
 
 
-def make_prob_atlas(labels, unique_labels):
+def make_prob_atlas(labels, label_nos):
     """
 
     Parameters
     ----------
-    labels
-    unique_labels
+    labels: 5D numpy integer array
+        Labels for each observer, template [obs][tmp][x][y][z]
+    label_nos: 1D numpy integer array
+        Labels numbers to include in atlas
 
     Returns
     -------
 
     """
 
-    print('Constructing probablistic atlas')
+    print('Constructing probablistic atlas for each observer')
 
     # Get dimensions of label data
     n_obs, n_tmp, nx, ny, nz = labels.shape
 
     # Number of unique labels
-    n = len(unique_labels)
+    n = len(label_nos)
 
-    print('  Initializing probabilistic atlas')
-    prob_atlas = np.zeros((nx, ny, nz, n), dtype='float32')
+    # Init the prob atlas
+    p = []
 
-    # loop over each unique label value
-    for m, label in enumerate(unique_labels):
-        print('    Adding label %d' % label)
-        label_mask = (labels == label).reshape(n_obs * n_tmp, nx, ny, nz)
-        prob_atlas[:,:,:,m] = np.mean(label_mask, axis=0)
+    # Create independent prob atlases for each observer
+    for oc in range(0, n_obs):
+
+        print('  Observer %d' % oc)
+
+        # Init the observer prob atlas
+        p_obs = []
+
+        # Loop over each unique label value
+        for lc, label in enumerate(label_nos):
+
+            print('    Adding label %d' % label)
+
+            label_mask = (labels == label).reshape(n_obs * n_tmp, nx, ny, nz)
+            p_obs.append(np.mean(label_mask, axis=0))
+
+        p.append(p_obs)
+
+
 
     return prob_atlas
 

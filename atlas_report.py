@@ -43,12 +43,14 @@ import os
 import sys
 import argparse
 import jinja2
+import cv2
 import numpy as np
 import nibabel as nib
 import matplotlib.pyplot as plt
 from datetime import datetime
 from skimage.util.montage import montage2d
 from skimage import color
+from skimage.filters import sobel
 
 __version__ = '1.0.1'
 
@@ -88,15 +90,15 @@ def main():
     print('Loading similarity metrics')
     intra_stats, inter_stats = load_metrics(atlas_dir)
 
-    # # Intra-observer reports (one per observer)
-    # print('')
-    # print('Generating intra-observer report')
-    # intra_observer_report(report_dir, intra_stats)
-    #
-    # # Inter-observer report
-    # print('')
-    # print('Generating inter-observer report')
-    # inter_observer_report(report_dir, inter_stats)
+    # Intra-observer reports (one per observer)
+    print('')
+    print('Generating intra-observer report')
+    intra_observer_report(report_dir, intra_stats)
+
+    # Inter-observer report
+    print('')
+    print('Generating inter-observer report')
+    inter_observer_report(report_dir, inter_stats)
 
     # Summary report page
     print('')
@@ -330,7 +332,7 @@ def prob_montage(atlas_dir, report_dir, bg_fname):
     p_thresh = 0.25
 
     # Size of coronal section montage
-    n_rows, n_cols = 4, 4
+    n_rows, n_cols = 6, 6
 
     # Load background image
     print('  Loading background image')
@@ -361,18 +363,31 @@ def prob_montage(atlas_dir, report_dir, bg_fname):
     # Create montage of coronal sections through cropped bg image
     bg_mont = coronal_montage(bg_crop, n_rows, n_cols)
 
-    # Initialize the composite montage with the grayscale bg image
-    mont_rgb = colorize(bg_mont, hue=0.0, saturation=0.0)
+    # Sobel filter bg image for edges
+    # bg_mont = sobel(bg_mont)
+
+    bg_mont_rgb = tint(bg_mont, hue=0.0, saturation=0.0)
+
+    # Initialize the all-label overlay
+    overlay_mont_rgb = np.zeros_like(bg_mont_rgb)
 
     # Create equivalent montage for all prob labels with varying hues
     for lc in range(0, n_labels):
 
+        # Construct prob label montage
         p_mont = coronal_montage(p_crop[:,:,:,lc], n_rows, n_cols)
-        p_rgb = colorize(p_mont, hue=float(lc)/n_labels, saturation=0.5)
-        mont_rgb = mont_rgb + p_rgb
 
-    # Flip montage vertically
-    mont_rgb = np.flip(mont_rgb, axis=0)
+        # Calculate hue
+        hue = float(np.mod(lc * 3, n_labels)) / n_labels
+
+        # Tint the montage
+        p_mont_rgb = tint(p_mont, hue, saturation=1.0)
+
+        # Add tinted overlay to running total
+        overlay_mont_rgb += p_mont_rgb
+
+    # Composite prob atlas overlay on bg image
+    mont_rgb = composite(overlay_mont_rgb, bg_mont_rgb)
 
     plt.imshow(mont_rgb)
     plt.show()
@@ -383,8 +398,9 @@ def prob_montage(atlas_dir, report_dir, bg_fname):
     return mont_fname
 
 
-def coronal_montage(img, n_rows=4, n_cols=4, rot=2):
+def coronal_montage(img, n_rows=4, n_cols=4, flip_x=False, flip_y=True, flip_z=True):
     """
+    Create a montage of all coronal (XZ) slices from a 3D image
 
     Parameters
     ----------
@@ -405,18 +421,27 @@ def coronal_montage(img, n_rows=4, n_cols=4, rot=2):
     # Source image dimensions
     nx, ny, nz = img.shape
 
-    # Coronal (XZ) section indices
+    # Coronal (XZ) sections
     yy = np.linspace(0, ny-1, n).astype(int)
+    cors = img[:,yy,:]
+
+    if flip_x:
+        cors = np.flip(cors, axis=0)
+    if flip_y:
+        cors = np.flip(cors, axis=1)
+    if flip_z:
+        cors = np.flip(cors, axis=2)
 
     # Permute image axes for montage2d: original y becomes new x
-    img = np.transpose(img[:,yy,:], (1,2,0))
+    img = np.transpose(cors, (1,2,0))
 
+    # Construct montage of coronal sections
     cor_mont = montage2d(img, fill=0)
 
     return cor_mont
 
 
-def colorize(image, hue=0.0, saturation=1.0):
+def tint(image, hue=0.0, saturation=1.0):
     """
     Add color of the given hue to an RGB image
 
@@ -436,6 +461,30 @@ def colorize(image, hue=0.0, saturation=1.0):
     hsv[:, :, 2] = image
 
     return color.hsv2rgb(hsv)
+
+
+def composite(overlay_rgb, background_rgb):
+    """
+    Alpha composite RGB overlay on RGB background
+    - derive alpha from HSV value of overlay
+
+    Parameters
+    ----------
+    overlay_rgb:
+    background_rgb:
+
+    Returns
+    -------
+
+    """
+
+    overlay_hsv = color.rgb2hsv(overlay_rgb)
+    value = overlay_hsv[:,:,2]
+    alpha_rgb = np.dstack((value, value, value))
+
+    composite_rgb = overlay_rgb * alpha_rgb + background_rgb * (1.0 - alpha_rgb)
+
+    return composite_rgb
 
 
 def similarity_figure(metric, inds, tfmt, ffmt, report_dir, label_names, mlims, nrows, ncols, nansub=0.0):
