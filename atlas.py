@@ -118,24 +118,29 @@ def main():
     label_key = load_key(label_keyfile_save)
 
     # Init grand lists
-    grand_labels = []
+    labels = []
     vox_mm = []  # Voxel dimensions in mm
     vox_ul = []  # Voxel volume in mm^3 (microliters)
     affine_tx = []  # Nifti affine transform
+    obs_names = []  # Observer names/initials
 
     # Similarity metrics output files
     inter_metrics_csv = os.path.join(atlas_dir, 'inter_observer_metrics.csv')
     intra_metrics_csv = os.path.join(atlas_dir, 'intra_observer_metrics.csv')
 
-    # Loop over observer directories
-    # Any subdirectory of the label directory begining with "obs-"
+    # Loop over observer directories ("obs-*")
+    # Load labeled images and collect into a nested list
+    # (template within observer)
+
     for obs_dir in sorted(glob(os.path.join(label_dir, "obs-*"))):
 
         if os.path.isdir(obs_dir):
 
+            obs_names.append(os.path.basename(obs_dir))
+
             print('Loading label images from %s' % obs_dir)
 
-            # Init label image list for this observer
+            # Init template label list for this observer
             obs_labels = []
 
             # Loop over all template label images
@@ -154,7 +159,7 @@ def main():
             # Add observer labels to grand list
             if len(obs_labels) > 0:
                 print("  Loaded %d label images" % len(obs_labels))
-                grand_labels.append(obs_labels)
+                labels.append(obs_labels)
             else:
                 print("* No label images detected - skipping")
 
@@ -174,10 +179,10 @@ def main():
         vox_mm = vox_mm[0]
         vox_ul = vox_ul[0]
 
-    # Convert grand list to numpy array
+    # Convert nested list to 5D numpy array
     # -> labels[observer][template][x][y][z]
     print('Preparing labels')
-    labels = np.array(grand_labels)
+    labels = np.array(labels)
 
     # Limited list of labels to process
     if args.labels:
@@ -194,15 +199,15 @@ def main():
             label_unknown.append(ll)
     label_nos = np.delete(label_nos, label_unknown)
 
-    # Count remaining labels
-    n = len(label_nos)
-    print('  Analyzing %d unique labels (excluding background)' % n)
+    # Report remaining labels
+    print('  Analyzing %d unique labels (excluding background)' % len(label_nos))
 
-    # Construct grand probabilistic atlase from all labeled volumes
-    prob_atlas = make_prob_atlas(labels, label_nos)
+    # Construct and output label mean and variance maps
+    label_stats_maps(atlas_dir, labels, label_nos, affine_tx[0], obs_names)
 
-    # Save probabilistic atlas in label directory
-    save_prob_atlas(prob_atlas, os.path.join(atlas_dir,'prob_atlas.nii.gz'), affine_tx[0])
+    # Similarity metrics between and within observers
+    print('')
+    print('Computing similarity metrics between and within observers')
 
     intra_metrics_all = []
     inter_metrics_all = []
@@ -229,15 +234,22 @@ def main():
     sys.exit(0)
 
 
-def make_prob_atlas(labels, label_nos):
+def label_stats_maps(atlas_dir, labels, label_nos, affine_tx, obs_names):
     """
+    Construct label mean and variance maps and write to atlas directory
 
     Parameters
     ----------
-    labels: 5D numpy integer array
-        Labels for each observer, template [obs][tmp][x][y][z]
-    label_nos: 1D numpy integer array
-        Labels numbers to include in atlas
+    atlas_dir: string
+        Output atlas directory path
+    labels: 5D numpy array of integers
+        Integer label volumes for all labels and observers [obs][tmp][x][y][z]
+    label_nos: list
+        List of label numbers present in labels
+    affine_tx: numpy matrix
+        Affine transform matrix between voxel and real space
+    obs_names: list of strings
+        Observer names/initials
 
     Returns
     -------
@@ -252,48 +264,47 @@ def make_prob_atlas(labels, label_nos):
     # Number of unique labels
     n = len(label_nos)
 
-    # Init the prob atlas
-    p = []
+    # Init the label means and variances over all templates
+    label_means = np.zeros([nx, ny, nz, n, n_obs])
+    label_vars = np.zeros([nx, ny, nz, n, n_obs])
 
     # Create independent prob atlases for each observer
-    for oc in range(0, n_obs):
+    for oc, obs_name in enumerate(obs_names):
 
-        print('  Observer %d' % oc)
+        print('  Observer %s' % obs_name)
 
-        # Init the observer prob atlas
-        p_obs = []
+        # Extract labels for current observer
+        labels_obs = labels[oc,:,:,:,:]
 
         # Loop over each unique label value
-        for lc, label in enumerate(label_nos):
+        for lc, label_no in enumerate(label_nos):
 
-            print('    Adding label %d' % label)
+            print('    Adding label %d' % label_no)
 
-            label_mask = (labels == label).reshape(n_obs * n_tmp, nx, ny, nz)
-            p_obs.append(np.mean(label_mask, axis=0))
+            # Label mask for all templates
+            mask = labels_obs == label_no
 
-        p.append(p_obs)
+            # Label mean and variance over all templates
+            label_means[:, :, :, lc, oc] = np.mean(mask, axis=0)
+            label_vars[:, :, :, lc, oc] = np.var(mask, axis=0)
 
+        # Save observer label mean to atlas dir
+        print('    Saving observer label mean')
+        obs_mean_fname = os.path.join(atlas_dir, '{}_label_mean.nii.gz'.format(obs_name))
+        obs_mean_nii = nib.Nifti1Image(label_means[:,:,:,:,oc], affine_tx)
+        obs_mean_nii.to_filename(obs_mean_fname)
 
+        # Save observer label variance to atlas dir
+        print('    Saving observer label variance')
+        obs_var_fname = os.path.join(atlas_dir, '{}_label_var.nii.gz'.format(obs_name))
+        obs_var_nii = nib.Nifti1Image(label_vars[:,:,:,:,oc], affine_tx)
+        obs_var_nii.to_filename(obs_var_fname)
 
-    return prob_atlas
-
-
-def save_prob_atlas(prob_atlas, prob_atlas_fname, affine_tx):
-    """
-
-    Parameters
-    ----------
-    prob_atlas
-    prob_atlas_fname
-    affine_tx
-
-    Returns
-    -------
-
-    """
-
-    print('Saving probabilistic atlas to %s' % prob_atlas_fname)
-    prob_nii = nib.Nifti1Image(prob_atlas, affine_tx)
+    # Label means over all observers (aka probabilistic atlas)
+    print('Computing global label means (probabilistic atlas)')
+    p = np.mean(label_means, axis=4)
+    prob_atlas_fname = os.path.join(atlas_dir, 'prob_atlas.nii.gz')
+    prob_nii = nib.Nifti1Image(p, affine_tx)
     prob_nii.to_filename(prob_atlas_fname)
 
 
@@ -517,11 +528,11 @@ def hausdorff_distance(A, B, vox_mm):
 
     Parameters
     ----------
-    A : 3D numpy array
+    A : 3D numpy logical array
         Binary mask A
-    B : 3D numpy array
+    B : 3D numpy logical array
         Binary mask B
-    vox_mm : numpy array
+    vox_mm : numpy float array
         voxel dimensions in mm
 
     Returns
@@ -565,8 +576,23 @@ def hausdorff_distance(A, B, vox_mm):
 
 
 def surface_voxels(x):
+    """
+    Isolate surface voxel in a boolean mask using single voxel erosion
 
-    return x - binary_erosion(x, structure=np.ones([3,3,3]), iterations=1)
+    Parameters
+    ----------
+    x: 3D numpy boolean array
+
+    Returns
+    -------
+
+    """
+
+    # Erode by one voxel
+    x_eroded = binary_erosion(x, structure=np.ones([3,3,3]), iterations=1)
+
+    # Return logical XOR of mask and eroded mask = surface voxels
+    return np.logical_xor(x, x_eroded)
 
 
 def bounding_box(x):
