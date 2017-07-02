@@ -7,7 +7,7 @@ BODY {
   font-family    : arial, sans-serif;
 }
 td, th {
-  padding: 0 10px;
+  padding: 10px 0px 0px 10px;
   text-align: left;
 }
 </STYLE>
@@ -15,9 +15,19 @@ td, th {
 
 <body>
 
-<h1 style="background-color:#E0E0FF">Within Observer Label Similarities</h1>
+<h1 style="background-color:#E0E0FF">Observer {{ obs }} Label Report</h1>
 
 <div>
+    <a href="index.html">Return to summary page</a>
+</div>
+
+<div>
+    <table>
+        <tr>
+            <td> <img src="{{ dice_fname }}"></img> </td>
+            <td> <img src="{{ haus_fname }}"></img> </td>
+        </tr>
+    </table>
     <table>
         <tr>
             <td>
@@ -25,20 +35,25 @@ td, th {
                 The matrix rows and columns represent the first and second templates in a pairwise comparison.
             </td>
         </tr>
-        <tr>
-            <td>
-                <a href="index.html">Return to summary page</a>
-            </td>
-        </tr>
     </table>
 </div>
 
 <div>
     <table>
-        {% for img in intra_imgs %}
+        <tr>
+            <td><b>Label Name</b></td>
+            <td><b>Label #</b></td></td>
+            <td><b>Mean Dice</b></td>
+            <td><b>Mean Hausdorff (mm)</b></td>
+            <td><b>Unfinished Templates</b></td>
+        </tr>
+        {% for label_stats in obs_stats %}
             <tr>
-                <td> <img src="{{ img.dimg }}"></img> </td>
-                <td> <img src="{{ img.himg }}"></img> </td>
+                <td>{{ label_stats.label_name }}</td>
+                <td>{{ label_stats.label_no }}</td>
+                <td>{{ label_stats.intra_dice_mean }}</td>
+                <td>{{ label_stats.intra_haus_mean }}</td>
+                <td>{{ label_stats.unfinished }}</td>
             </tr>
         {% endfor %}
     </table>

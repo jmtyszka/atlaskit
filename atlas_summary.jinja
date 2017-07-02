@@ -7,7 +7,7 @@ BODY {
   font-family    : arial, sans-serif;
 }
 td, th {
-  padding: 0 10px;
+  padding: 10px 0px 0px 20px;
   text-align: left;
 }
 </STYLE>
@@ -15,53 +15,24 @@ td, th {
 
 <body>
 
-<h1 style="background-color:#E0E0FF">Labeling Similarity Report</h1>
-
+<h1 style="background-color:#E0E0FF">Probabilistic Atlas Report</h1>
 
 <div>
-    <h3> Observer Similarity Figures </h3>
+    <h3>Observer Label Reports</h3>
     <table>
         <tr>
-            <td><a href="intra_report.html">Within-Observer</a></td>
-            <td><a href="inter_report.html">Between-Observer</a></td>
+            {% for report in obs_reports %}
+                    <td> <a href="{{ report.fname }}">Observer {{ report.obs }} Report</a> </td>
+            {% endfor %}
+            <td> <a href="inter_report.html">Between Observer Report</a> </td>
         </tr>
+
     </table>
 </div>
 
 <div>
-    <h3>Maximum Probability Projections</h3>
-    <img src="{{ mpp_fname }}">
-</div>
-
-<div>
-
-    {% for obs_stats in stats %}
-
-        <h3> Within Observer {{ loop.index0 }}</h3>
-        <table>
-
-            <tr>
-                <td><b>Label Name</b></td>
-                <td><b>Label #</b></td></td>
-                <td><b>Mean Dice</b></td>
-                <td><b>Mean Hausdorff (mm)</b></td>
-                <td><b>Unfinished Templates</b></td>
-            </tr>
-
-            {% for label_stats in obs_stats %}
-                <tr>
-                    <td>{{ label_stats.label_name }}</td>
-                    <td>{{ label_stats.label_no }}</td>
-                    <td>{{ label_stats.intra_dice_mean }}</td>
-                    <td>{{ label_stats.intra_haus_mean }}</td>
-                    <td>{{ label_stats.unfinished }}</td>
-                </tr>
-            {% endfor %}
-
-        </table>
-
-    {% endfor %}
-
+    <h3>Probabilistic Atlas Labels</h3>
+    <img src="{{ montage_fname }}">
 </div>
 
 </body>

@@ -92,8 +92,8 @@ def main():
 
     # Intra-observer reports (one per observer)
     print('')
-    print('Generating intra-observer report')
-    intra_observer_report(report_dir, intra_stats)
+    print('Generating intra-observer reports')
+    obs_reports = intra_observer_reports(report_dir, intra_stats)
 
     # Inter-observer report
     print('')
@@ -103,13 +103,13 @@ def main():
     # Summary report page
     print('')
     print('Writing report summary page')
-    summary_report(atlas_dir, report_dir, intra_stats, inter_stats, bg_fname)
+    summary_report(atlas_dir, report_dir, intra_stats, inter_stats, bg_fname, obs_reports)
 
     # Clean exit
     sys.exit(0)
 
 
-def summary_report(atlas_dir, report_dir, intra_metrics, inter_metrics, bg_fname):
+def summary_report(atlas_dir, report_dir, intra_metrics, inter_metrics, bg_fname, obs_reports):
     """
     Summary report for the entire atlas
     - maximum probability projections for all labels
@@ -121,6 +121,7 @@ def summary_report(atlas_dir, report_dir, intra_metrics, inter_metrics, bg_fname
     intra_metrics: intra-observer metrics tuple
     inter_metrics: inter-observer metrics tuple
     bg_fname: background image filename
+    obs_reports: list of intra-observer report tuples (obs, fname)
 
     Returns
     -------
@@ -141,47 +142,11 @@ def summary_report(atlas_dir, report_dir, intra_metrics, inter_metrics, bg_fname
     print('  Generating probability montages')
     montage_fname = prob_montage(atlas_dir, report_dir, bg_fname)
 
-    # Init observer stats list to pass to HTML template
-    stats = []
-
-    print('  Generating similarity summary tables')
-
-    # Construct list of results for each label
-    for obs in observers:
-
-        print('    Observer %d' % obs)
-
-        obs_stats = []
-
-        for ll, label_name in enumerate(label_names):
-
-            this_intra_dice = intra_dice[ll, obs, :, :]
-            this_intra_haus = intra_haus[ll, obs, :, :]
-
-            # Similarity matrices are upper triangle symmetric
-            # so calculate upper triangle mean, excluding leading diagonal
-            # Returns a string (to allow for '-')
-            intra_dice_mean = mean_triu_str(this_intra_dice)
-            intra_haus_mean = mean_triu_str(this_intra_haus)
-
-            # Find unfinished template labels
-            # Search for NaNs on leading diagonals in intra dice data
-            unfinished = str(np.where(np.isnan(np.diagonal(this_intra_dice)))[0])
-
-            label_dict = dict([("label_name", label_name),
-                               ("label_no", label_nos[ll]),
-                               ("intra_dice_mean", intra_dice_mean),
-                               ("intra_haus_mean", intra_haus_mean),
-                               ("unfinished", unfinished)])
-
-            obs_stats.append(label_dict)
-
-        stats.append(obs_stats)
-
     # Template variables
-    template_vars = {"montage_fname": montage_fname,
-                     "stats": stats,
-                     "report_time": datetime.now().strftime('%Y-%m-%d %H:%M')}
+    template_vars = {
+        "obs_reports": obs_reports,
+        "montage_fname": montage_fname,
+        "report_time": datetime.now().strftime('%Y-%m-%d %H:%M')}
 
     # Finally, process the template to produce our final text.
     output_text = html.render(template_vars)
@@ -191,7 +156,7 @@ def summary_report(atlas_dir, report_dir, intra_metrics, inter_metrics, bg_fname
         f.write(output_text)
 
 
-def intra_observer_report(report_dir, intra_metrics):
+def intra_observer_reports(report_dir, intra_metrics):
     """
     Generate intra-observer report for each observer
 
@@ -202,7 +167,8 @@ def intra_observer_report(report_dir, intra_metrics):
 
     Returns
     -------
-
+    obs_reports: list of tuples (obs, fname)
+        List of observer numbers and report filenames
     """
 
     # Setup Jinja2 template
@@ -222,31 +188,75 @@ def intra_observer_report(report_dir, intra_metrics):
     dlims = 0.0, 1.0
     hlims = 0.0, 10.0
 
-    # Create similarity figures over all labels and observers
-    intra_dice_imgs = similarity_figure(dice, observers,
-                                        "Observer %d Dice Coefficient", "intra_obs_%0d_dice.png",
-                                        report_dir, label_names, dlims, nrows, ncols, 0.0)
-    intra_haus_imgs = similarity_figure(haus, observers,
-                                        "Observer %d Hausdorff Distance (mm)", "intra_obs_%0d_haus.png",
-                                        report_dir, label_names, hlims, nrows, ncols, 1e6)
+    # Init image filename and stats lists
+    intra_dice_imgs = []
+    intra_haus_imgs = []
+    obs_reports = []
 
-    # Composite all images into a single dictionary list
-    intra_imgs = []
-    for i, dimg in enumerate(intra_dice_imgs):
-        himg = intra_haus_imgs[i]
-        intra_imgs.append(dict(dimg=dimg, himg=himg))
+    for obs in observers:
 
-    # Template variables
-    html_vars = {"intra_imgs": intra_imgs,
-                 "report_time": datetime.now().strftime('%Y-%m-%d %H:%M')}
+        # Generate Dice and Hausdorf similarity matrix figures
 
-    # Render page
-    html_text = html.render(html_vars)
+        dice_fname = "intra_obs_%0d_dice.png" % obs
+        similarity_figure(dice[:,obs,:,:],
+                          "Observer %d Dice Coefficient" % obs,
+                          dice_fname,
+                          report_dir, label_names, dlims, nrows, ncols, 0.0)
+        intra_dice_imgs.append(dice_fname)
 
-    # Write report
-    obs_html = os.path.join(report_dir, "intra_report.html")
-    with open(obs_html, "w") as f:
-        f.write(html_text)
+        haus_fname = "intra_obs_%0d_haus.png" % obs
+        similarity_figure(haus[:,obs,:,:],
+                          "Observer %d Hausdorff Distance (mm)" % obs,
+                          haus_fname,
+                          report_dir, label_names, hlims, nrows, ncols, 1e6)
+        intra_haus_imgs.append(haus_fname)
+
+        # Compile stats results for each label for this observer
+
+        obs_stats = []
+
+        for ll, label_name in enumerate(label_names):
+
+            this_intra_dice = dice[ll, obs, :, :]
+            this_intra_haus = haus[ll, obs, :, :]
+
+            # Similarity matrices are upper triangle symmetric
+            # so calculate upper triangle mean, excluding leading diagonal
+            # Returns a string (to allow for '-')
+            intra_dice_mean = mean_triu_str(this_intra_dice)
+            intra_haus_mean = mean_triu_str(this_intra_haus)
+
+            # Find unfinished template labels
+            # Search for NaNs on leading diagonals in intra dice data
+            unfinished = str(np.where(np.isnan(np.diagonal(this_intra_dice)))[0])
+
+            label_dict = dict([("label_name", label_name),
+                               ("label_no", label_nos[ll]),
+                               ("intra_dice_mean", intra_dice_mean),
+                               ("intra_haus_mean", intra_haus_mean),
+                               ("unfinished", unfinished)])
+
+            obs_stats.append(label_dict)
+
+        # Template variables
+        html_vars = {
+            "obs": obs,
+            "dice_fname": dice_fname,
+            "haus_fname": haus_fname,
+            "obs_stats": obs_stats,
+            "report_time": datetime.now().strftime('%Y-%m-%d %H:%M')
+        }
+
+        # Render page
+        html_text = html.render(html_vars)
+
+        # Write report
+        obs_html = "observer_%s_report.html" % obs
+        with open(os.path.join(report_dir, obs_html), "w") as f:
+            f.write(html_text)
+        obs_reports.append(dict(fname=obs_html, obs=obs))
+
+    return obs_reports
 
 
 def inter_observer_report(report_dir, inter_metrics):
@@ -281,13 +291,27 @@ def inter_observer_report(report_dir, inter_metrics):
     dlims = 0.0, 1.0
     hlims = 0.0, 10.0
 
-    # Create similarity figures over all labels and observers
-    inter_dice_imgs = similarity_figure(dice, templates,
-                                        "Template %d : Dice Coefficient", "inter_tmp_%0d_dice.png",
-                                        report_dir, label_names, dlims, nrows, ncols, 0.0)
-    inter_haus_imgs = similarity_figure(haus, templates,
-                                        "Template %d Hausdorff Distance (mm)", "inter_tmp_%0d_haus.png",
-                                        report_dir, label_names, hlims, nrows, ncols, 1e6)
+    # Init image filename lists for HTML template
+    inter_dice_imgs = []
+    inter_haus_imgs = []
+
+    # Loop over all templates, constructing dice and haus matrix images
+    for tt in templates:
+
+        # Create similarity figures over all labels and observers
+        dice_fname = "inter_tmp_%0d_dice.png" % tt
+        similarity_figure(dice[:,tt,:,:],
+                          "Template %d : Dice Coefficient" % tt,
+                          dice_fname,
+                          report_dir, label_names, dlims, nrows, ncols, 0.0)
+        inter_dice_imgs.append(dice_fname)
+
+        haus_fname = "inter_tmp_%0d_haus.png" % tt
+        similarity_figure(haus[:,tt,:,:],
+                          "Template %d Hausdorff Distance (mm)" % tt,
+                          haus_fname,
+                          report_dir, label_names, hlims, nrows, ncols, 1e6)
+        inter_haus_imgs.append(haus_fname)
 
     # Composite all images into a single dictionary list
     inter_imgs = []
@@ -389,11 +413,15 @@ def prob_montage(atlas_dir, report_dir, bg_fname):
     # Composite prob atlas overlay on bg image
     mont_rgb = composite(overlay_mont_rgb, bg_mont_rgb)
 
-    plt.imshow(mont_rgb)
-    plt.show()
+    # Create figure and render montage
+    fig = plt.figure(figsize=(10,10), dpi=100)
+    plt.imshow(mont_rgb, interpolation='none')
+    plt.axis('off')
 
-    # Save probabilistic montage to PNG
+    # Save figure to PNG
     mont_fname = 'prob_montage.png'
+    print('  Saving image to %s' % mont_fname)
+    plt.savefig(os.path.join(report_dir, mont_fname), bbox_inches='tight')
 
     return mont_fname
 
@@ -487,76 +515,70 @@ def composite(overlay_rgb, background_rgb):
     return composite_rgb
 
 
-def similarity_figure(metric, inds, tfmt, ffmt, report_dir, label_names, mlims, nrows, ncols, nansub=0.0):
+def similarity_figure(metric, img_title, img_fname, report_dir, label_names, mlims, nrows, ncols, nansub=0.0):
     """
-    Plot an array of similarity matrix figures
+    Plot an array of similarity matrix figures for a given observer or template
 
     Parameters
     ----------
-    metric: similarity metric array to plot
-    inds: index iterator (observers or templates)
-    tfmt: title format for each figure
-    ffmt: file format string
-    report_dir: report directory
-    label_names: list of label names
-    mlims: scale limits for metric
-    nrows: plot grid rows
-    ncols: plot grid columns
-    nansub: value to replace NaNs in data
+    metric: 3D numpy float array
+        similarity metric array to plot
+    img_title: string
+        image title
+    img_fname: string
+        output image filename
+    report_dir: string
+        report directory
+    label_names: string list
+        list of label names
+    mlims: float tuple
+        scale limits for metric
+    nrows: int
+        plot grid rows
+    ncols: int
+        plot grid columns
+    nansub: float
+        value to replace NaNs in data
 
     Returns
     -------
-    img_list: list of image filenames
     """
 
-    # Init image file list
-    img_list = []
+    # Create figure with subplot array
+    fig, axs = plt.subplots(nrows, ncols)
+    axs = np.array(axs).reshape(-1)
 
-    # Loop over indices (observers or templates)
-    for ii in inds:
+    im = []
 
-        # Create figure with subplot array
-        fig, axs = plt.subplots(nrows, ncols)
-        axs = np.array(axs).reshape(-1)
+    for aa, ax in enumerate(axs):
 
-        im = []
+        if aa < len(label_names):
+            mmaa = np.flipud(metric[aa, :, :]).copy()
+            mmaa[np.isnan(mmaa)] = nansub
+            im = ax.pcolor(mmaa, vmin=mlims[0], vmax=mlims[1])
+            ax.set_title(label_names[aa], fontsize=8)
+        else:
+            ax.axis('off')
 
-        # Construct subplot matrix
-        mm = metric[:, ii, :, :]
+        ax.get_xaxis().set_visible(False)
+        ax.get_yaxis().set_visible(False)
+        ax.set(adjustable='box-forced', aspect='equal')
 
-        for aa, ax in enumerate(axs):
+    # Tidy up spacing
+    plt.tight_layout()
 
-            if aa < len(label_names):
-                mmaa = np.flipud(mm[aa, :, :]).copy()
-                mmaa[np.isnan(mmaa)] = nansub
-                im = ax.pcolor(mmaa, vmin=mlims[0], vmax=mlims[1])
-                ax.set_title(label_names[aa], fontsize=8)
-            else:
-                ax.axis('off')
+    # Make space for title and colorbar
+    fig.subplots_adjust(bottom=0.1, top=0.9, left=0.1, right=0.8)
+    plt.suptitle(img_title, x=0.5, y=0.99)
+    cax = fig.add_axes([0.85, 0.1, 0.05, 0.8])  # [x0, y0, w, h]
+    fig.colorbar(im, cax=cax)
 
-            ax.get_xaxis().set_visible(False)
-            ax.get_yaxis().set_visible(False)
-            ax.set(adjustable='box-forced', aspect='equal')
+    # Save figure to PNG
+    print('  Saving image to %s' % img_fname)
+    plt.savefig(os.path.join(report_dir, img_fname), bbox_inches='tight')
 
-        # Tidy up spacing
-        plt.tight_layout()
-
-        # Make space for title and colorbar
-        fig.subplots_adjust(bottom=0.1, top=0.9, left=0.1, right=0.8)
-        plt.suptitle(tfmt % ii, x=0.5, y=0.99)
-        cax = fig.add_axes([0.85, 0.1, 0.05, 0.8])  # [x0, y0, w, h]
-        fig.colorbar(im, cax=cax)
-
-        # Save figure to PNG
-        fname = ffmt % ii
-        print('  %s' % fname)
-        img_list.append(fname)
-        plt.savefig(os.path.join(report_dir, fname))
-
-        # Clean up
-        plt.close(fig)
-
-    return img_list
+    # Clean up
+    plt.close(fig)
 
 
 def bb(mask, padding=8):
