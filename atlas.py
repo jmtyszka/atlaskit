@@ -271,7 +271,7 @@ def label_stats_maps(atlas_dir, labels, label_nos, affine_tx, obs_names):
     # Create independent prob atlases for each observer
     for oc, obs_name in enumerate(obs_names):
 
-        print('  Observer %s' % obs_name)
+        print('  Observer %02d (%s)' % (oc, obs_name))
 
         # Extract labels for current observer
         labels_obs = labels[oc,:,:,:,:]
@@ -290,13 +290,13 @@ def label_stats_maps(atlas_dir, labels, label_nos, affine_tx, obs_names):
 
         # Save observer label mean to atlas dir
         print('    Saving observer label mean')
-        obs_mean_fname = os.path.join(atlas_dir, '{}_label_mean.nii.gz'.format(obs_name))
+        obs_mean_fname = os.path.join(atlas_dir, 'obs-{0:02d}_label_mean.nii.gz'.format(oc))
         obs_mean_nii = nib.Nifti1Image(label_means[:,:,:,:,oc], affine_tx)
         obs_mean_nii.to_filename(obs_mean_fname)
 
         # Save observer label variance to atlas dir
         print('    Saving observer label variance')
-        obs_var_fname = os.path.join(atlas_dir, '{}_label_var.nii.gz'.format(obs_name))
+        obs_var_fname = os.path.join(atlas_dir, 'obs-{0:02d}_label_var.nii.gz'.format(oc))
         obs_var_nii = nib.Nifti1Image(label_vars[:,:,:,:,oc], affine_tx)
         obs_var_nii.to_filename(obs_var_fname)
 

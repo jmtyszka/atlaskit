@@ -43,16 +43,15 @@ import os
 import sys
 import argparse
 import jinja2
-import cv2
 import numpy as np
 import nibabel as nib
 import matplotlib.pyplot as plt
 from datetime import datetime
 from skimage.util.montage import montage2d
 from skimage import color
-from skimage.filters import sobel
+# from skimage.filters import sobel
 
-__version__ = '1.0.1'
+__version__ = '1.1'
 
 
 def main():
@@ -60,12 +59,10 @@ def main():
     # Parse command line arguments
     parser = argparse.ArgumentParser(description='Create labeling report for a probabilistic atlas')
     parser.add_argument('-a', '--atlasdir', required=True, help='Directory containing probabilistic atlas')
-    parser.add_argument('-b', '--background', required=True, help='Background structural image')
 
     # Parse command line arguments
     args = parser.parse_args()
     atlas_dir = args.atlasdir
-    bg_fname = args.background
 
     print('')
     print('-----------------------------')
@@ -83,7 +80,6 @@ def main():
         os.mkdir(report_dir)
 
     print('Atlas directory  : %s' % atlas_dir)
-    print('Background image : %s' % bg_fname)
     print('Report directory : %s' % report_dir)
     print('')
 
@@ -93,7 +89,7 @@ def main():
     # Intra-observer reports (one per observer)
     print('')
     print('Generating intra-observer reports')
-    obs_reports = intra_observer_reports(report_dir, intra_stats)
+    obs_reports = intra_observer_reports(atlas_dir, report_dir, intra_stats)
 
     # Inter-observer report
     print('')
@@ -103,13 +99,13 @@ def main():
     # Summary report page
     print('')
     print('Writing report summary page')
-    summary_report(atlas_dir, report_dir, intra_stats, inter_stats, bg_fname, obs_reports)
+    summary_report(atlas_dir, report_dir, intra_stats, inter_stats, obs_reports)
 
     # Clean exit
     sys.exit(0)
 
 
-def summary_report(atlas_dir, report_dir, intra_metrics, inter_metrics, bg_fname, obs_reports):
+def summary_report(atlas_dir, report_dir, intra_metrics, inter_metrics, obs_reports):
     """
     Summary report for the entire atlas
     - maximum probability projections for all labels
@@ -120,7 +116,6 @@ def summary_report(atlas_dir, report_dir, intra_metrics, inter_metrics, bg_fname
     report_dir: report directory path
     intra_metrics: intra-observer metrics tuple
     inter_metrics: inter-observer metrics tuple
-    bg_fname: background image filename
     obs_reports: list of intra-observer report tuples (obs, fname)
 
     Returns
@@ -138,9 +133,9 @@ def summary_report(atlas_dir, report_dir, intra_metrics, inter_metrics, bg_fname
     label_names, label_nos, observers, templates, intra_dice, intra_haus = intra_metrics
     _, _, _, _, inter_dice, inter_haus = inter_metrics
 
-    # Create prob label overlays on bg image
+    # Create grand prob label overlays on bg image
     print('  Generating probability montages')
-    montage_fname = prob_montage(atlas_dir, report_dir, bg_fname)
+    montage_fname = overlay_montage(atlas_dir, report_dir, 'prob_atlas.nii.gz')
 
     # Template variables
     template_vars = {
@@ -156,14 +151,18 @@ def summary_report(atlas_dir, report_dir, intra_metrics, inter_metrics, bg_fname
         f.write(output_text)
 
 
-def intra_observer_reports(report_dir, intra_metrics):
+def intra_observer_reports(atlas_dir, report_dir, intra_metrics):
     """
     Generate intra-observer report for each observer
 
     Parameters
     ----------
-    report_dir: report directory path
-    intra_metrics: tuple containing labelNames, labelNos, observers, templates, dice and haussdorff metrics
+    atlas_dir: string
+        atlas directory path
+    report_dir: string
+        report directory path
+    intra_metrics: tuple
+        containing labelNames, labelNos, observers, templates, dice and haussdorff metrics
 
     Returns
     -------
@@ -195,18 +194,21 @@ def intra_observer_reports(report_dir, intra_metrics):
 
     for obs in observers:
 
+        print('')
+        print('Observer %02d' % obs)
+
         # Generate Dice and Hausdorf similarity matrix figures
 
-        dice_fname = "intra_obs_%0d_dice.png" % obs
+        dice_fname = "intra_obs_%02d_dice.png" % obs
         similarity_figure(dice[:,obs,:,:],
-                          "Observer %d Dice Coefficient" % obs,
+                          "Observer %02d Dice Coefficient" % obs,
                           dice_fname,
                           report_dir, label_names, dlims, nrows, ncols, 0.0)
         intra_dice_imgs.append(dice_fname)
 
-        haus_fname = "intra_obs_%0d_haus.png" % obs
+        haus_fname = "intra_obs_%02d_haus.png" % obs
         similarity_figure(haus[:,obs,:,:],
-                          "Observer %d Hausdorff Distance (mm)" % obs,
+                          "Observer %02d Hausdorff Distance (mm)" % obs,
                           haus_fname,
                           report_dir, label_names, hlims, nrows, ncols, 1e6)
         intra_haus_imgs.append(haus_fname)
@@ -238,9 +240,14 @@ def intra_observer_reports(report_dir, intra_metrics):
 
             obs_stats.append(label_dict)
 
+        # Mean label overlay montage
+        print('  Generating mean label montage')
+        montage_fname = overlay_montage(atlas_dir, report_dir, 'obs-{0:02d}_label_mean.nii.gz'.format(obs))
+
         # Template variables
         html_vars = {
-            "obs": obs,
+            "obs": "{0:02d}".format(obs),
+            "montage_fname": montage_fname,
             "dice_fname": dice_fname,
             "haus_fname": haus_fname,
             "obs_stats": obs_stats,
@@ -251,10 +258,10 @@ def intra_observer_reports(report_dir, intra_metrics):
         html_text = html.render(html_vars)
 
         # Write report
-        obs_html = "observer_%s_report.html" % obs
+        obs_html = "observer_%02d_report.html" % obs
         with open(os.path.join(report_dir, obs_html), "w") as f:
             f.write(html_text)
-        obs_reports.append(dict(fname=obs_html, obs=obs))
+        obs_reports.append(dict(fname=obs_html, obs="{0:02d}".format(obs)))
 
     return obs_reports
 
@@ -299,16 +306,16 @@ def inter_observer_report(report_dir, inter_metrics):
     for tt in templates:
 
         # Create similarity figures over all labels and observers
-        dice_fname = "inter_tmp_%0d_dice.png" % tt
+        dice_fname = "inter_tmp_%02d_dice.png" % tt
         similarity_figure(dice[:,tt,:,:],
-                          "Template %d : Dice Coefficient" % tt,
+                          "Template %02d : Dice Coefficient" % tt,
                           dice_fname,
                           report_dir, label_names, dlims, nrows, ncols, 0.0)
         inter_dice_imgs.append(dice_fname)
 
-        haus_fname = "inter_tmp_%0d_haus.png" % tt
+        haus_fname = "inter_tmp_%02d_haus.png" % tt
         similarity_figure(haus[:,tt,:,:],
-                          "Template %d Hausdorff Distance (mm)" % tt,
+                          "Template %02d Hausdorff Distance (mm)" % tt,
                           haus_fname,
                           report_dir, label_names, hlims, nrows, ncols, 1e6)
         inter_haus_imgs.append(haus_fname)
@@ -332,34 +339,43 @@ def inter_observer_report(report_dir, inter_metrics):
         f.write(html_text)
 
 
-def prob_montage(atlas_dir, report_dir, bg_fname):
+def overlay_montage(atlas_dir, report_dir, overlay_fname):
     """
-    Construct an array of overlays of all prob labels on a T1w background
+    Construct an montage of colored label overlays on a T1w background
     - Each label is colored according to the ITK-SNAP label key
     - Calculate coronal slice skip from minimum BB for 4 x 4 montage (16 slices)
 
     Parameters
     ----------
-    atlas_dir: atlas directory path
-    report_dir: report directory path
-    bg_fname: background image filename
+    atlas_dir: string
+        atlas directory path
+    report_dir: string
+        report directory path
+    overlay_fname: string
+        4D overlay image filename (within atlas_dir)
 
     Returns
     -------
     montage_png: prob label montage
     """
 
+    cit_dir = os.environ['CIT168_DIR']
+    if not cit_dir:
+        print('* Environmental variable CIT168_DIR not set - exiting')
+        sys.exit(1)
+
     # Load label key from atlas directory
-    label_key = load_key(os.path.join(atlas_dir, 'labels.txt'))
+    # label_key = load_key(os.path.join(atlas_dir, 'labels.txt'))
 
     # Probability threshold for minimum BB
     p_thresh = 0.25
 
     # Size of coronal section montage
-    n_rows, n_cols = 6, 6
+    n_rows, n_cols = 4, 10
 
     # Load background image
     print('  Loading background image')
+    bg_fname = os.path.join(cit_dir, 'CIT168_700um', 'CIT168_T1w_700um.nii.gz')
     bg_nii = nib.load(bg_fname)
     bg_img = bg_nii.get_data()
 
@@ -368,7 +384,7 @@ def prob_montage(atlas_dir, report_dir, bg_fname):
 
     # Load the 4D probabilistic atlas
     print('  Loading probabilistic image')
-    p_nii = nib.load(os.path.join(atlas_dir, 'prob_atlas.nii.gz'))
+    p_nii = nib.load(os.path.join(atlas_dir, overlay_fname))
     p_atlas = p_nii.get_data()
 
     # Count prob labels
@@ -414,16 +430,16 @@ def prob_montage(atlas_dir, report_dir, bg_fname):
     mont_rgb = composite(overlay_mont_rgb, bg_mont_rgb)
 
     # Create figure and render montage
-    fig = plt.figure(figsize=(10,10), dpi=100)
+    fig = plt.figure(figsize=(15,10), dpi=100)
     plt.imshow(mont_rgb, interpolation='none')
     plt.axis('off')
 
     # Save figure to PNG
-    mont_fname = 'prob_montage.png'
-    print('  Saving image to %s' % mont_fname)
-    plt.savefig(os.path.join(report_dir, mont_fname), bbox_inches='tight')
+    montage_fname = overlay_fname.replace('.nii.gz', '_montage.png')
+    print('  Saving image to %s' % montage_fname)
+    plt.savefig(os.path.join(report_dir, montage_fname), bbox_inches='tight')
 
-    return mont_fname
+    return montage_fname
 
 
 def coronal_montage(img, n_rows=4, n_cols=4, flip_x=False, flip_y=True, flip_z=True):
@@ -464,7 +480,7 @@ def coronal_montage(img, n_rows=4, n_cols=4, flip_x=False, flip_y=True, flip_z=T
     img = np.transpose(cors, (1,2,0))
 
     # Construct montage of coronal sections
-    cor_mont = montage2d(img, fill=0)
+    cor_mont = montage2d(img, fill=0, grid_shape=(n_rows, n_cols))
 
     return cor_mont
 
