@@ -360,9 +360,6 @@ def overlay_montage(atlas_dir, report_dir, overlay_fname):
     """
 
     cit_dir = os.environ['CIT168_DIR']
-    if not cit_dir:
-        print('* Environmental variable CIT168_DIR not set - exiting')
-        sys.exit(1)
 
     # Load label key from atlas directory
     # label_key = load_key(os.path.join(atlas_dir, 'labels.txt'))
@@ -899,4 +896,10 @@ def load_key(key_fname):
 
 # This is the standard boilerplate that calls the main() function.
 if __name__ == '__main__':
+    try:
+        cit_dir = os.environ['CIT168_DIR']
+    except KeyError:
+        print('* Environmental variable CIT168_DIR not set - exiting')
+        sys.exit(1)
+        
     main()
