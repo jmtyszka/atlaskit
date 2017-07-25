@@ -2,7 +2,11 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="5e02d061-5636-4555-8bcb-f1804eb82bd7" name="Default" comment="">
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/atlaskit.iml" afterPath="$PROJECT_DIR$/.idea/atlaskit.iml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/misc.xml" afterPath="$PROJECT_DIR$/.idea/misc.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/atlas.py" afterPath="$PROJECT_DIR$/atlas.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/atlas_report.py" afterPath="$PROJECT_DIR$/atlas_report.py" />
     </list>
     <ignored path="atlaskit.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -17,13 +21,13 @@
   <component name="CoverageDataManager">
     <SUITE FILE_PATH="coverage/atlaskit$allen_download.coverage" NAME="allen_download Coverage Results" MODIFIED="1495816636354" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$USER_HOME$/sandbox" />
     <SUITE FILE_PATH="coverage/atlaskit$dice.coverage" NAME="dice Coverage Results" MODIFIED="1460398742837" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$USER_HOME$/Box/CIT_Midbrain_Atlas/Labeling/jmt" />
-    <SUITE FILE_PATH="coverage/atlaskit$atlas.coverage" NAME="atlas Coverage Results" MODIFIED="1498868005141" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$USER_HOME$/Box/CIT_DeepBrain_Atlas/Labeling" />
+    <SUITE FILE_PATH="coverage/atlaskit$atlas.coverage" NAME="atlas Coverage Results" MODIFIED="1501023221854" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$USER_HOME$/Box/CIT_DeepBrain_Atlas/Labeling" />
     <SUITE FILE_PATH="coverage/atlaskit$lesion_atlas_analysis.coverage" NAME="lesion_atlas_analysis Coverage Results" MODIFIED="1497567465141" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="/Volumes/Data/jmt/Amygdala/UWD/Structural_Analysis/BG/20170417/derivatives" />
     <SUITE FILE_PATH="coverage/atlaskit$atlas_montage.coverage" NAME="atlas_montage Coverage Results" MODIFIED="1495662665836" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$USER_HOME$/Box/CIT_DeepBrain_Atlas/Labeling/basal_ganglia_atlas" />
     <SUITE FILE_PATH="coverage/atlaskit$mkparcels.coverage" NAME="mkparcels Coverage Results" MODIFIED="1498091286902" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="/Volumes/Data/jmt/Causality/MyConnectome/ds031/derivatives/sub-01/anatomy" />
     <SUITE FILE_PATH="coverage/atlaskit$atlas_lesion_analysis.coverage" NAME="atlas_lesion_analysis Coverage Results" MODIFIED="1497656572312" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="/Volumes/Data/jmt/Amygdala/UWD/Structural_Analysis/BG/20170417/derivatives" />
     <SUITE FILE_PATH="coverage/atlaskit$nifti2png.coverage" NAME="nifti2png Coverage Results" MODIFIED="1480528519760" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$USER_HOME$/Data/Blender/HeadSliceUp/JMT-2005-11-22" />
-    <SUITE FILE_PATH="coverage/atlaskit$atlas_report.coverage" NAME="atlas_report Coverage Results" MODIFIED="1499118039318" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$USER_HOME$/Box Sync/CIT_DeepBrain_Atlas/Labeling" />
+    <SUITE FILE_PATH="coverage/atlaskit$atlas_report.coverage" NAME="atlas_report Coverage Results" MODIFIED="1501026939566" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$USER_HOME$/Box Sync/CIT_DeepBrain_Atlas/Labeling" />
     <SUITE FILE_PATH="coverage/atlaskit$hausdorff.coverage" NAME="dice Coverage Results" MODIFIED="1458077898517" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$USER_HOME$/Box/CIT_Midbrain_Atlas/Labeling/jmt" />
     <SUITE FILE_PATH="coverage/atlaskit$label_report.coverage" NAME="label_report Coverage Results" MODIFIED="1487973803095" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$USER_HOME$/HCP/Atlases/CIT168/labeling" />
     <SUITE FILE_PATH="coverage/atlaskit$smooth_labels.coverage" NAME="smooth_labels Coverage Results" MODIFIED="1497985558326" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$USER_HOME$/Data/Amygdala/UWD/Structural_Analysis/AM/20130326/derivatives" />
@@ -37,102 +41,44 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="atlas_report.py" pinned="false" current-in-tab="false">
+      <file leaf-file-name="atlas_report.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/atlas_report.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1140">
-              <caret line="432" column="32" lean-forward="false" selection-start-line="432" selection-start-column="32" selection-end-line="432" selection-end-column="32" />
+            <state relative-caret-position="674">
+              <caret line="591" column="77" lean-forward="false" selection-start-line="591" selection-start-column="77" selection-end-line="591" selection-end-column="77" />
               <folding>
                 <element signature="e#23#1161#1" expanded="false" />
-                <element signature="e#1462#3019#0" expanded="false" />
-                <element signature="e#2031#2117#0" expanded="false" />
-                <element signature="e#3112#4548#0" expanded="false" />
-                <element signature="e#3112#3510#1" expanded="false" />
-                <element signature="e#4141#4284#0" expanded="false" />
-                <element signature="e#4621#8479#0" expanded="false" />
-                <element signature="e#4621#5060#1" expanded="false" />
-                <element signature="e#5741#8455#0" expanded="false" />
-                <element signature="e#6659#7616#0" expanded="false" />
-                <element signature="e#6760#6810#0" expanded="false" />
-                <element signature="e#7071#7104#0" expanded="false" />
-                <element signature="e#7288#7573#0" expanded="false" />
-                <element signature="e#7862#8140#0" expanded="false" />
-                <element signature="e#8540#10873#0" expanded="false" />
-                <element signature="e#8540#8807#1" expanded="false" />
-                <element signature="e#9157#9216#0" expanded="false" />
-                <element signature="e#9614#10315#0" expanded="false" />
-                <element signature="e#10449#10528#0" expanded="false" />
-                <element signature="e#10571#10672#0" expanded="false" />
-                <element signature="e#10939#11441#1" expanded="false" />
-                <element signature="e#11510#11592#0" expanded="false" />
-                <element signature="e#11598#11635#0" expanded="false" />
-                <element signature="e#12370#12424#0" expanded="false" />
-                <element signature="e#12890#12923#0" expanded="false" />
-                <element signature="e#13217#13565#0" expanded="false" />
-                <element signature="e#14165#15112#0" expanded="false" />
-                <element signature="e#14165#14496#1" expanded="false" />
-                <element signature="e#15161#15474#0" expanded="false" />
-                <element signature="e#15161#15308#1" expanded="false" />
-                <element signature="e#15525#15959#0" expanded="false" />
-                <element signature="e#15525#15725#1" expanded="false" />
-                <element signature="e#16077#17754#0" expanded="false" />
-                <element signature="e#16077#16686#1" expanded="false" />
-                <element signature="e#16862#17282#0" expanded="false" />
-                <element signature="e#16900#17100#0" expanded="false" />
-                <element signature="e#17786#18945#0" expanded="false" />
-                <element signature="e#17786#18106#1" expanded="false" />
-                <element signature="e#18981#21865#0" expanded="false" />
-                <element signature="e#18981#19202#1" expanded="false" />
-                <element signature="e#19208#19209#0" expanded="false" />
-                <element signature="e#20456#20457#0" expanded="false" />
-                <element signature="e#20691#20931#0" expanded="false" />
-                <element signature="e#21894#22455#0" expanded="false" />
-                <element signature="e#21894#22125#1" expanded="false" />
-                <element signature="e#22487#23065#0" expanded="false" />
-                <element signature="e#22487#22690#1" expanded="false" />
-                <element signature="e#22721#22749#0" expanded="false" />
-                <element signature="e#23068#23144#0" expanded="false" />
+                <element signature="e#1163#1172#0" expanded="true" />
+                <element signature="e#1426#2983#0" expanded="false" />
+                <element signature="e#1995#2081#0" expanded="false" />
+                <element signature="e#3076#4512#0" expanded="false" />
+                <element signature="e#3076#3474#1" expanded="false" />
+                <element signature="e#4105#4248#0" expanded="false" />
+                <element signature="e#4585#5024#1" expanded="false" />
+                <element signature="e#6623#7580#0" expanded="false" />
+                <element signature="e#6724#6774#0" expanded="false" />
+                <element signature="e#7035#7068#0" expanded="false" />
+                <element signature="e#7252#7537#0" expanded="false" />
+                <element signature="e#7826#8104#0" expanded="false" />
+                <element signature="e#8504#10837#0" expanded="false" />
+                <element signature="e#8504#8771#1" expanded="false" />
+                <element signature="e#9121#9180#0" expanded="false" />
+                <element signature="e#9578#10279#0" expanded="false" />
+                <element signature="e#10413#10492#0" expanded="false" />
+                <element signature="e#10535#10636#0" expanded="false" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="atlas.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="atlas.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/atlas.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="4167">
-              <caret line="330" column="67" lean-forward="false" selection-start-line="330" selection-start-column="63" selection-end-line="330" selection-end-column="67" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="atlas_intra_observer.jinja" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/atlas_intra_observer.jinja">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="441">
-              <caret line="47" column="16" lean-forward="false" selection-start-line="47" selection-start-column="16" selection-end-line="47" selection-end-column="16" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="atlas_summary.jinja" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/atlas_summary.jinja">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="480">
-              <caret line="32" column="0" lean-forward="false" selection-start-line="32" selection-start-column="0" selection-end-line="35" selection-end-column="6" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="atlas_inter_observer.jinja" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/atlas_inter_observer.jinja">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="315">
-              <caret line="21" column="6" lean-forward="false" selection-start-line="21" selection-start-column="6" selection-end-line="21" selection-end-column="6" />
-              <folding />
+            <state relative-caret-position="487">
+              <caret line="211" column="55" lean-forward="false" selection-start-line="211" selection-start-column="55" selection-end-line="211" selection-end-column="55" />
+              <folding>
+                <element signature="e#1106#1115#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -148,13 +94,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>nii</find>
-      <find>label_key</find>
-      <find>load_key</find>
-      <find>maxprob</find>
-      <find>key</find>
-      <find>maxprob_pr</find>
-      <find>prob_montage</find>
       <find>Harvard</find>
       <find>isobb</find>
       <find>_nii</find>
@@ -178,6 +117,13 @@
       <find>label_mean</find>
       <find>inter_obs_</find>
       <find>montage2</find>
+      <find>shutil</find>
+      <find>CIT168</find>
+      <find>tint</find>
+      <find>load_key</find>
+      <find>with</find>
+      <find>with os</find>
+      <find>label_key</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -226,9 +172,9 @@
         <option value="/Volumes/Data/jmt/Causality/MyConnectome/ds031/derivatives/sub-01/anatomy/mkparcels.py" />
         <option value="$PROJECT_DIR$/atlas_summary.jinja" />
         <option value="$PROJECT_DIR$/atlas_inter_observer.jinja" />
+        <option value="$PROJECT_DIR$/atlas_intra_observer.jinja" />
         <option value="$PROJECT_DIR$/atlas.py" />
         <option value="$PROJECT_DIR$/atlas_report.py" />
-        <option value="$PROJECT_DIR$/atlas_intra_observer.jinja" />
       </list>
     </option>
   </component>
@@ -239,10 +185,10 @@
     <sorting>DEFINITION_ORDER</sorting>
   </component>
   <component name="ProjectFrameBounds">
-    <option name="x" value="30" />
-    <option name="y" value="23" />
-    <option name="width" value="1250" />
-    <option name="height" value="777" />
+    <option name="x" value="43" />
+    <option name="y" value="37" />
+    <option name="width" value="1639" />
+    <option name="height" value="1216" />
   </component>
   <component name="ProjectInspectionProfilesVisibleTreeState">
     <entry key="Project Default">
@@ -285,6 +231,8 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
+      <pane id="Scope" />
+      <pane id="Scratches" />
       <pane id="ProjectPane">
         <subPane>
           <PATH>
@@ -299,8 +247,6 @@
           </PATH>
         </subPane>
       </pane>
-      <pane id="Scope" />
-      <pane id="Scratches" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -319,6 +265,116 @@
       <recent name="$PROJECT_DIR$" />
     </key>
   </component>
+  <component name="RestoreUpdateTree" date="Moments ago" ActionInfo="_Update">
+    <UpdatedFiles>
+      <FILE-GROUP>
+        <option name="myUpdateName" value="Updated from server" />
+        <option name="myStatusName" value="Changed on server" />
+        <option name="mySupportsDeletion" value="false" />
+        <option name="myCanBeAbsent" value="false" />
+        <option name="myId" value="CHANGED_ON_SERVER" />
+        <FILE-GROUP>
+          <option name="myUpdateName" value="Updated" />
+          <option name="myStatusName" value="Changed" />
+          <option name="mySupportsDeletion" value="false" />
+          <option name="myCanBeAbsent" value="false" />
+          <option name="myId" value="UPDATED" />
+          <PATH vcs="Git" revision="">$PROJECT_DIR$/atlas_report.py</PATH>
+        </FILE-GROUP>
+        <FILE-GROUP>
+          <option name="myUpdateName" value="Created" />
+          <option name="myStatusName" value="Created" />
+          <option name="mySupportsDeletion" value="false" />
+          <option name="myCanBeAbsent" value="false" />
+          <option name="myId" value="CREATED" />
+        </FILE-GROUP>
+        <FILE-GROUP>
+          <option name="myUpdateName" value="Deleted" />
+          <option name="myStatusName" value="Deleted" />
+          <option name="mySupportsDeletion" value="false" />
+          <option name="myCanBeAbsent" value="true" />
+          <option name="myId" value="REMOVED_FROM_REPOSITORY" />
+        </FILE-GROUP>
+        <FILE-GROUP>
+          <option name="myUpdateName" value="Restored" />
+          <option name="myStatusName" value="Will be restored" />
+          <option name="mySupportsDeletion" value="false" />
+          <option name="myCanBeAbsent" value="false" />
+          <option name="myId" value="RESTORED" />
+        </FILE-GROUP>
+      </FILE-GROUP>
+      <FILE-GROUP>
+        <option name="myUpdateName" value="Modified" />
+        <option name="myStatusName" value="Modified" />
+        <option name="mySupportsDeletion" value="false" />
+        <option name="myCanBeAbsent" value="false" />
+        <option name="myId" value="MODIFIED" />
+      </FILE-GROUP>
+      <FILE-GROUP>
+        <option name="myUpdateName" value="Skipped" />
+        <option name="myStatusName" value="Skipped" />
+        <option name="mySupportsDeletion" value="false" />
+        <option name="myCanBeAbsent" value="false" />
+        <option name="myId" value="SKIPPED" />
+      </FILE-GROUP>
+      <FILE-GROUP>
+        <option name="myUpdateName" value="Merged with conflicts" />
+        <option name="myStatusName" value="Will be merged with conflicts" />
+        <option name="mySupportsDeletion" value="false" />
+        <option name="myCanBeAbsent" value="false" />
+        <option name="myId" value="MERGED_WITH_CONFLICTS" />
+      </FILE-GROUP>
+      <FILE-GROUP>
+        <option name="myUpdateName" value="Merged with tree conflicts" />
+        <option name="myStatusName" value="Merged with tree conflicts" />
+        <option name="mySupportsDeletion" value="false" />
+        <option name="myCanBeAbsent" value="false" />
+        <option name="myId" value="MERGED_WITH_TREE_CONFLICT" />
+      </FILE-GROUP>
+      <FILE-GROUP>
+        <option name="myUpdateName" value="Merged with property conflicts" />
+        <option name="myStatusName" value="Will be merged with property conflicts" />
+        <option name="mySupportsDeletion" value="false" />
+        <option name="myCanBeAbsent" value="false" />
+        <option name="myId" value="MERGED_WITH_PROPERTY_CONFLICT" />
+      </FILE-GROUP>
+      <FILE-GROUP>
+        <option name="myUpdateName" value="Merged" />
+        <option name="myStatusName" value="Will be merged" />
+        <option name="mySupportsDeletion" value="false" />
+        <option name="myCanBeAbsent" value="false" />
+        <option name="myId" value="MERGED" />
+      </FILE-GROUP>
+      <FILE-GROUP>
+        <option name="myUpdateName" value="Not in repository" />
+        <option name="myStatusName" value="Not in repository" />
+        <option name="mySupportsDeletion" value="true" />
+        <option name="myCanBeAbsent" value="false" />
+        <option name="myId" value="UNKNOWN" />
+      </FILE-GROUP>
+      <FILE-GROUP>
+        <option name="myUpdateName" value="Locally added" />
+        <option name="myStatusName" value="Locally added" />
+        <option name="mySupportsDeletion" value="false" />
+        <option name="myCanBeAbsent" value="false" />
+        <option name="myId" value="LOCALLY_ADDED" />
+      </FILE-GROUP>
+      <FILE-GROUP>
+        <option name="myUpdateName" value="Locally removed" />
+        <option name="myStatusName" value="Locally removed" />
+        <option name="mySupportsDeletion" value="false" />
+        <option name="myCanBeAbsent" value="false" />
+        <option name="myId" value="LOCALLY_REMOVED" />
+      </FILE-GROUP>
+      <FILE-GROUP>
+        <option name="myUpdateName" value="Switched" />
+        <option name="myStatusName" value="Switched" />
+        <option name="mySupportsDeletion" value="false" />
+        <option name="myCanBeAbsent" value="false" />
+        <option name="myId" value="SWITCHED" />
+      </FILE-GROUP>
+    </UpdatedFiles>
+  </component>
   <component name="RunDashboard">
     <option name="ruleStates">
       <list>
@@ -331,7 +387,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Python.atlas">
+  <component name="RunManager" selected="Python.atlas_report">
     <configuration default="true" type="BashConfigurationType" factoryName="Bash">
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="INTERPRETER_PATH" value="/bin/bash" />
@@ -658,25 +714,6 @@
       <option name="EMULATE_TERMINAL" value="false" />
       <method />
     </configuration>
-    <configuration default="false" name="atlas_report" type="PythonConfigurationType" factoryName="Python">
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$USER_HOME$/Box Sync/CIT_DeepBrain_Atlas/Labeling" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <module name="atlaskit" />
-      <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/atlas_report.py" />
-      <option name="PARAMETERS" value="-a dope_reward_atlas -b $USER_HOME$/Box/CIT_DeepBrain_Atlas/Templates/CV_059780_T1w_avg.nii.gz" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <method />
-    </configuration>
     <configuration default="false" name="atlas" type="PythonConfigurationType" factoryName="Python">
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -691,7 +728,26 @@
       <module name="atlaskit" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/atlas.py" />
-      <option name="PARAMETERS" value="-d . -a test_atlas -k labels.txt -l &quot;201-203, 207&quot;" />
+      <option name="PARAMETERS" value="-d . -a dope_reward_atlas -l 201-203,206-214,400,410,411,420" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <method />
+    </configuration>
+    <configuration default="false" name="atlas_report" type="PythonConfigurationType" factoryName="Python">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$USER_HOME$/Box Sync/CIT_DeepBrain_Atlas/Labeling" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="atlaskit" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/atlas_report.py" />
+      <option name="PARAMETERS" value="-a dope_reward_atlas" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
       <method />
@@ -704,8 +760,8 @@
       <item index="4" class="java.lang.String" itemvalue="Python.atlas_lesion_analysis" />
       <item index="5" class="java.lang.String" itemvalue="Python.smooth_labels" />
       <item index="6" class="java.lang.String" itemvalue="Python.mkparcels" />
-      <item index="7" class="java.lang.String" itemvalue="Python.atlas_report" />
-      <item index="8" class="java.lang.String" itemvalue="Python.atlas" />
+      <item index="7" class="java.lang.String" itemvalue="Python.atlas" />
+      <item index="8" class="java.lang.String" itemvalue="Python.atlas_report" />
     </list>
     <configuration default="true" type="tests" factoryName="Attests">
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -1012,20 +1068,19 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="30" y="23" width="1250" height="777" extended-state="6" />
-    <editor active="true" />
+    <frame x="43" y="37" width="1639" height="1216" extended-state="0" />
     <layout>
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.21937086" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.219036" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.2721202" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.25066903" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.2720785" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.31337163" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25084746" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.31668153" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
-      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.31751412" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Data View" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
@@ -1034,7 +1089,7 @@
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
       <window_info id="Coverage" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="4" side_tool="true" content_ui="tabs" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32542372" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32471007" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
     </layout>
   </component>
@@ -1092,7 +1147,7 @@
           </properties>
         </breakpoint>
       </default-breakpoints>
-      <option name="time" value="139" />
+      <option name="time" value="141" />
     </breakpoint-manager>
     <watches-manager />
   </component>
@@ -1339,7 +1394,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="315">
           <caret line="21" column="6" lean-forward="false" selection-start-line="21" selection-start-column="6" selection-end-line="21" selection-end-column="6" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1347,65 +1401,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="480">
           <caret line="32" column="0" lean-forward="false" selection-start-line="32" selection-start-column="0" selection-end-line="35" selection-end-column="6" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/atlas_report.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1140">
-          <caret line="432" column="32" lean-forward="false" selection-start-line="432" selection-start-column="32" selection-end-line="432" selection-end-column="32" />
-          <folding>
-            <element signature="e#23#1161#1" expanded="false" />
-            <element signature="e#1462#3019#0" expanded="false" />
-            <element signature="e#2031#2117#0" expanded="false" />
-            <element signature="e#3112#4548#0" expanded="false" />
-            <element signature="e#3112#3510#1" expanded="false" />
-            <element signature="e#4141#4284#0" expanded="false" />
-            <element signature="e#4621#8479#0" expanded="false" />
-            <element signature="e#4621#5060#1" expanded="false" />
-            <element signature="e#5741#8455#0" expanded="false" />
-            <element signature="e#6659#7616#0" expanded="false" />
-            <element signature="e#6760#6810#0" expanded="false" />
-            <element signature="e#7071#7104#0" expanded="false" />
-            <element signature="e#7288#7573#0" expanded="false" />
-            <element signature="e#7862#8140#0" expanded="false" />
-            <element signature="e#8540#10873#0" expanded="false" />
-            <element signature="e#8540#8807#1" expanded="false" />
-            <element signature="e#9157#9216#0" expanded="false" />
-            <element signature="e#9614#10315#0" expanded="false" />
-            <element signature="e#10449#10528#0" expanded="false" />
-            <element signature="e#10571#10672#0" expanded="false" />
-            <element signature="e#10939#11441#1" expanded="false" />
-            <element signature="e#11510#11592#0" expanded="false" />
-            <element signature="e#11598#11635#0" expanded="false" />
-            <element signature="e#12370#12424#0" expanded="false" />
-            <element signature="e#12890#12923#0" expanded="false" />
-            <element signature="e#13217#13565#0" expanded="false" />
-            <element signature="e#14165#15112#0" expanded="false" />
-            <element signature="e#14165#14496#1" expanded="false" />
-            <element signature="e#15161#15474#0" expanded="false" />
-            <element signature="e#15161#15308#1" expanded="false" />
-            <element signature="e#15525#15959#0" expanded="false" />
-            <element signature="e#15525#15725#1" expanded="false" />
-            <element signature="e#16077#17754#0" expanded="false" />
-            <element signature="e#16077#16686#1" expanded="false" />
-            <element signature="e#16862#17282#0" expanded="false" />
-            <element signature="e#16900#17100#0" expanded="false" />
-            <element signature="e#17786#18945#0" expanded="false" />
-            <element signature="e#17786#18106#1" expanded="false" />
-            <element signature="e#18981#21865#0" expanded="false" />
-            <element signature="e#18981#19202#1" expanded="false" />
-            <element signature="e#19208#19209#0" expanded="false" />
-            <element signature="e#20456#20457#0" expanded="false" />
-            <element signature="e#20691#20931#0" expanded="false" />
-            <element signature="e#21894#22455#0" expanded="false" />
-            <element signature="e#21894#22125#1" expanded="false" />
-            <element signature="e#22487#23065#0" expanded="false" />
-            <element signature="e#22487#22690#1" expanded="false" />
-            <element signature="e#22721#22749#0" expanded="false" />
-            <element signature="e#23068#23144#0" expanded="false" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -1413,15 +1408,44 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="441">
           <caret line="47" column="16" lean-forward="false" selection-start-line="47" selection-start-column="16" selection-end-line="47" selection-end-column="16" />
-          <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/atlas.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="4167">
-          <caret line="330" column="67" lean-forward="false" selection-start-line="330" selection-start-column="63" selection-end-line="330" selection-end-column="67" />
-          <folding />
+        <state relative-caret-position="487">
+          <caret line="211" column="55" lean-forward="false" selection-start-line="211" selection-start-column="55" selection-end-line="211" selection-end-column="55" />
+          <folding>
+            <element signature="e#1106#1115#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/atlas_report.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="674">
+          <caret line="591" column="77" lean-forward="false" selection-start-line="591" selection-start-column="77" selection-end-line="591" selection-end-column="77" />
+          <folding>
+            <element signature="e#23#1161#1" expanded="false" />
+            <element signature="e#1163#1172#0" expanded="true" />
+            <element signature="e#1426#2983#0" expanded="false" />
+            <element signature="e#1995#2081#0" expanded="false" />
+            <element signature="e#3076#4512#0" expanded="false" />
+            <element signature="e#3076#3474#1" expanded="false" />
+            <element signature="e#4105#4248#0" expanded="false" />
+            <element signature="e#4585#5024#1" expanded="false" />
+            <element signature="e#6623#7580#0" expanded="false" />
+            <element signature="e#6724#6774#0" expanded="false" />
+            <element signature="e#7035#7068#0" expanded="false" />
+            <element signature="e#7252#7537#0" expanded="false" />
+            <element signature="e#7826#8104#0" expanded="false" />
+            <element signature="e#8504#10837#0" expanded="false" />
+            <element signature="e#8504#8771#1" expanded="false" />
+            <element signature="e#9121#9180#0" expanded="false" />
+            <element signature="e#9578#10279#0" expanded="false" />
+            <element signature="e#10413#10492#0" expanded="false" />
+            <element signature="e#10535#10636#0" expanded="false" />
+          </folding>
         </state>
       </provider>
     </entry>

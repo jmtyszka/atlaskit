@@ -49,7 +49,6 @@ import matplotlib.pyplot as plt
 from datetime import datetime
 from skimage.util.montage import montage2d
 from skimage import color
-# from skimage.filters import sobel
 
 __version__ = '1.1'
 
@@ -362,7 +361,10 @@ def overlay_montage(atlas_dir, report_dir, overlay_fname):
     cit_dir = os.environ['CIT168_DIR']
 
     # Load label key from atlas directory
-    # label_key = load_key(os.path.join(atlas_dir, 'labels.txt'))
+    label_key = load_key(os.path.join(atlas_dir, 'labels.txt'))
+
+    # Extract HSV label colors (n_labels x 3 array)
+    hsv = label_rgb2hsv(label_key)
 
     # Probability threshold for minimum BB
     p_thresh = 0.25
@@ -400,9 +402,6 @@ def overlay_montage(atlas_dir, report_dir, overlay_fname):
     # Create montage of coronal sections through cropped bg image
     bg_mont = coronal_montage(bg_crop, n_rows, n_cols)
 
-    # Sobel filter bg image for edges
-    # bg_mont = sobel(bg_mont)
-
     bg_mont_rgb = tint(bg_mont, hue=0.0, saturation=0.0)
 
     # Initialize the all-label overlay
@@ -414,11 +413,11 @@ def overlay_montage(atlas_dir, report_dir, overlay_fname):
         # Construct prob label montage
         p_mont = coronal_montage(p_crop[:,:,:,lc], n_rows, n_cols)
 
-        # Calculate hue
-        hue = float(np.mod(lc * 3, n_labels)) / n_labels
+        # Hue and saturation for label overlay
+        hue, sat, val = hsv[lc, 0], hsv[lc, 1], hsv[lc,2]
 
         # Tint the montage
-        p_mont_rgb = tint(p_mont, hue, saturation=1.0)
+        p_mont_rgb = tint(p_mont, hue=hue, saturation=sat, value=val)
 
         # Add tinted overlay to running total
         overlay_mont_rgb += p_mont_rgb
@@ -437,6 +436,28 @@ def overlay_montage(atlas_dir, report_dir, overlay_fname):
     plt.savefig(os.path.join(report_dir, montage_fname), bbox_inches='tight')
 
     return montage_fname
+
+
+def label_rgb2hsv(label_key):
+    """
+    Extract label RGB colors and convert to HSV
+
+    Parameters
+    ----------
+    label_key: data frame
+
+    Returns
+    -------
+    hsv: numpy array
+
+    """
+
+    rgb = np.array(label_key[['R','G','B']]) / 255.0
+    rgb = rgb.reshape([rgb.shape[0], 1, 3])
+    hsv = color.rgb2hsv(rgb)
+    hsv = hsv.reshape([-1,3])
+
+    return hsv
 
 
 def coronal_montage(img, n_rows=4, n_cols=4, flip_x=False, flip_y=True, flip_z=True):
@@ -482,7 +503,7 @@ def coronal_montage(img, n_rows=4, n_cols=4, flip_x=False, flip_y=True, flip_z=T
     return cor_mont
 
 
-def tint(image, hue=0.0, saturation=1.0):
+def tint(image, hue=0.0, saturation=1.0, value=1.0):
     """
     Add color of the given hue to an RGB image
 
@@ -499,7 +520,7 @@ def tint(image, hue=0.0, saturation=1.0):
     hsv = np.zeros([image.shape[0], image.shape[1], 3])
     hsv[:, :, 0] = hue
     hsv[:, :, 1] = saturation
-    hsv[:, :, 2] = image
+    hsv[:, :, 2] = image * value
 
     return color.hsv2rgb(hsv)
 
@@ -568,7 +589,7 @@ def similarity_figure(metric, img_title, img_fname, report_dir, label_names, mli
         if aa < len(label_names):
             mmaa = np.flipud(metric[aa, :, :]).copy()
             mmaa[np.isnan(mmaa)] = nansub
-            im = ax.pcolor(mmaa, vmin=mlims[0], vmax=mlims[1])
+            im = ax.pcolor(mmaa, vmin=mlims[0], vmax=mlims[1], cmap='Spectral')
             ax.set_title(label_names[aa], fontsize=8)
         else:
             ax.axis('off')

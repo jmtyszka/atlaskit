@@ -44,13 +44,10 @@ Copyright
 2017 California Institute of Technology.
 """
 
-__version__ = '0.2.0'
-
 import os
 import sys
 import csv
 import argparse
-from six import BytesIO
 import nibabel as nib
 import numpy as np
 import pandas as pd
@@ -58,6 +55,9 @@ import multiprocessing as mp
 import shutil
 from glob import glob
 from scipy.ndimage.morphology import binary_erosion
+
+
+__version__ = '0.2.0'
 
 
 def main():
@@ -69,10 +69,14 @@ def main():
 
     # Parse command line arguments
     parser = argparse.ArgumentParser(description='Calculate label similarity metrics for multiple observers')
-    parser.add_argument('-d','--labeldir', help='Directory containing observer label subdirectories ["."]')
-    parser.add_argument('-a','--atlasdir', help='Output atlas directory ["<labeldir>/atlas"]')
-    parser.add_argument('-k','--key', help='ITK-SNAP label key text file ["<labeldir>/labels.txt"]')
-    parser.add_argument('-l','--labels', required=False, type=parse_range, help='List of label indices to process (eg 1-5, 7-9, 12)')
+    parser.add_argument('-d', '--labeldir',
+                        help='Directory containing observer label subdirectories ["."]')
+    parser.add_argument('-a', '--atlasdir',
+                        help='Output atlas directory ["<labeldir>/atlas"]')
+    parser.add_argument('-k', '--key',
+                        help='ITK-SNAP label key text file ["<labeldir>/labels.txt"]')
+    parser.add_argument('-l', '--labels', required=False, type=parse_range,
+                        help='List of label indices to process (eg 1-5, 7-9, 12)')
 
     # Parse command line arguments
     args = parser.parse_args()
@@ -110,12 +114,8 @@ def main():
     if not os.path.isdir(atlas_dir):
         os.mkdir(atlas_dir)
 
-    # Save a copy of label key file in the atlas directory
-    label_keyfile_save = os.path.join(atlas_dir, 'labels.txt')
-    shutil.copyfile(label_keyfile, label_keyfile_save)
-
     # Load the label key as a data frame
-    label_key = load_key(label_keyfile_save)
+    label_key = load_key(label_keyfile)
 
     # Init grand lists
     labels = []
@@ -177,7 +177,6 @@ def main():
     else:
         # Use dimensions from first image
         vox_mm = vox_mm[0]
-        vox_ul = vox_ul[0]
 
     # Convert nested list to 5D numpy array
     # -> labels[observer][template][x][y][z]
@@ -204,6 +203,14 @@ def main():
 
     # Construct and output label mean and variance maps
     label_stats_maps(atlas_dir, labels, label_nos, affine_tx[0], obs_names)
+
+    # Copy reference T1w template to atlas directory
+    copy_template(atlas_dir)
+
+    # Write minimum label key to atlas directory
+    # Only include labels present in label images and original key
+    print('  Saving unique label key to atlas directory')
+    save_key(atlas_dir, label_key, label_nos)
 
     # Similarity metrics between and within observers
     print('')
@@ -242,7 +249,7 @@ def label_stats_maps(atlas_dir, labels, label_nos, affine_tx, obs_names):
     ----------
     atlas_dir: string
         Output atlas directory path
-    labels: 5D numpy array of integers
+    labels: numpy integer array
         Integer label volumes for all labels and observers [obs][tmp][x][y][z]
     label_nos: list
         List of label numbers present in labels
@@ -274,7 +281,7 @@ def label_stats_maps(atlas_dir, labels, label_nos, affine_tx, obs_names):
         print('  Observer %02d (%s)' % (oc, obs_name))
 
         # Extract labels for current observer
-        labels_obs = labels[oc,:,:,:,:]
+        labels_obs = labels[oc, :, :, :, :]
 
         # Loop over each unique label value
         for lc, label_no in enumerate(label_nos):
@@ -291,13 +298,13 @@ def label_stats_maps(atlas_dir, labels, label_nos, affine_tx, obs_names):
         # Save observer label mean to atlas dir
         print('    Saving observer label mean')
         obs_mean_fname = os.path.join(atlas_dir, 'obs-{0:02d}_label_mean.nii.gz'.format(oc))
-        obs_mean_nii = nib.Nifti1Image(label_means[:,:,:,:,oc], affine_tx)
+        obs_mean_nii = nib.Nifti1Image(label_means[:, :, :, :, oc], affine_tx)
         obs_mean_nii.to_filename(obs_mean_fname)
 
         # Save observer label variance to atlas dir
         print('    Saving observer label variance')
         obs_var_fname = os.path.join(atlas_dir, 'obs-{0:02d}_label_var.nii.gz'.format(oc))
-        obs_var_nii = nib.Nifti1Image(label_vars[:,:,:,:,oc], affine_tx)
+        obs_var_nii = nib.Nifti1Image(label_vars[:, :, :, :, oc], affine_tx)
         obs_var_nii.to_filename(obs_var_fname)
 
     # Label means over all observers (aka probabilistic atlas)
@@ -308,14 +315,40 @@ def label_stats_maps(atlas_dir, labels, label_nos, affine_tx, obs_names):
     prob_nii.to_filename(prob_atlas_fname)
 
 
+def copy_template(atlas_dir):
+    """
+    Duplicate CIT168 T1w template to atlas directory
+    - required env variable CIT168_DIR has been set
+
+    Parameters
+    ----------
+    atlas_dir
+
+    Returns
+    -------
+    """
+
+    cit_dir = os.environ['CIT168_DIR']
+    if not cit_dir:
+        print('* Environmental variable CIT168_DIR not set - exiting')
+        sys.exit(1)
+
+    src_fname = os.path.join(cit_dir, 'CIT168_700um', 'CIT168_T1w_700um.nii.gz')
+    dst_fname = os.path.join(atlas_dir, 'template.nii.gz')
+
+    shutil.copyfile(src_fname, dst_fname)
+
+
 def intra_observer_metrics(label_mask, vox_mm):
     """
     Calculate within-observer Dice, Hausdorff and related metrics
 
     Parameters
     ----------
-    label_mask: 5D numpy boolean array [observer][template][x][y][z]
-    vox_mm: voxel dimensions in mm
+    label_mask: numpy boolean array
+        5D mask array [observer][template][x][y][z]
+    vox_mm: tuple
+        voxel dimensions in mm
 
     Returns
     -------
@@ -330,7 +363,7 @@ def intra_observer_metrics(label_mask, vox_mm):
 
     print('  Calculating intra-observer similarity metrics :', end='')
 
-    for obs in range(0,nobs):
+    for obs in range(0, nobs):
 
         print(' %d' % obs, end='')
 
@@ -344,7 +377,7 @@ def intra_observer_metrics(label_mask, vox_mm):
 
             for tb in range(0, ntmp):
 
-                mask_b = label_mask[obs,tb,:,:,:]
+                mask_b = label_mask[obs, tb, :, :, :]
                 data_list.append((mask_a, mask_b, vox_mm))
 
             # Run similarity metric function in parallel on template A data list
@@ -368,8 +401,10 @@ def inter_observer_metrics(label_mask, vox_mm):
 
      Parameters
      ----------
-     label_mask: 5D numpy boolean array [observer][template][x][y][z]
-     vox_mm: voxel dimensions in mm
+     label_mask: numpy array
+        5D numpy boolean array [observer][template][x][y][z]
+     vox_mm: tuple
+        voxel dimensions in mm
 
      Returns
      -------
@@ -441,7 +476,7 @@ def save_intra_metrics(fname, intra_metrics, label_nos, label_key):
         writer = csv.writer(f)
 
         # Column headers
-        writer.writerow(('labelName','labelNo','observer','tmpA','tmpB','dice','hausdorff','nA','nB'))
+        writer.writerow(('labelName', 'labelNo', 'observer', 'tmpA', 'tmpB', 'dice', 'hausdorff', 'nA', 'nB'))
 
         for idx, m_idx in enumerate(intra_metrics):
             label_no = label_nos[idx]
@@ -474,7 +509,7 @@ def save_inter_metrics(fname, inter_metrics, label_nos, label_key):
         writer = csv.writer(f)
 
         # Column headers
-        writer.writerow(('labelName','labelNo','template','obsA','obsB','dice','hausdorff','nA','nB'))
+        writer.writerow(('labelName', 'labelNo', 'template', 'obsA', 'obsB', 'dice', 'hausdorff', 'nA', 'nB'))
 
         for idx, m_idx in enumerate(inter_metrics):
             label_no = label_nos[idx]
@@ -490,9 +525,12 @@ def similarity(mask_a, mask_b, vox_mm):
 
     Parameters
     ----------
-    mask_a: 3D logical array
-    mask_b: 3D logical array
-    vox_mm: tuple of voxel dimensions in mm
+    mask_a: numpy logical array
+        3D logical array
+    mask_b: numpy logical array
+        3D logical array
+    vox_mm: tuple
+        voxel dimensions in mm
 
     Returns
     -------
@@ -522,57 +560,57 @@ def similarity(mask_a, mask_b, vox_mm):
     return dice, haus, na, nb
 
 
-def hausdorff_distance(A, B, vox_mm):
+def hausdorff_distance(a, b, vox_mm):
     """
     Calculate the Hausdorff distance in mm between two binary masks in 3D
 
     Parameters
     ----------
-    A : 3D numpy logical array
+    a : 3D numpy logical array
         Binary mask A
-    B : 3D numpy logical array
+    b : 3D numpy logical array
         Binary mask B
     vox_mm : numpy float array
         voxel dimensions in mm
 
     Returns
     -------
-    H : float
+    h : float
         hausdorff_distance distance between labels
     """
 
     # Only need to calculate distances for surface voxels in each mask
-    sA = surface_voxels(A)
-    sB = surface_voxels(B)
+    sa = surface_voxels(a)
+    sb = surface_voxels(b)
 
     # Create lists of all True points in both surface masks
-    xA, yA, zA = np.nonzero(sA)
-    xB, yB, zB = np.nonzero(sB)
+    xa, ya, za = np.nonzero(sa)
+    xb, yb, zb = np.nonzero(sb)
 
     # Count elements in each point set
-    nA = xA.size
-    nB = xB.size
+    na = xa.size
+    nb = xb.size
 
-    if nA > 0 and nB > 0:
+    if na > 0 and nb > 0:
 
-        # Init min dr to -1 for all points in A
-        min_dr = -1.0 * np.ones([nA])
+        # Init min dr to -1 for all points in a
+        min_dr = -1.0 * np.ones([na])
 
-        for ac in range(0,nA):
+        for ac in range(0, na):
 
-            dx = (xA[ac] - xB[:]) * vox_mm[0]
-            dy = (yA[ac] - yB[:]) * vox_mm[1]
-            dz = (zA[ac] - zB[:]) * vox_mm[2]
+            dx = (xa[ac] - xb[:]) * vox_mm[0]
+            dy = (ya[ac] - yb[:]) * vox_mm[1]
+            dz = (za[ac] - zb[:]) * vox_mm[2]
             min_dr[ac] = np.min(np.sqrt(dx**2 + dy**2 + dz**2))
 
-        # Find maximum over A of the minimum distances A to B
-        H = np.max(min_dr)
+        # Find maximum over a of the minimum distances a to b
+        h = np.max(min_dr)
 
     else:
 
-        H = np.nan
+        h = np.nan
 
-    return H
+    return h
 
 
 def surface_voxels(x):
@@ -581,7 +619,8 @@ def surface_voxels(x):
 
     Parameters
     ----------
-    x: 3D numpy boolean array
+    x: numpy boolean array
+        3D mask
 
     Returns
     -------
@@ -589,7 +628,7 @@ def surface_voxels(x):
     """
 
     # Erode by one voxel
-    x_eroded = binary_erosion(x, structure=np.ones([3,3,3]), iterations=1)
+    x_eroded = binary_erosion(x, structure=np.ones([3, 3, 3]), iterations=1)
 
     # Return logical XOR of mask and eroded mask = surface voxels
     return np.logical_xor(x, x_eroded)
@@ -611,7 +650,7 @@ def bounding_box(x):
 
 def extract_box(x, bb):
 
-    return x[bb[0]:bb[1],bb[2]:bb[3],bb[4]:bb[5]]
+    return x[bb[0]:bb[1], bb[2]:bb[3], bb[4]:bb[5]]
 
 
 def get_template_ids(label_dir, obs):
@@ -620,13 +659,13 @@ def get_template_ids(label_dir, obs):
 
     if os.path.isdir(obs_dir):
 
-        ims = sorted(glob(os.path_join(obs_dir, '*.nii.gz')))
+        ims = sorted(glob(os.path.join(obs_dir, '*.nii.gz')))
 
         print(ims)
 
 
 def parse_range(astr):
-    '''
+    """
     Parse compound list of integers and integer ranges
 
     Parameters
@@ -636,7 +675,7 @@ def parse_range(astr):
     Returns
     -------
 
-    '''
+    """
     result = set()
     for part in astr.split(','):
         x = part.split('-')
@@ -651,22 +690,53 @@ def load_key(key_fname):
 
     Parameters
     ----------
-    key_fname: ITK-SNAP label key filename
+    key_fname: string
+        ITK-SNAP label key filename (*.txt)
 
     Returns
     -------
-    key: Data table containing ITK-SNAP style label key
+    key: data table
+        Data table containing ITK-SNAP style label key
     """
 
     # Import key as a data table
     # Note the partially undocumented delim_whitespace flag
     key = pd.read_table(key_fname,
-                         comment='#',
-                         header=None,
-                         names=['Index','R','G','B','A','Vis','Mesh','Name'],
-                         delim_whitespace=True)
+                        comment='#',
+                        header=None,
+                        names=['Index', 'R', 'G', 'B', 'A', 'Vis', 'Mesh', 'Name'],
+                        delim_whitespace=True)
 
     return key
+
+
+def save_key(atlas_dir, label_key, label_nos):
+    """
+    Save the unique label key for this atlas to an ITK-SNAP format text file
+
+    Parameters
+    ----------
+    atlas_dir: string
+        Atlas directory name
+    label_key: data frame
+        label key
+    label_nos: numpy array
+        unique label numbers
+
+    Returns
+    -------
+
+    """
+
+    # Construct a new data table
+    new_label_key = pd.DataFrame()
+
+    for label_no in label_nos:
+        new_label_key = new_label_key.append(label_key[label_key.Index == label_no], ignore_index=True)
+
+    # Write table to atlas directory using Pandas
+    key_fname = os.path.join(atlas_dir, 'labels.txt')
+    new_label_key.to_csv(key_fname, sep=' ',index=False, header=False, quoting=csv.QUOTE_NONNUMERIC)
 
 
 def get_label_name(label_idx, label_key):
