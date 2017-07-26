@@ -358,6 +358,10 @@ def overlay_montage(atlas_dir, report_dir, overlay_fname):
     montage_png: prob label montage
     """
 
+    # Use ITK-SNAP label key colors
+    atlas_color = False
+
+    # CIT atlas directory from shell environment
     cit_dir = os.environ['CIT168_DIR']
 
     # Load label key from atlas directory
@@ -414,7 +418,13 @@ def overlay_montage(atlas_dir, report_dir, overlay_fname):
         p_mont = coronal_montage(p_crop[:,:,:,lc], n_rows, n_cols)
 
         # Hue and saturation for label overlay
-        hue, sat, val = hsv[lc, 0], hsv[lc, 1], hsv[lc,2]
+        if atlas_color:
+            # Pull HSV from ITK-SNAP label key
+            hue, sat, val = hsv[lc, 0], hsv[lc, 1], hsv[lc,2]
+        else:
+            # Calculate rotating hue
+            hue = float(np.mod(lc * 3, n_labels)) / n_labels
+            sat, val = 1.0, 1.0
 
         # Tint the montage
         p_mont_rgb = tint(p_mont, hue=hue, saturation=sat, value=val)
