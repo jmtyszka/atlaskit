@@ -374,7 +374,7 @@ def overlay_montage(atlas_dir, report_dir, overlay_fname):
     p_thresh = 0.25
 
     # Size of coronal section montage
-    n_rows, n_cols = 4, 10
+    n_rows, n_cols = 6, 6
 
     # Load background image
     print('  Loading background image')
