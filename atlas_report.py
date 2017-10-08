@@ -43,6 +43,7 @@ import os
 import sys
 import argparse
 import jinja2
+import colorsys
 import numpy as np
 import nibabel as nib
 import matplotlib.pyplot as plt
@@ -135,11 +136,13 @@ def summary_report(atlas_dir, report_dir, intra_metrics, inter_metrics, obs_repo
     # Create grand prob label overlays on bg image
     print('  Generating probability montages')
     montage_fname = overlay_montage(atlas_dir, report_dir, 'prob_atlas.nii.gz')
+    colorkey_fname = create_colorkey(atlas_dir, report_dir, 'prob_atlas.nii.gz')
 
     # Template variables
     template_vars = {
         "obs_reports": obs_reports,
         "montage_fname": montage_fname,
+        "colorkey_fname": colorkey_fname,
         "report_time": datetime.now().strftime('%Y-%m-%d %H:%M')}
 
     # Finally, process the template to produce our final text.
@@ -439,13 +442,97 @@ def overlay_montage(atlas_dir, report_dir, overlay_fname):
     fig = plt.figure(figsize=(15,10), dpi=100)
     plt.imshow(mont_rgb, interpolation='none')
     plt.axis('off')
-
+    plt.legend()
+    
     # Save figure to PNG
     montage_fname = overlay_fname.replace('.nii.gz', '_montage.png')
     print('  Saving image to %s' % montage_fname)
     plt.savefig(os.path.join(report_dir, montage_fname), bbox_inches='tight')
 
     return montage_fname
+
+
+
+def create_colorkey(atlas_dir, report_dir, overlay_fname):
+    """
+    Construct an montage of colored label overlays on a T1w background
+    - Each label is colored according to the ITK-SNAP label key
+    - Calculate coronal slice skip from minimum BB for 4 x 4 montage (16 slices)
+
+    Parameters
+    ----------
+    atlas_dir: string
+        atlas directory path
+    report_dir: string
+        report directory path
+    overlay_fname: string
+        4D overlay image filename (within atlas_dir)
+
+    Returns
+    -------
+    montage_png: prob label montage
+    """
+
+    # Use ITK-SNAP label key colors
+    atlas_color = False
+
+    # CIT atlas directory from shell environment
+    cit_dir = os.environ['CIT168_DIR']
+
+    # Load label key from atlas directory
+    label_key = load_key(os.path.join(atlas_dir, 'labels.txt'))
+
+    # get name of each label for the legend
+    label_name = get_label_name(label_key)
+    
+    # Extract HSV label colors (n_labels x 3 array)
+    hsv = label_rgb2hsv(label_key)
+
+    # Load the 4D probabilistic atlas
+    print('  Loading probabilistic image')
+    p_nii = nib.load(os.path.join(atlas_dir, overlay_fname))
+    p_atlas = p_nii.get_data()
+
+    # Count prob labels
+    n_labels = p_atlas.shape[3]
+
+    rgb_colors = []
+    labels = []
+    # Create equivalent montage for all prob labels with varying hues
+    for lc in range(0, n_labels):
+
+        # Hue and saturation for label overlay
+        if atlas_color:
+            # Pull HSV from ITK-SNAP label key
+            hue, sat, val = hsv[lc, 0], hsv[lc, 1], hsv[lc,2]
+        else:
+            # Calculate rotating hue
+            hue = float(np.mod(lc * 3, n_labels)) / n_labels
+            sat, val = 1.0, 1.0
+        rgb = colorsys.hsv_to_rgb(hue, sat, val)
+        rgb_colors.append(rgb)
+
+    rgb_color_array = np.array(rgb_colors)
+    
+    x = np.array([0] * n_labels)
+    y = np.linspace(1, n_labels, n_labels)
+
+    fig, ax = plt.subplots()
+    fig_size = fig.get_size_inches()
+    fig.set_size_inches([float(fig_size[0])/3, fig_size[1]])
+    ax.scatter(x, y, c = rgb_color_array, edgecolors='none', s=25)
+    plt.axis('off')
+
+    for i in range(0, n_labels):
+            ax.annotate(label_key['Name'][i], (x[i],y[i]), xytext=(5,0), textcoords='offset points')
+            
+    
+    # Save figure to PNG
+    colorkey_fname = overlay_fname.replace('.nii.gz', '_colorkey.png')
+    print('  Saving image to %s' % colorkey_fname)
+    plt.savefig(os.path.join(report_dir, colorkey_fname), bbox_inches='tight', transparent = True, pad_inches=0)
+
+    return colorkey_fname
 
 
 def label_rgb2hsv(label_key):
