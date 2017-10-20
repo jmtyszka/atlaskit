@@ -646,7 +646,7 @@ def composite(overlay_rgb, background_rgb):
     return composite_rgb
 
 
-def similarity_figure(metric, img_title, img_fname, report_dir, label_names, mlims, nrows, ncols, nansub=0.0):
+def similarity_figure(metric, img_title, img_fname, report_dir, label_names, mlims, nrows, ncols, nansub=0.0, fontsize=8):
     """
     Plot an array of similarity matrix figures for a given observer or template
 
@@ -687,7 +687,7 @@ def similarity_figure(metric, img_title, img_fname, report_dir, label_names, mli
             mmaa = np.flipud(metric[aa, :, :]).copy()
             mmaa[np.isnan(mmaa)] = nansub
             im = ax.pcolor(mmaa, vmin=mlims[0], vmax=mlims[1], cmap='Spectral')
-            ax.set_title(label_names[aa], fontsize=8)
+            ax.set_title(label_names[aa], fontsize=fontsize)
         else:
             ax.axis('off')
 
