@@ -105,7 +105,7 @@ def create_histogram(p, keys, nrows=4, ncols=4, fontsize=14, img_fname='/tmp/pro
 def print_vol_info(p_file, keys, latex=False):
 
     if latex:
-        print("\\begin{tabular}{l l}\n\hline\\\\\nLabel&Vol (muL)\\\\\n\hline\\\\")
+        print("\\begin{tabular}{l l}\n\hline\\\\\nLabel&Vol ($\mu L$)\\\\\n\hline\\\\")
     # Load the source atlas image
     p_nii = nib.load(p_file)
     p = p_nii.get_data()
