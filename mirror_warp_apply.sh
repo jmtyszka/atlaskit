@@ -28,7 +28,7 @@ uni_file=`basename $uni_labels`
 uni_stub=${uni_file%%.nii.gz}
 bi_labels=${bi_dir}/${uni_file}
 
-# Mirrored version of the unilateral labels
+# Mirrored version of the unilateral labels (not bilateral yet)
 uni_mirror=${bi_dir}/${uni_stub}_mirror.nii.gz
 uni_mirror_warp=${bi_dir}/${uni_stub}_mirror_warp.nii.gz
 
