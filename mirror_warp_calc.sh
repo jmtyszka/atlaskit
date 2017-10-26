@@ -58,20 +58,20 @@ chmod +w $T1 $T2
 
 # L-R flip master T1 and T2 templates
 echo "  Reflecting images about the mid-sagittal plane"
-mirror.py -i $T1 -o $T1_mirror
-mirror.py -i $T2 -o $T2_mirror
+python mirror.py -i $T1 -o $T1_mirror
+python mirror.py -i $T2 -o $T2_mirror
 
 if [ ! -s ${mirror_warp} ]
 then
 
   # Warp L-R flipped T1 and T2 onto their unflipped versions
   echo "  Warping L-R reflected images onto their unreflected versions"
-  ANTS 3 -m CC[${T1},${T1_mirror},1,5] -m CC[${T2},${T2_mirror},1,5] ${ANTS_OPTS} -o ${ANTS_prefix}
+  ${ANTSPATH}/ANTS 3 -m CC[${T1},${T1_mirror},1,5] -m CC[${T2},${T2_mirror},1,5] ${ANTS_OPTS} -o ${ANTS_prefix}
 
 	# Apply mirror warp to L-R flipped T1 and T2
 	echo "  Applying mirror warp"
-	WarpImageMultiTransform 3 ${T1_mirror} ${T1_mirror_warp} $mirror_warp $mirror_affine
-	WarpImageMultiTransform 3 ${T2_mirror} ${T2_mirror_warp} $mirror_warp $mirror_affine
+	${ANTSPATH}/WarpImageMultiTransform 3 ${T1_mirror} ${T1_mirror_warp} $mirror_warp $mirror_affine
+	${ANTSPATH}/WarpImageMultiTransform 3 ${T2_mirror} ${T2_mirror_warp} $mirror_warp $mirror_affine
 
 else
 

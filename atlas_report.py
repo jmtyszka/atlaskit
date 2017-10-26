@@ -50,7 +50,7 @@ import matplotlib.pyplot as plt
 from datetime import datetime
 from skimage.util.montage import montage2d
 from skimage import color
-
+from atlas import get_label_name
 __version__ = '1.1'
 
 
@@ -59,11 +59,13 @@ def main():
     # Parse command line arguments
     parser = argparse.ArgumentParser(description='Create labeling report for a probabilistic atlas')
     parser.add_argument('-a', '--atlasdir', required=True, help='Directory containing probabilistic atlas')
-
+    parser.add_argument('--strip', dest='strip', action='store_true', help='Strep prefixes from label names')
+    
     # Parse command line arguments
     args = parser.parse_args()
     atlas_dir = args.atlasdir
-
+    strip_prefix = args.strip
+    
     print('')
     print('-----------------------------')
     print('Atlas label similarity report')
@@ -89,23 +91,23 @@ def main():
     # Intra-observer reports (one per observer)
     print('')
     print('Generating intra-observer reports')
-    obs_reports = intra_observer_reports(atlas_dir, report_dir, intra_stats)
+    obs_reports = intra_observer_reports(atlas_dir, report_dir, intra_stats, strip_prefix)
 
     # Inter-observer report
     print('')
     print('Generating inter-observer report')
-    inter_observer_report(report_dir, inter_stats)
+    inter_observer_report(report_dir, inter_stats, strip_prefix)
 
     # Summary report page
     print('')
     print('Writing report summary page')
-    summary_report(atlas_dir, report_dir, intra_stats, inter_stats, obs_reports)
+    summary_report(atlas_dir, report_dir, intra_stats, inter_stats, obs_reports, strip_prefix)
 
     # Clean exit
     sys.exit(0)
 
 
-def summary_report(atlas_dir, report_dir, intra_metrics, inter_metrics, obs_reports):
+def summary_report(atlas_dir, report_dir, intra_metrics, inter_metrics, obs_reports, strip_prefix):
     """
     Summary report for the entire atlas
     - maximum probability projections for all labels
@@ -136,7 +138,7 @@ def summary_report(atlas_dir, report_dir, intra_metrics, inter_metrics, obs_repo
     # Create grand prob label overlays on bg image
     print('  Generating probability montages')
     montage_fname = overlay_montage(atlas_dir, report_dir, 'prob_atlas.nii.gz')
-    colorkey_fname = create_colorkey(atlas_dir, report_dir, 'prob_atlas.nii.gz')
+    colorkey_fname = create_colorkey(atlas_dir, report_dir, 'prob_atlas.nii.gz', strip_prefix)
 
     # Template variables
     template_vars = {
@@ -153,7 +155,7 @@ def summary_report(atlas_dir, report_dir, intra_metrics, inter_metrics, obs_repo
         f.write(output_text)
 
 
-def intra_observer_reports(atlas_dir, report_dir, intra_metrics):
+def intra_observer_reports(atlas_dir, report_dir, intra_metrics, strip_prefix):
     """
     Generate intra-observer report for each observer
 
@@ -205,14 +207,14 @@ def intra_observer_reports(atlas_dir, report_dir, intra_metrics):
         similarity_figure(dice[:,obs,:,:],
                           "Observer %02d Dice Coefficient" % obs,
                           dice_fname,
-                          report_dir, label_names, dlims, nrows, ncols, 0.0)
+                          report_dir, label_names, dlims, nrows, ncols, 0.0, 12, strip_prefix)
         intra_dice_imgs.append(dice_fname)
 
         haus_fname = "intra_obs_%02d_haus.png" % obs
         similarity_figure(haus[:,obs,:,:],
                           "Observer %02d Hausdorff Distance (mm)" % obs,
                           haus_fname,
-                          report_dir, label_names, hlims, nrows, ncols, 1e6)
+                          report_dir, label_names, hlims, nrows, ncols, 1e6, 12, strip_prefix)
         intra_haus_imgs.append(haus_fname)
 
         # Compile stats results for each label for this observer
@@ -268,7 +270,7 @@ def intra_observer_reports(atlas_dir, report_dir, intra_metrics):
     return obs_reports
 
 
-def inter_observer_report(report_dir, inter_metrics):
+def inter_observer_report(report_dir, inter_metrics, strip_prefix):
     """
     Generate inter-observer report for each template
 
@@ -312,14 +314,14 @@ def inter_observer_report(report_dir, inter_metrics):
         similarity_figure(dice[:,tt,:,:],
                           "Template %02d : Dice Coefficient" % tt,
                           dice_fname,
-                          report_dir, label_names, dlims, nrows, ncols, 0.0)
+                          report_dir, label_names, dlims, nrows, ncols, 0.0, 12, strip_prefix)
         inter_dice_imgs.append(dice_fname)
 
         haus_fname = "inter_tmp_%02d_haus.png" % tt
         similarity_figure(haus[:,tt,:,:],
                           "Template %02d Hausdorff Distance (mm)" % tt,
                           haus_fname,
-                          report_dir, label_names, hlims, nrows, ncols, 1e6)
+                          report_dir, label_names, hlims, nrows, ncols, 1e6, 12, strip_prefix)
         inter_haus_imgs.append(haus_fname)
 
     # Composite all images into a single dictionary list
@@ -340,6 +342,21 @@ def inter_observer_report(report_dir, inter_metrics):
     with open(obs_html, "w") as f:
         f.write(html_text)
 
+        
+def do_strip_prefixes(label_names):
+    # if desired, remove prefixes from label names 
+    stripped_label_names = []
+    for l in label_names:
+        stripped_label_names.append(do_strip_prefix(l))
+    return stripped_label_names
+
+
+def do_strip_prefix(label_name):
+    # if desired, remove prefixes from label names 
+    idx = label_name.rfind('_') + 1
+    stripped_label_name = label_name[idx:]
+    # print("Stripping atlas label name, from %s to %s" % (label_name, stripped_label_name))
+    return stripped_label_name
 
 def overlay_montage(atlas_dir, report_dir, overlay_fname):
     """
@@ -452,8 +469,7 @@ def overlay_montage(atlas_dir, report_dir, overlay_fname):
     return montage_fname
 
 
-
-def create_colorkey(atlas_dir, report_dir, overlay_fname):
+def create_colorkey(atlas_dir, report_dir, overlay_fname, strip_prefix):
     """
     Construct an montage of colored label overlays on a T1w background
     - Each label is colored according to the ITK-SNAP label key
@@ -481,10 +497,7 @@ def create_colorkey(atlas_dir, report_dir, overlay_fname):
 
     # Load label key from atlas directory
     label_key = load_key(os.path.join(atlas_dir, 'labels.txt'))
-
-    # get name of each label for the legend
-    label_name = get_label_name(label_key)
-    
+        
     # Extract HSV label colors (n_labels x 3 array)
     hsv = label_rgb2hsv(label_key)
 
@@ -519,12 +532,14 @@ def create_colorkey(atlas_dir, report_dir, overlay_fname):
 
     fig, ax = plt.subplots()
     fig_size = fig.get_size_inches()
-    fig.set_size_inches([float(fig_size[0])/3, fig_size[1]])
+    fig.set_size_inches([1.0, 4.5]) # float(fig_size[0])/6, fig_size[1]])
     ax.scatter(x, y, c = rgb_color_array, edgecolors='none', s=25)
     plt.axis('off')
 
     for i in range(0, n_labels):
-            ax.annotate(label_key['Name'][i], (x[i],y[i]), xytext=(5,0), textcoords='offset points')
+        if strip_prefix:
+            label_name = do_strip_prefix(label_key['Name'][i])
+        ax.annotate(label_name, (x[i],y[i]), xytext=(5,0), textcoords='offset points')
             
     
     # Save figure to PNG
@@ -646,7 +661,7 @@ def composite(overlay_rgb, background_rgb):
     return composite_rgb
 
 
-def similarity_figure(metric, img_title, img_fname, report_dir, label_names, mlims, nrows, ncols, nansub=0.0, fontsize=8):
+def similarity_figure(metric, img_title, img_fname, report_dir, label_names, mlims, nrows, ncols, nansub=0.0, fontsize=8, strip_prefix=False):
     """
     Plot an array of similarity matrix figures for a given observer or template
 
@@ -687,7 +702,11 @@ def similarity_figure(metric, img_title, img_fname, report_dir, label_names, mli
             mmaa = np.flipud(metric[aa, :, :]).copy()
             mmaa[np.isnan(mmaa)] = nansub
             im = ax.pcolor(mmaa, vmin=mlims[0], vmax=mlims[1], cmap='Spectral')
-            ax.set_title(label_names[aa], fontsize=fontsize)
+            if strip_prefix:
+                label_name = do_strip_prefix(label_names[aa])
+            else:
+                label_name = label_names[aa]
+            ax.set_title(label_name, fontsize=fontsize)
         else:
             ax.axis('off')
 
@@ -786,7 +805,7 @@ def load_metrics(atlas_dir):
 
     # Extract corresponding label names to unique label numbers
     label_names = m['labelName'][idx].astype(str)
-
+            
     # Unique template and observer lists can be sorted as usual
     observers = np.unique(m['observer'])
     templates = np.unique(m['tmpA'])
