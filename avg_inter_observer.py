@@ -1,6 +1,6 @@
 from atlas_report import *
 
-atlas_dir = os.environ['CIT168_DIR']
+atlas_dir = os.environ['ATLAS_DIR']
 
 intra_stats, inter_stats = load_metrics(atlas_dir)
 report_dir = '/tmp/'
