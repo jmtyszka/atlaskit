@@ -50,7 +50,7 @@ import argparse
 import nibabel as nib
 import numpy as np
 import matplotlib.pyplot as plt
-
+from atlas_report import do_strip_prefix
 
 def load_labels(filename):
     ''' Load labels from file, which was used as label key in inkscape '''
@@ -83,7 +83,8 @@ def create_histogram(p, keys, nrows=4, ncols=4, fontsize=14, img_fname='/tmp/pro
             v = p[:,:,:,aa].ravel()
             v = v[v>0]
             im = ax.hist(v, bins=50, cumulative=True, density=True, range=(0,1))
-            ax.set_title(keys[aa], fontsize=fontsize)
+            key = do_strip_prefix(keys[aa])
+            ax.set_title(key, fontsize=fontsize)
         else:
             ax.axis('off')
 
@@ -135,7 +136,7 @@ def main():
     
     # Parse command line arguments
     parser = argparse.ArgumentParser(description='Probabilistic label volumes in microliters')
-    parser.add_argument('-d', '--atlas_dir', required=False, help="Director of probabilistic atlas and label file")
+    parser.add_argument('-d', '--atlas_dir', required=False, help="Directory of probabilistic atlas and label file")
     parser.add_argument('-f', '--p_file', required=False, nargs='+', help="List of 4D prob label images")
     parser.add_argument('-l', '--l_file', required=False, nargs='+', help='List of (itksnap) label files')
     parser.add_argument('--latex', dest='latex', action='store_true')

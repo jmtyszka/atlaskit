@@ -49,13 +49,13 @@ fi
 
 # Mirrored label image
 echo "  Reflecting label image about the mid-sagittal plane"
-mirror.py -i ${uni_labels} -o ${uni_mirror}
+python mirror.py -i ${uni_labels} -o ${uni_mirror}
 
 # Warp flipped LH atlas = unwarped RH atlas to generate correctly warped RH atlas
 # It's essential that the original label image is used as a reference here to keep the sform sense correct
 # Use nearest neighbour resampling for the label image
 echo "  Apply warp to reflected labels"
-WarpImageMultiTransform 3 ${uni_mirror} ${uni_mirror_warp} -R ${uni_labels} --use-NN ${mirror_warp} ${mirror_affine}
+WarpTimeSeriesImageMultiTransform 4 ${uni_mirror} ${uni_mirror_warp} -R ${uni_labels} --use-NN ${mirror_warp} ${mirror_affine}
 
 # Combine LH and RH prob atlases
 echo "  Combine original and mirrored warped labels"
