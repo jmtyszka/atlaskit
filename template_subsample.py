@@ -1,7 +1,12 @@
 #!/usr/bin/env python
 """
-Create a set of subsamples from a BIDS participant list
-Subsamples are used to generate template variants for a midspace
+Create randomly subsampled midspace template variants
+- Requires BIDS source directory with participants.tsv
+- Subsamples are used to generate template variants lists for a midspace
+- If odd number of participants, drop final participant
+- Sample half of participants randomly for one template
+- The remaining half creates a complementary template
+- Outputs two lists of participant IDs per requested variant
 
 Authors
 ----
@@ -40,6 +45,8 @@ import os
 import sys
 import argparse
 import pandas as pd
+import random as rnd
+import numpy as np
 
 
 def main():
@@ -55,43 +62,44 @@ def main():
 
     src_dir = args.indir
     der_dir = args.outdir
-    n = args.nvariants
+    nv = args.nvariants
 
     # Load participant list
     pids_tsv = os.path.join(src_dir, 'participants.tsv')
+    print('Reading participant list from %s' % pids_tsv)
     pids = pd.read_table(pids_tsv)
 
-
     # If number of participants is odd, drop last participant from list
+    n = pids.shape[0]
+    if bool(n & 1):
+        print('* Odd number of participants (%d)' % n)
+        pids = pids[:-1]
+        n = pids.shape[0]
+        print('* Retaining first %d participants' % n)
 
-    # Generate template variant pairs
+    # Standard random seed
+    rnd.seed(1966)
 
-    # Write SID list to derivatives folder
+    # Loop over requested number of variants
+    # Generates 2n participant lists
+    for vc in np.arange(nv):
 
+        print('Variant %d' % (vc+1))
 
-def bids_init(bids_root_dir):
-    """
-    Initialize root BIDS directory
-    :param bids_root_dir: root BIDS directory
-    :return participants_fd: participant TSV file descriptor
-    """
+        # Generate template variant pairs
+        idx = np.arange(0, n)
+        rnd.shuffle(idx)
 
-    # Create template participant TSV file in BIDS root directory
-    parts_tsv = os.path.join(bids_root_dir, 'participants.tsv')
-    participants_fd = open(parts_tsv, 'w')
-    participants_fd.write('participant_id\tsex\tage\n')
+        # Divide into A and B complementary samples
+        hn = int(n/2)
+        idx_A = idx[0:hn]
+        idx_B = idx[hn:]
 
-    # Create template JSON dataset description
-    datadesc_json = os.path.join(bids_root_dir, 'dataset_description.json')
-    meta_dict = dict({'BIDSVersion': "1.0.0",
-                      'License': "This data is made available under the Creative Commons BY-SA 4.0 International License.",
-                      'Name': "The dataset name goes here",
-                      'ReferencesAndLinks': "References and links for this dataset go here"})
+        # Write PID lists for sample A and B to derivatives folder
+        pid_A = pids[idx_A][0]
+        pid_B = pids[idx_B][0]
 
-    # Write JSON file
-    bids_write_json(datadesc_json, meta_dict)
-
-    return participants_fd
+        print(pid_A)
 
 
 # This is the standard boilerplate that calls the main() function.

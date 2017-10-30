@@ -2,9 +2,11 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="5e02d061-5636-4555-8bcb-f1804eb82bd7" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/fs_volumes.py" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/pseudo_T2.py" afterPath="" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/atlas_report.py" afterPath="$PROJECT_DIR$/atlas_report.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/mirror_warp_apply.sh" afterPath="$PROJECT_DIR$/mirror_warp_apply.sh" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/mirror_warp_calc.sh" afterPath="$PROJECT_DIR$/mirror_warp_calc.sh" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/template_subsample.py" afterPath="$PROJECT_DIR$/template_subsample.py" />
     </list>
     <ignored path="atlaskit.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -19,13 +21,14 @@
   <component name="CoverageDataManager">
     <SUITE FILE_PATH="coverage/atlaskit$allen_download.coverage" NAME="allen_download Coverage Results" MODIFIED="1495816636354" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$USER_HOME$/sandbox" />
     <SUITE FILE_PATH="coverage/atlaskit$atlas_montage.coverage" NAME="atlas_montage Coverage Results" MODIFIED="1495662665836" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$USER_HOME$/Box/CIT_DeepBrain_Atlas/Labeling/basal_ganglia_atlas" />
-    <SUITE FILE_PATH="coverage/atlaskit$fs_volumes.coverage" NAME="fs_volumes Coverage Results" MODIFIED="1506122359859" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="/Volumes/Data/jmt/Amygdala/Amygdala_SNI/Conte_Core_Structural/" />
+    <SUITE FILE_PATH="coverage/atlaskit$fs_volumes.coverage" NAME="fs_volumes Coverage Results" MODIFIED="1506126383463" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="/Volumes/Data/jmt/Amygdala/Amygdala_SNI/Conte_Core_Structural/" />
     <SUITE FILE_PATH="coverage/atlaskit$mkparcels.coverage" NAME="mkparcels Coverage Results" MODIFIED="1498091286902" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="/Volumes/Data/jmt/Causality/MyConnectome/ds031/derivatives/sub-01/anatomy" />
     <SUITE FILE_PATH="coverage/atlaskit$lesion_atlas_analysis.coverage" NAME="lesion_atlas_analysis Coverage Results" MODIFIED="1497567465141" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="/Volumes/Data/jmt/Amygdala/UWD/Structural_Analysis/BG/20170417/derivatives" />
-    <SUITE FILE_PATH="coverage/atlaskit$smooth_labels.coverage" NAME="smooth_labels Coverage Results" MODIFIED="1497985558326" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$USER_HOME$/Data/Amygdala/UWD/Structural_Analysis/AM/20130326/derivatives" />
+    <SUITE FILE_PATH="coverage/atlaskit$smooth_labels.coverage" NAME="smooth_labels Coverage Results" MODIFIED="1507914012707" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$USER_HOME$/Data/Amygdala/UWD/Structural_Analysis/AM/20130326/derivatives" />
     <SUITE FILE_PATH="coverage/atlaskit$label_report.coverage" NAME="label_report Coverage Results" MODIFIED="1487973803095" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$USER_HOME$/HCP/Atlases/CIT168/labeling" />
     <SUITE FILE_PATH="coverage/atlaskit$hausdorff.coverage" NAME="dice Coverage Results" MODIFIED="1458077898517" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$USER_HOME$/Box/CIT_Midbrain_Atlas/Labeling/jmt" />
     <SUITE FILE_PATH="coverage/atlaskit$atlas.coverage" NAME="atlas Coverage Results" MODIFIED="1501023221854" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$USER_HOME$/Box/CIT_DeepBrain_Atlas/Labeling" />
+    <SUITE FILE_PATH="coverage/atlaskit$template_subsample.coverage" NAME="template_subsample Coverage Results" MODIFIED="1508969500485" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$USER_HOME$/Data/Conte/Conte_Core_T1w/" />
     <SUITE FILE_PATH="coverage/atlaskit$dice.coverage" NAME="dice Coverage Results" MODIFIED="1460398742837" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$USER_HOME$/Box/CIT_Midbrain_Atlas/Labeling/jmt" />
     <SUITE FILE_PATH="coverage/atlaskit$nifti2png.coverage" NAME="nifti2png Coverage Results" MODIFIED="1480528519760" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$USER_HOME$/Data/Blender/HeadSliceUp/JMT-2005-11-22" />
     <SUITE FILE_PATH="coverage/atlaskit$atlas_report.coverage" NAME="atlas_report Coverage Results" MODIFIED="1501621144427" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$USER_HOME$/Box Sync/CIT_DeepBrain_Atlas/Labeling" />
@@ -39,11 +42,11 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="fs_volumes.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="fs_volumes.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/fs_volumes.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="496">
-              <caret line="95" column="0" lean-forward="false" selection-start-line="95" selection-start-column="0" selection-end-line="95" selection-end-column="0" />
+            <state relative-caret-position="1125">
+              <caret line="77" column="15" lean-forward="false" selection-start-line="77" selection-start-column="15" selection-end-line="77" selection-end-column="15" />
               <folding>
                 <element signature="e#1133#1142#0" expanded="true" />
               </folding>
@@ -51,12 +54,58 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="aseg.stats" pinned="false" current-in-tab="false">
-        <entry file="file:///Volumes/Data/jmt/Amygdala/Amygdala_SNI/Conte_Core_Structural/derivatives/freesurfer/sub-Cc0002/stats/aseg.stats">
+      <file leaf-file-name="smooth_labels.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/smooth_labels.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="634">
-              <caret line="125" column="0" lean-forward="true" selection-start-line="125" selection-start-column="0" selection-end-line="125" selection-end-column="0" />
+            <state relative-caret-position="1275">
+              <caret line="88" column="59" lean-forward="false" selection-start-line="88" selection-start-column="8" selection-end-line="88" selection-end-column="59" />
               <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="atlas_report.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/atlas_report.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="6960">
+              <caret line="474" column="25" lean-forward="false" selection-start-line="474" selection-start-column="25" selection-end-line="474" selection-end-column="25" />
+              <folding>
+                <marker date="1509310071000" expanded="true" signature="24322:26330" ph="..." />
+                <marker date="1509310071000" expanded="true" signature="24921:25023" ph="..." />
+                <marker date="1509310071000" expanded="true" signature="25157:25395" ph="..." />
+                <marker date="1509310071000" expanded="true" signature="26354:26920" ph="..." />
+                <marker date="1509310071000" expanded="true" signature="26359:26590" ph="&quot;&quot;&quot;...&quot;&quot;&quot;" />
+                <marker date="1509310071000" expanded="true" signature="26947:27530" ph="..." />
+                <marker date="1509310071000" expanded="true" signature="26952:27155" ph="&quot;&quot;&quot;Parse an ITK-SNAP label key file...&quot;&quot;&quot;" />
+                <marker date="1509310071000" expanded="true" signature="27186:27274" ph="..." />
+                <marker date="1509310071000" expanded="true" signature="27533:30488" ph="..." />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="prob_label_vol_info.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/prob_label_vol_info.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="1920">
+              <caret line="133" column="4" lean-forward="false" selection-start-line="133" selection-start-column="4" selection-end-line="133" selection-end-column="4" />
+              <folding>
+                <marker date="1509310071000" expanded="true" signature="3836:5057" ph="..." />
+                <marker date="1509310071000" expanded="true" signature="4287:4447" ph="..." />
+                <marker date="1509310071000" expanded="true" signature="4457:4557" ph="..." />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="template_subsample.py" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/template_subsample.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="1067">
+              <caret line="106" column="0" lean-forward="false" selection-start-line="106" selection-start-column="0" selection-end-line="106" selection-end-column="0" />
+              <folding>
+                <element signature="e#1628#1637#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -72,7 +121,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>Harvard</find>
       <find>isobb</find>
       <find>_nii</find>
       <find>save</find>
@@ -102,6 +150,7 @@
       <find>with</find>
       <find>with os</find>
       <find>label_key</find>
+      <find>color</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -152,8 +201,9 @@
         <option value="$PROJECT_DIR$/atlas_inter_observer.jinja" />
         <option value="$PROJECT_DIR$/atlas_intra_observer.jinja" />
         <option value="$PROJECT_DIR$/atlas.py" />
-        <option value="$PROJECT_DIR$/atlas_report.py" />
         <option value="$PROJECT_DIR$/fs_volumes.py" />
+        <option value="$PROJECT_DIR$/atlas_report.py" />
+        <option value="$PROJECT_DIR$/template_subsample.py" />
       </list>
     </option>
   </component>
@@ -164,10 +214,10 @@
     <sorting>DEFINITION_ORDER</sorting>
   </component>
   <component name="ProjectFrameBounds">
-    <option name="x" value="39" />
-    <option name="y" value="52" />
-    <option name="width" value="1267" />
-    <option name="height" value="1262" />
+    <option name="x" value="270" />
+    <option name="y" value="25" />
+    <option name="width" value="1898" />
+    <option name="height" value="1317" />
   </component>
   <component name="ProjectInspectionProfilesVisibleTreeState">
     <entry key="Project Default">
@@ -211,7 +261,6 @@
     </navigator>
     <panes>
       <pane id="Scope" />
-      <pane id="Scratches" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -223,6 +272,7 @@
           <select />
         </subPane>
       </pane>
+      <pane id="Scratches" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -241,116 +291,6 @@
       <recent name="$PROJECT_DIR$" />
     </key>
   </component>
-  <component name="RestoreUpdateTree" date="Moments ago" ActionInfo="_Update">
-    <UpdatedFiles>
-      <FILE-GROUP>
-        <option name="myUpdateName" value="Updated from server" />
-        <option name="myStatusName" value="Changed on server" />
-        <option name="mySupportsDeletion" value="false" />
-        <option name="myCanBeAbsent" value="false" />
-        <option name="myId" value="CHANGED_ON_SERVER" />
-        <FILE-GROUP>
-          <option name="myUpdateName" value="Updated" />
-          <option name="myStatusName" value="Changed" />
-          <option name="mySupportsDeletion" value="false" />
-          <option name="myCanBeAbsent" value="false" />
-          <option name="myId" value="UPDATED" />
-        </FILE-GROUP>
-        <FILE-GROUP>
-          <option name="myUpdateName" value="Created" />
-          <option name="myStatusName" value="Created" />
-          <option name="mySupportsDeletion" value="false" />
-          <option name="myCanBeAbsent" value="false" />
-          <option name="myId" value="CREATED" />
-          <PATH vcs="Git" revision="">$PROJECT_DIR$/cit2mni.sh</PATH>
-        </FILE-GROUP>
-        <FILE-GROUP>
-          <option name="myUpdateName" value="Deleted" />
-          <option name="myStatusName" value="Deleted" />
-          <option name="mySupportsDeletion" value="false" />
-          <option name="myCanBeAbsent" value="true" />
-          <option name="myId" value="REMOVED_FROM_REPOSITORY" />
-        </FILE-GROUP>
-        <FILE-GROUP>
-          <option name="myUpdateName" value="Restored" />
-          <option name="myStatusName" value="Will be restored" />
-          <option name="mySupportsDeletion" value="false" />
-          <option name="myCanBeAbsent" value="false" />
-          <option name="myId" value="RESTORED" />
-        </FILE-GROUP>
-      </FILE-GROUP>
-      <FILE-GROUP>
-        <option name="myUpdateName" value="Modified" />
-        <option name="myStatusName" value="Modified" />
-        <option name="mySupportsDeletion" value="false" />
-        <option name="myCanBeAbsent" value="false" />
-        <option name="myId" value="MODIFIED" />
-      </FILE-GROUP>
-      <FILE-GROUP>
-        <option name="myUpdateName" value="Skipped" />
-        <option name="myStatusName" value="Skipped" />
-        <option name="mySupportsDeletion" value="false" />
-        <option name="myCanBeAbsent" value="false" />
-        <option name="myId" value="SKIPPED" />
-      </FILE-GROUP>
-      <FILE-GROUP>
-        <option name="myUpdateName" value="Merged with conflicts" />
-        <option name="myStatusName" value="Will be merged with conflicts" />
-        <option name="mySupportsDeletion" value="false" />
-        <option name="myCanBeAbsent" value="false" />
-        <option name="myId" value="MERGED_WITH_CONFLICTS" />
-      </FILE-GROUP>
-      <FILE-GROUP>
-        <option name="myUpdateName" value="Merged with tree conflicts" />
-        <option name="myStatusName" value="Merged with tree conflicts" />
-        <option name="mySupportsDeletion" value="false" />
-        <option name="myCanBeAbsent" value="false" />
-        <option name="myId" value="MERGED_WITH_TREE_CONFLICT" />
-      </FILE-GROUP>
-      <FILE-GROUP>
-        <option name="myUpdateName" value="Merged with property conflicts" />
-        <option name="myStatusName" value="Will be merged with property conflicts" />
-        <option name="mySupportsDeletion" value="false" />
-        <option name="myCanBeAbsent" value="false" />
-        <option name="myId" value="MERGED_WITH_PROPERTY_CONFLICT" />
-      </FILE-GROUP>
-      <FILE-GROUP>
-        <option name="myUpdateName" value="Merged" />
-        <option name="myStatusName" value="Will be merged" />
-        <option name="mySupportsDeletion" value="false" />
-        <option name="myCanBeAbsent" value="false" />
-        <option name="myId" value="MERGED" />
-      </FILE-GROUP>
-      <FILE-GROUP>
-        <option name="myUpdateName" value="Not in repository" />
-        <option name="myStatusName" value="Not in repository" />
-        <option name="mySupportsDeletion" value="true" />
-        <option name="myCanBeAbsent" value="false" />
-        <option name="myId" value="UNKNOWN" />
-      </FILE-GROUP>
-      <FILE-GROUP>
-        <option name="myUpdateName" value="Locally added" />
-        <option name="myStatusName" value="Locally added" />
-        <option name="mySupportsDeletion" value="false" />
-        <option name="myCanBeAbsent" value="false" />
-        <option name="myId" value="LOCALLY_ADDED" />
-      </FILE-GROUP>
-      <FILE-GROUP>
-        <option name="myUpdateName" value="Locally removed" />
-        <option name="myStatusName" value="Locally removed" />
-        <option name="mySupportsDeletion" value="false" />
-        <option name="myCanBeAbsent" value="false" />
-        <option name="myId" value="LOCALLY_REMOVED" />
-      </FILE-GROUP>
-      <FILE-GROUP>
-        <option name="myUpdateName" value="Switched" />
-        <option name="myStatusName" value="Switched" />
-        <option name="mySupportsDeletion" value="false" />
-        <option name="myCanBeAbsent" value="false" />
-        <option name="myId" value="SWITCHED" />
-      </FILE-GROUP>
-    </UpdatedFiles>
-  </component>
   <component name="RunDashboard">
     <option name="ruleStates">
       <list>
@@ -363,7 +303,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Python.fs_volumes">
+  <component name="RunManager" selected="Python.template_subsample">
     <configuration default="true" type="js.build_tools.gulp" factoryName="Gulp.js">
       <node-interpreter>project</node-interpreter>
       <node-options />
@@ -755,17 +695,36 @@
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
     </configuration>
-    <list size="10">
-      <item index="0" class="java.lang.String" itemvalue="Python.dice" />
-      <item index="1" class="java.lang.String" itemvalue="Python.nifti2png" />
-      <item index="2" class="java.lang.String" itemvalue="Python.allen_download" />
-      <item index="3" class="java.lang.String" itemvalue="Python.atlas_montage" />
-      <item index="4" class="java.lang.String" itemvalue="Python.atlas_lesion_analysis" />
-      <item index="5" class="java.lang.String" itemvalue="Python.smooth_labels" />
-      <item index="6" class="java.lang.String" itemvalue="Python.mkparcels" />
-      <item index="7" class="java.lang.String" itemvalue="Python.atlas" />
-      <item index="8" class="java.lang.String" itemvalue="Python.atlas_report" />
-      <item index="9" class="java.lang.String" itemvalue="Python.fs_volumes" />
+    <configuration name="template_subsample" type="PythonConfigurationType" factoryName="Python">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$USER_HOME$/Data/Conte/Conte_Core_T1w/" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="atlaskit" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/template_subsample.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+    </configuration>
+    <list size="11">
+      <item index="0" class="java.lang.String" itemvalue="Python.template_subsample" />
+      <item index="1" class="java.lang.String" itemvalue="Python.dice" />
+      <item index="2" class="java.lang.String" itemvalue="Python.nifti2png" />
+      <item index="3" class="java.lang.String" itemvalue="Python.allen_download" />
+      <item index="4" class="java.lang.String" itemvalue="Python.atlas_montage" />
+      <item index="5" class="java.lang.String" itemvalue="Python.atlas_lesion_analysis" />
+      <item index="6" class="java.lang.String" itemvalue="Python.smooth_labels" />
+      <item index="7" class="java.lang.String" itemvalue="Python.mkparcels" />
+      <item index="8" class="java.lang.String" itemvalue="Python.atlas" />
+      <item index="9" class="java.lang.String" itemvalue="Python.atlas_report" />
+      <item index="10" class="java.lang.String" itemvalue="Python.fs_volumes" />
     </list>
   </component>
   <component name="ShelveChangesManager" show_recycled="false">
@@ -1055,23 +1014,31 @@
       <option name="project" value="LOCAL" />
       <updated>1501027089386</updated>
     </task>
-    <option name="localTasksCounter" value="40" />
+    <task id="LOCAL-00040" summary="Add Freesurfer label volume parser for multiple subjects.">
+      <created>1506126340861</created>
+      <option name="number" value="00040" />
+      <option name="presentableId" value="LOCAL-00040" />
+      <option name="project" value="LOCAL" />
+      <updated>1506126340861</updated>
+    </task>
+    <option name="localTasksCounter" value="41" />
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="39" y="52" width="1267" height="1262" extended-state="0" />
+    <frame x="270" y="25" width="1898" height="1317" extended-state="0" />
+    <editor active="true" />
     <layout>
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.28334647" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.1886196" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.2720785" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.27168575" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.31337163" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.25021422" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.24959083" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
-      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3041988" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.30360067" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Data View" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
@@ -1099,7 +1066,6 @@
     <option name="myLimit" value="2678400000" />
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Added prob2cifti.sh for converting probabilistic atlases to CIFTI dlabel format. Renamed prob2idx.sh to prob2det.sh for consistency." />
     <MESSAGE value="Add atlas label reporting" />
     <MESSAGE value="Separate label metrics and label report" />
     <MESSAGE value="Switch to jinja2 for HTML report templating" />
@@ -1124,10 +1090,18 @@
     <MESSAGE value="Separate intra-observer report pages. More compact page layout for reports." />
     <MESSAGE value="Working version 1.1 of atlas_report. Separate observer report pages with overlay montages for mean labels." />
     <MESSAGE value="Label overlays now use ITK-SNAP key colors. Similarity figures use Spectral colormap for clarity and contrast." />
-    <option name="LAST_COMMIT_MESSAGE" value="Label overlays now use ITK-SNAP key colors. Similarity figures use Spectral colormap for clarity and contrast." />
+    <MESSAGE value="Add Freesurfer label volume parser for multiple subjects." />
+    <option name="LAST_COMMIT_MESSAGE" value="Add Freesurfer label volume parser for multiple subjects." />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/template_subsample.py</url>
+          <line>98</line>
+          <option name="timeStamp" value="150" />
+        </line-breakpoint>
+      </breakpoints>
       <breakpoints-dialog>
         <breakpoints-dialog />
       </breakpoints-dialog>
@@ -1138,27 +1112,11 @@
           </properties>
         </breakpoint>
       </default-breakpoints>
-      <option name="time" value="144" />
+      <option name="time" value="151" />
     </breakpoint-manager>
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/Probabilistic/probabilistic.py" />
-    <entry file="file://$PROJECT_DIR$/Lesions/atlas2lesion.py" />
-    <entry file="file://$PROJECT_DIR$/prob_label_volumes.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="480">
-          <caret line="33" column="65" lean-forward="false" selection-start-line="33" selection-start-column="65" selection-end-line="33" selection-end-column="65" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/atlas2lesion.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="135">
-          <caret line="9" column="0" lean-forward="false" selection-start-line="9" selection-start-column="0" selection-end-line="9" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/separate_labels.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="990">
@@ -1321,24 +1279,10 @@
       </provider>
     </entry>
     <entry file="file://$USER_HOME$/Downloads/factorplot_bars.py" />
-    <entry file="file:///opt/local/Library/Frameworks/Python.framework/Versions/3.5/lib/python3.5/codecs.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="277">
-          <caret line="285" column="65" lean-forward="true" selection-start-line="285" selection-start-column="65" selection-end-line="285" selection-end-column="65" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/../C-PAC/CPAC/timeseries/timeseries_analysis.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="74">
           <caret line="263" column="22" lean-forward="false" selection-start-line="263" selection-start-column="4" selection-end-line="263" selection-end-column="22" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/smooth_labels.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1160">
-          <caret line="105" column="55" lean-forward="false" selection-start-line="105" selection-start-column="55" selection-end-line="105" selection-end-column="55" />
         </state>
       </provider>
     </entry>
@@ -1390,35 +1334,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="8985">
           <caret line="609" column="0" lean-forward="false" selection-start-line="609" selection-start-column="0" selection-end-line="609" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/atlas_report.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="15">
-          <caret line="376" column="25" lean-forward="false" selection-start-line="376" selection-start-column="25" selection-end-line="376" selection-end-column="25" />
-          <folding>
-            <element signature="e#23#1161#1" expanded="false" />
-            <element signature="e#1163#1172#0" expanded="false" />
-            <element signature="e#1426#2983#0" expanded="false" />
-            <element signature="e#1995#2081#0" expanded="false" />
-            <element signature="e#3076#4512#0" expanded="false" />
-            <element signature="e#3076#3474#1" expanded="false" />
-            <element signature="e#4105#4248#0" expanded="false" />
-            <element signature="e#4585#5024#1" expanded="false" />
-            <element signature="e#6623#7580#0" expanded="false" />
-            <element signature="e#6724#6774#0" expanded="false" />
-            <element signature="e#7035#7068#0" expanded="false" />
-            <element signature="e#7252#7537#0" expanded="false" />
-            <element signature="e#7826#8104#0" expanded="false" />
-            <element signature="e#8504#10837#0" expanded="false" />
-            <element signature="e#8504#8771#1" expanded="false" />
-            <element signature="e#9121#9180#0" expanded="false" />
-            <element signature="e#9578#10279#0" expanded="false" />
-            <element signature="e#10413#10492#0" expanded="false" />
-            <element signature="e#10535#10636#0" expanded="false" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -1426,7 +1341,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="645">
           <caret line="43" column="0" lean-forward="true" selection-start-line="0" selection-start-column="0" selection-end-line="98" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1434,24 +1348,79 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
     <entry file="file:///Volumes/Data/jmt/Amygdala/Amygdala_SNI/Conte_Core_Structural/derivatives/freesurfer/sub-Cc0002/stats/aseg.stats">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="634">
-          <caret line="125" column="0" lean-forward="true" selection-start-line="125" selection-start-column="0" selection-end-line="125" selection-end-column="0" />
+        <state relative-caret-position="1875">
+          <caret line="125" column="0" lean-forward="false" selection-start-line="125" selection-start-column="0" selection-end-line="125" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/Downloads/workflows-5 (1).py" />
+    <entry file="file://$USER_HOME$/Downloads/index-1.py" />
+    <entry file="file://$PROJECT_DIR$/fs_volumes.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1125">
+          <caret line="77" column="15" lean-forward="false" selection-start-line="77" selection-start-column="15" selection-end-line="77" selection-end-column="15" />
+          <folding>
+            <element signature="e#1133#1142#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/smooth_labels.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1275">
+          <caret line="88" column="59" lean-forward="false" selection-start-line="88" selection-start-column="8" selection-end-line="88" selection-end-column="59" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/fs_volumes.py">
+    <entry file="file://$PROJECT_DIR$/atlas_report.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="496">
-          <caret line="95" column="0" lean-forward="false" selection-start-line="95" selection-start-column="0" selection-end-line="95" selection-end-column="0" />
+        <state relative-caret-position="6960">
+          <caret line="474" column="25" lean-forward="false" selection-start-line="474" selection-start-column="25" selection-end-line="474" selection-end-column="25" />
           <folding>
-            <element signature="e#1133#1142#0" expanded="true" />
+            <marker date="1509310071000" expanded="true" signature="24322:26330" ph="..." />
+            <marker date="1509310071000" expanded="true" signature="24921:25023" ph="..." />
+            <marker date="1509310071000" expanded="true" signature="25157:25395" ph="..." />
+            <marker date="1509310071000" expanded="true" signature="26354:26920" ph="..." />
+            <marker date="1509310071000" expanded="true" signature="26359:26590" ph="&quot;&quot;&quot;...&quot;&quot;&quot;" />
+            <marker date="1509310071000" expanded="true" signature="26947:27530" ph="..." />
+            <marker date="1509310071000" expanded="true" signature="26952:27155" ph="&quot;&quot;&quot;Parse an ITK-SNAP label key file...&quot;&quot;&quot;" />
+            <marker date="1509310071000" expanded="true" signature="27186:27274" ph="..." />
+            <marker date="1509310071000" expanded="true" signature="27533:30488" ph="..." />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/prob_label_vol_info.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1920">
+          <caret line="133" column="4" lean-forward="false" selection-start-line="133" selection-start-column="4" selection-end-line="133" selection-end-column="4" />
+          <folding>
+            <marker date="1509310071000" expanded="true" signature="3836:5057" ph="..." />
+            <marker date="1509310071000" expanded="true" signature="4287:4447" ph="..." />
+            <marker date="1509310071000" expanded="true" signature="4457:4557" ph="..." />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file:///opt/local/Library/Frameworks/Python.framework/Versions/3.5/lib/python3.5/codecs.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="652">
+          <caret line="310" column="0" lean-forward="false" selection-start-line="310" selection-start-column="0" selection-end-line="310" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/template_subsample.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1067">
+          <caret line="106" column="0" lean-forward="false" selection-start-line="106" selection-start-column="0" selection-end-line="106" selection-end-column="0" />
+          <folding>
+            <element signature="e#1628#1637#0" expanded="true" />
           </folding>
         </state>
       </provider>

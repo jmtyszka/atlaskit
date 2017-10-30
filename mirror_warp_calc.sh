@@ -20,26 +20,25 @@ T1_orig=$1
 T2_orig=$2
 out_dir=$3
 
+echo "Original T1w image : ${T1_orig}"
+echo "Original T2w image : ${T2_orig}"
+echo "Output Directory   : ${out_dir}"
+
 # Create output directory safely
+echo "Safely creating output directory"
 mkdir -p $out_dir
 
-# Filename stubs for original images
-T1_fname=`basename $T1_orig`
-T1_stub=${T1_fname%%.nii.gz}
-T2_fname=`basename $T2_orig`
-T2_stub=${T2_fname%%.nii.gz}
-
 # Copies of original T1 and T2 in output directory
-T1=${out_dir}/${T1_fname}
-T2=${out_dir}/${T2_fname}
+T1=${out_dir}/T1.nii.gz
+T2=${out_dir}/T2.nii.gz
 
 # LR mirrored versions of original images
-T1_mirror=${out_dir}/${T1_stub}_mirror.nii.gz
-T2_mirror=${out_dir}/${T2_stub}_mirror.nii.gz
+T1_mirror=${out_dir}/T1_mirror.nii.gz
+T2_mirror=${out_dir}/T2_mirror.nii.gz
 
 # Final mirror warped versions of original images
-T1_mirror_warp=${out_dir}/${T1_stub}_mirror_warp.nii.gz
-T2_mirror_warp=${out_dir}/${T2_stub}_mirror_warp.nii.gz
+T1_mirror_warp=${out_dir}/T1_mirror_warp.nii.gz
+T2_mirror_warp=${out_dir}/T2_mirror_warp.nii.gz
 
 # ANTs output prefix
 ANTS_prefix=${out_dir}/Mirror
@@ -58,8 +57,8 @@ chmod +w $T1 $T2
 
 # L-R flip master T1 and T2 templates
 echo "  Reflecting images about the mid-sagittal plane"
-python mirror.py -i $T1 -o $T1_mirror
-python mirror.py -i $T2 -o $T2_mirror
+mirror.py -i $T1 -o $T1_mirror
+mirror.py -i $T2 -o $T2_mirror
 
 if [ ! -s ${mirror_warp} ]
 then
