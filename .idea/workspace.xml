@@ -2,11 +2,40 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="5e02d061-5636-4555-8bcb-f1804eb82bd7" name="Default" comment="">
-      <change type="DELETED" beforePath="$PROJECT_DIR$/pseudo_T2.py" afterPath="" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/docs/_build/doctrees/environment.pickle" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/docs/_build/doctrees/index.doctree" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/docs/_build/html/_static/ajax-loader.gif" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/docs/_build/html/_static/comment-bright.png" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/docs/_build/html/_static/comment-close.png" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/docs/_build/html/_static/comment.png" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/docs/_build/html/_static/down-pressed.png" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/docs/_build/html/_static/down.png" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/docs/_build/html/_static/file.png" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/docs/_build/html/_static/minus.png" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/docs/_build/html/_static/plus.png" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/docs/_build/html/_static/up-pressed.png" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/docs/_build/html/_static/up.png" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/docs/_build/html/objects.inv" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/docs/Makefile" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/docs/_build/html/.buildinfo" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/docs/_build/html/_sources/index.rst.txt" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/docs/_build/html/_static/alabaster.css" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/docs/_build/html/_static/basic.css" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/docs/_build/html/_static/doctools.js" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/docs/_build/html/_static/jquery-3.1.0.js" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/docs/_build/html/_static/jquery.js" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/docs/_build/html/_static/pygments.css" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/docs/_build/html/_static/searchtools.js" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/docs/_build/html/_static/underscore-1.3.1.js" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/docs/_build/html/_static/underscore.js" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/docs/_build/html/_static/websupport.js" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/docs/_build/html/genindex.html" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/docs/_build/html/index.html" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/docs/_build/html/search.html" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/docs/_build/html/searchindex.js" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/docs/conf.py" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/docs/index.rst" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/mirror_warp_apply.sh" afterPath="$PROJECT_DIR$/mirror_warp_apply.sh" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/mirror_warp_calc.sh" afterPath="$PROJECT_DIR$/mirror_warp_calc.sh" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/template_subsample.py" afterPath="$PROJECT_DIR$/template_subsample.py" />
     </list>
     <ignored path="atlaskit.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -45,8 +74,8 @@
       <file leaf-file-name="fs_volumes.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/fs_volumes.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1125">
-              <caret line="77" column="15" lean-forward="false" selection-start-line="77" selection-start-column="15" selection-end-line="77" selection-end-column="15" />
+            <state relative-caret-position="212">
+              <caret line="54" column="30" lean-forward="false" selection-start-line="54" selection-start-column="30" selection-end-line="54" selection-end-column="30" />
               <folding>
                 <element signature="e#1133#1142#0" expanded="true" />
               </folding>
@@ -54,58 +83,12 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="smooth_labels.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/smooth_labels.py">
+      <file leaf-file-name="conf.py" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/docs/conf.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1275">
-              <caret line="88" column="59" lean-forward="false" selection-start-line="88" selection-start-column="8" selection-end-line="88" selection-end-column="59" />
+            <state relative-caret-position="78">
+              <caret line="62" column="36" lean-forward="false" selection-start-line="62" selection-start-column="36" selection-end-line="62" selection-end-column="36" />
               <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="atlas_report.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/atlas_report.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="6960">
-              <caret line="474" column="25" lean-forward="false" selection-start-line="474" selection-start-column="25" selection-end-line="474" selection-end-column="25" />
-              <folding>
-                <marker date="1509310071000" expanded="true" signature="24322:26330" ph="..." />
-                <marker date="1509310071000" expanded="true" signature="24921:25023" ph="..." />
-                <marker date="1509310071000" expanded="true" signature="25157:25395" ph="..." />
-                <marker date="1509310071000" expanded="true" signature="26354:26920" ph="..." />
-                <marker date="1509310071000" expanded="true" signature="26359:26590" ph="&quot;&quot;&quot;...&quot;&quot;&quot;" />
-                <marker date="1509310071000" expanded="true" signature="26947:27530" ph="..." />
-                <marker date="1509310071000" expanded="true" signature="26952:27155" ph="&quot;&quot;&quot;Parse an ITK-SNAP label key file...&quot;&quot;&quot;" />
-                <marker date="1509310071000" expanded="true" signature="27186:27274" ph="..." />
-                <marker date="1509310071000" expanded="true" signature="27533:30488" ph="..." />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="prob_label_vol_info.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/prob_label_vol_info.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1920">
-              <caret line="133" column="4" lean-forward="false" selection-start-line="133" selection-start-column="4" selection-end-line="133" selection-end-column="4" />
-              <folding>
-                <marker date="1509310071000" expanded="true" signature="3836:5057" ph="..." />
-                <marker date="1509310071000" expanded="true" signature="4287:4447" ph="..." />
-                <marker date="1509310071000" expanded="true" signature="4457:4557" ph="..." />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="template_subsample.py" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/template_subsample.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1067">
-              <caret line="106" column="0" lean-forward="false" selection-start-line="106" selection-start-column="0" selection-end-line="106" selection-end-column="0" />
-              <folding>
-                <element signature="e#1628#1637#0" expanded="true" />
-              </folding>
             </state>
           </provider>
         </entry>
@@ -154,6 +137,7 @@
     </findStrings>
   </component>
   <component name="Git.Settings">
+    <option name="PUSH_AUTO_UPDATE" value="true" />
     <option name="ROOT_SYNC" value="DONT_SYNC" />
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
@@ -214,8 +198,8 @@
     <sorting>DEFINITION_ORDER</sorting>
   </component>
   <component name="ProjectFrameBounds">
-    <option name="x" value="270" />
-    <option name="y" value="25" />
+    <option name="x" value="53" />
+    <option name="y" value="44" />
     <option name="width" value="1898" />
     <option name="height" value="1317" />
   </component>
@@ -1021,14 +1005,20 @@
       <option name="project" value="LOCAL" />
       <updated>1506126340861</updated>
     </task>
-    <option name="localTasksCounter" value="41" />
+    <task id="LOCAL-00041" summary="Fixed issues with mirror warping - use 3D reference. Add 3D reference (T1w) to mirror_warp_calc.sh output directory for use by mirror_warp_apply.sh">
+      <created>1509385890654</created>
+      <option name="number" value="00041" />
+      <option name="presentableId" value="LOCAL-00041" />
+      <option name="project" value="LOCAL" />
+      <updated>1509385890654</updated>
+    </task>
+    <option name="localTasksCounter" value="42" />
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="270" y="25" width="1898" height="1317" extended-state="0" />
-    <editor active="true" />
+    <frame x="53" y="44" width="1898" height="1317" extended-state="0" />
     <layout>
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.1886196" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.1886196" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
@@ -1066,7 +1056,6 @@
     <option name="myLimit" value="2678400000" />
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Add atlas label reporting" />
     <MESSAGE value="Separate label metrics and label report" />
     <MESSAGE value="Switch to jinja2 for HTML report templating" />
     <MESSAGE value="Add observer report pages" />
@@ -1091,7 +1080,8 @@
     <MESSAGE value="Working version 1.1 of atlas_report. Separate observer report pages with overlay montages for mean labels." />
     <MESSAGE value="Label overlays now use ITK-SNAP key colors. Similarity figures use Spectral colormap for clarity and contrast." />
     <MESSAGE value="Add Freesurfer label volume parser for multiple subjects." />
-    <option name="LAST_COMMIT_MESSAGE" value="Add Freesurfer label volume parser for multiple subjects." />
+    <MESSAGE value="Fixed issues with mirror warping - use 3D reference. Add 3D reference (T1w) to mirror_warp_calc.sh output directory for use by mirror_warp_apply.sh" />
+    <option name="LAST_COMMIT_MESSAGE" value="Fixed issues with mirror warping - use 3D reference. Add 3D reference (T1w) to mirror_warp_calc.sh output directory for use by mirror_warp_apply.sh" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -1117,13 +1107,6 @@
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/separate_labels.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="990">
-          <caret line="70" column="0" lean-forward="false" selection-start-line="70" selection-start-column="0" selection-end-line="74" selection-end-column="41" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/nifti2png.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="1575">
@@ -1131,13 +1114,7 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/pseudo_T2.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="913">
-          <caret line="71" column="45" lean-forward="true" selection-start-line="71" selection-start-column="45" selection-end-line="71" selection-end-column="45" />
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://$PROJECT_DIR$/pseudo_T2.py" />
     <entry file="file://$PROJECT_DIR$/segment.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="165">
@@ -1360,54 +1337,6 @@
     </entry>
     <entry file="file://$USER_HOME$/Downloads/workflows-5 (1).py" />
     <entry file="file://$USER_HOME$/Downloads/index-1.py" />
-    <entry file="file://$PROJECT_DIR$/fs_volumes.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1125">
-          <caret line="77" column="15" lean-forward="false" selection-start-line="77" selection-start-column="15" selection-end-line="77" selection-end-column="15" />
-          <folding>
-            <element signature="e#1133#1142#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/smooth_labels.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1275">
-          <caret line="88" column="59" lean-forward="false" selection-start-line="88" selection-start-column="8" selection-end-line="88" selection-end-column="59" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/atlas_report.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="6960">
-          <caret line="474" column="25" lean-forward="false" selection-start-line="474" selection-start-column="25" selection-end-line="474" selection-end-column="25" />
-          <folding>
-            <marker date="1509310071000" expanded="true" signature="24322:26330" ph="..." />
-            <marker date="1509310071000" expanded="true" signature="24921:25023" ph="..." />
-            <marker date="1509310071000" expanded="true" signature="25157:25395" ph="..." />
-            <marker date="1509310071000" expanded="true" signature="26354:26920" ph="..." />
-            <marker date="1509310071000" expanded="true" signature="26359:26590" ph="&quot;&quot;&quot;...&quot;&quot;&quot;" />
-            <marker date="1509310071000" expanded="true" signature="26947:27530" ph="..." />
-            <marker date="1509310071000" expanded="true" signature="26952:27155" ph="&quot;&quot;&quot;Parse an ITK-SNAP label key file...&quot;&quot;&quot;" />
-            <marker date="1509310071000" expanded="true" signature="27186:27274" ph="..." />
-            <marker date="1509310071000" expanded="true" signature="27533:30488" ph="..." />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/prob_label_vol_info.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1920">
-          <caret line="133" column="4" lean-forward="false" selection-start-line="133" selection-start-column="4" selection-end-line="133" selection-end-column="4" />
-          <folding>
-            <marker date="1509310071000" expanded="true" signature="3836:5057" ph="..." />
-            <marker date="1509310071000" expanded="true" signature="4287:4447" ph="..." />
-            <marker date="1509310071000" expanded="true" signature="4457:4557" ph="..." />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file:///opt/local/Library/Frameworks/Python.framework/Versions/3.5/lib/python3.5/codecs.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="652">
@@ -1422,6 +1351,45 @@
           <folding>
             <element signature="e#1628#1637#0" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/prob_label_vol_info.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1142">
+          <caret line="133" column="4" lean-forward="false" selection-start-line="133" selection-start-column="4" selection-end-line="133" selection-end-column="4" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/atlas_report.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="15">
+          <caret line="474" column="25" lean-forward="false" selection-start-line="474" selection-start-column="25" selection-end-line="474" selection-end-column="25" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/smooth_labels.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1142">
+          <caret line="88" column="59" lean-forward="false" selection-start-line="88" selection-start-column="8" selection-end-line="88" selection-end-column="59" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/fs_volumes.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="212">
+          <caret line="54" column="30" lean-forward="false" selection-start-line="54" selection-start-column="30" selection-end-line="54" selection-end-column="30" />
+          <folding>
+            <element signature="e#1133#1142#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/docs/conf.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="78">
+          <caret line="62" column="36" lean-forward="false" selection-start-line="62" selection-start-column="36" selection-end-line="62" selection-end-column="36" />
+          <folding />
         </state>
       </provider>
     </entry>
