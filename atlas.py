@@ -73,6 +73,8 @@ def main():
                         help='Directory containing observer label subdirectories ["."]')
     parser.add_argument('-a', '--atlasdir',
                         help='Output atlas directory ["<labeldir>/atlas"]')
+    parser.add_argument('-c', '--cit_dir',
+                        help='Output atlas directory ["<labeldir>/atlas"]')
     parser.add_argument('-k', '--key',
                         help='ITK-SNAP label key text file ["<labeldir>/labels.txt"]')
     parser.add_argument('-l', '--labels', required=False, type=parse_range,
@@ -110,6 +112,12 @@ def main():
         print('* ITK-SNAP label key is missing (%s) - exiting' % label_keyfile)
         sys.exit(1)
 
+    if args.cit_dir:
+        cit_dir = args.cit_dir
+    else:
+        print('\nPlease indicate the location of the CIT168 templates, using argument -c!\n')
+        raise NameError
+              
     # Safely create atlas directory
     if not os.path.isdir(atlas_dir):
         os.mkdir(atlas_dir)
