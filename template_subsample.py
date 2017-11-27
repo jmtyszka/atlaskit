@@ -41,6 +41,7 @@ __version__ = '0.1.0'
 import os
 import sys
 import re
+import glob
 import argparse
 import random as rnd
 import numpy as np
@@ -53,8 +54,8 @@ def main():
     parser = argparse.ArgumentParser(description='Generate participant subsamples for midspace template variants')
     parser.add_argument('-b', '--bidsdir', default='.',
                         help='BIDS study directory containing source and derivatives folders [.]')
-    parser.add_argument('-n','--nvariants', default=1,
-                        help='Number of template variants [1]')
+    parser.add_argument('-n','--nvariants', default=2, type=int,
+                        help='Number of template variants [2]')
 
     # Parse command line arguments
     args = parser.parse_args()
@@ -78,7 +79,8 @@ def main():
     print('Templates Directory  : %s' % template_dir)
 
     # Construct list of all individual images in midspace directory
-    img_list = [f for f in os.listdir(midspace_dir) if re.search(r'[0-9]Warp\.nii\.gz$', f)]
+    # warp_list = [os.path.join(midspace_dir, f) for f in os.listdir(midspace_dir) if re.search(r'[0-9]Warp\.nii\.gz$', f)]
+    img_list = glob.glob(os.path.join(midspace_dir, '*WarpedToTemplate.nii.gz'))
 
     # Total number of images
     n_img = len(img_list)
@@ -116,7 +118,7 @@ def main():
         idx_B = idx[hn:]
 
         tname_A = os.path.join(template_dir, 'template_%03d_A.nii.gz' % vc)
-        tname_B = os.path.join(template_dir, 'template_%03d_A.nii.gz' % vc)
+        tname_B = os.path.join(template_dir, 'template_%03d_B.nii.gz' % vc)
 
         # Average images from sample A
         average_images(img_list, idx_A, tname_A)
