@@ -10,7 +10,7 @@ prob_label_volumes.py -h
 
 Example
 ----
->>> prob_label_volumes.py *_probs.nii.gz
+>>> prob_label_vol_info.py *_probs.nii.gz
 
 Authors
 ----
@@ -19,6 +19,9 @@ Mike Tyszka, Caltech Brain Imaging Center
 Dates
 ----
 2015-05-31 JMT Adapt from label_volumes.py
+2017-10-22 WMP Adapt from prob_label_volumes.py
+               Add latex table output
+2017-12-12 JMT Extended latex table with left and right volumes
 
 License
 ----
@@ -39,7 +42,7 @@ along with atlaskit.  If not, see <http://www.gnu.org/licenses/>.
 
 Copyright
 ----
-2015 California Institute of Technology.
+2017 California Institute of Technology.
 """
 
 __version__ = '0.1.0'
@@ -52,8 +55,19 @@ import numpy as np
 import matplotlib.pyplot as plt
 from atlas_report import do_strip_prefix
 
+
 def load_labels(filename):
-    ''' Load labels from file, which was used as label key in inkscape '''
+    """
+    Load labels from file, which was used as label key in inkscape
+
+    Parameters
+    ----------
+    filename
+
+    Returns
+    -------
+
+    """
 
     keys = []
     
@@ -66,47 +80,78 @@ def load_labels(filename):
         start = entry.find('"') + 1
         end = entry.find('"', start)
         keys.append(entry[start:end])
+
     return keys
 
 
 def create_histogram(p, keys, nrows=4, ncols=4, fontsize=14, img_fname='/tmp/prob_atlas_hist.png'):
-    ''' for each label in probabilistic atlas, create a histogram of probabilities '''
+    """
+    Create a cumulative histogram for each label in a probabilistic atlas
+
+    Parameters
+    ----------
+    p: numpy array
+    keys
+    nrows
+    ncols
+    fontsize
+    img_fname
+
+    Returns
+    -------
+
+    """
     
     fig, axs = plt.subplots(nrows, ncols)
     axs = np.array(axs).reshape(-1)
 
     im = []
 
+    # Determine lower left axis index
+    lower_left = (nrows - 1) * ncols
+
     for aa, ax in enumerate(axs):
 
         if aa < len(keys):
             v = p[:,:,:,aa].ravel()
-            v = v[v>0]
+            v = v[v > 0]
             im = ax.hist(v, bins=50, cumulative=True, density=True, range=(0,1))
             key = do_strip_prefix(keys[aa])
             ax.set_title(key, fontsize=fontsize)
         else:
             ax.axis('off')
 
-        if aa > 0:
+        if aa == lower_left:
+            for tick in ax.xaxis.get_major_ticks():
+                tick.label.set_fontsize(fontsize)
+            for tick in ax.yaxis.get_major_ticks():
+                tick.label.set_fontsize(fontsize)
+        else:
             ax.get_xaxis().set_visible(False)
             ax.get_yaxis().set_visible(False)
-        else:
-            for tick in ax.xaxis.get_major_ticks():
-                tick.label.set_fontsize(fontsize)        
-            for tick in ax.yaxis.get_major_ticks():
-                tick.label.set_fontsize(fontsize)        
-            
+
     # Tidy up spacing
     plt.tight_layout()
 
     print('  Saving image to %s' % img_fname)
     plt.savefig(os.path.join(img_fname), bbox_inches='tight')
 
-def print_vol_info(p_file, keys, latex=False):
 
-    if latex:
-        print("\\begin{tabular}{l l}\n\hline\\\\\nLabel&Vol ($\mu L$)\\\\\n\hline\\\\")
+def print_vol_info(p_file, keys, latex=False):
+    """
+    Generate integrated volume table for left and right hemispheres
+
+    Parameters
+    ----------
+    p_file
+    keys
+    latex
+
+    Returns
+    -------
+
+    """
+
     # Load the source atlas image
     p_nii = nib.load(p_file)
     p = p_nii.get_data()
@@ -115,23 +160,48 @@ def print_vol_info(p_file, keys, latex=False):
     # Atlas voxel volume in mm^3 (microliters)
     atlas_vox_vol_ul = np.array(p_nii.header.get_zooms()).prod()
                    
-    nx,ny,nz,nt = p.shape
+    nx, ny, nz, nt = p.shape
+    hx = int(nx/2)
+
+    # Table preamble
+    if latex:
+
+        # Print latex header (depends on booktabs package)
+        print("\\begin{tabular}{l c c c }")
+        print("\\hline\\\\")
+        print("\\multicolumn{2}{c}{} & \\multicolumn{2}{c}{Volume (\$\\mu l\$)} \\\\")
+        print("\\cmidrule{3-4}")
+        print("Label & Acronym & Left & Right \\\\")
+        print("\\hline \\\\")
+
+    else:
+
+        print('%s\t%s\t%s' % ("Label", "Vol_Left_ul", "Vol_Right_ul"))
 
     for t in range(0,nt):
+
         label = keys[t]
-        V = np.sum(p[:,:,:,t]) * atlas_vox_vol_ul
+
+        # Right and left integrated volumes
+        # x-dimension is assumed to run R-L, so right hemisphere is lower x half-space
+        Vr = np.sum(p[:hx, :, :, t]) * atlas_vox_vol_ul
+        Vl = np.sum(p[hx:, :, :, t]) * atlas_vox_vol_ul
+
         if latex:
-            print('%s & %0.3f\\\\' % (label.replace('_','\_'), V))
+            print('%s & & %s & %0.0f & %0.0f \\\\' % (label.replace('_','\_'), 'Acro', Vl, Vr))
         else:
-            print('%s:\t%0.3f' % (label, V))
+            print('%s\t%0.3f\t%0.3f' % (label, Vl, Vr))
 
     if latex:
-        print("\hline\\\\\\end{tabular}\n")
+        print("\\hline \\\\")
+        print("\\end{tabular}")
+
     # Final newline
-    print
+    print('')
     
     return p
-    
+
+
 def main():
     
     # Parse command line arguments
