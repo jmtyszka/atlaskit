@@ -84,7 +84,7 @@ def load_labels(filename):
     return keys
 
 
-def create_histogram(p, keys, nrows=4, ncols=4, fontsize=16, img_fname='/tmp/prob_atlas_hist.png'):
+def create_histogram(p, keys, nrows=4, ncols=4, fontsize=16, img_fname='prob_atlas_hist.png'):
     """
     Create a cumulative histogram for each label in a probabilistic atlas
 
