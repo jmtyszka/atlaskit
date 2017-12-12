@@ -175,11 +175,11 @@ def print_vol_info(p_file, keys, latex=False):
         # Print latex header (depends on booktabs package)
         print("")
         print("\\begin{tabular}{l c c c c}")
-        print("\\hline\\\\")
+        print("\\cmidrule{1-5}")
         print("\\multicolumn{2}{c}{} & \\multicolumn{2}{c}{Volume ($\\mu l$)} \\\\")
         print("\\cmidrule{3-4}")
         print("Label & Acronym & Left & Right & Laterality (\\%) \\\\")
-        print("\\hline \\\\")
+        print("\\cmidrule{1-5}")
 
     else:
 
@@ -202,12 +202,12 @@ def print_vol_info(p_file, keys, latex=False):
         LIp = (Vl - Vr) / (Vl + Vr) * 100.0
 
         if latex:
-            print('%s & %s & %0.0f & %0.0f & %+0.1f \\\\' % ("LABEL", acronym, Vl, Vr, LIp))
+            print('%s & %s & %0.0f & %0.0f & %0.1f \\\\' % ("LABEL", acronym, Vl, Vr, LIp))
         else:
             print('%s\t%0.0f\t%0.0f\t%0.1f' % (acronym, Vl, Vr, LIp))
 
     if latex:
-        print("\\hline \\\\")
+        print("\\cmidrule{1-5}")
         print("\\end{tabular}")
 
     # Final newline
