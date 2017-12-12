@@ -84,7 +84,7 @@ def load_labels(filename):
     return keys
 
 
-def create_histogram(p, keys, nrows=4, ncols=4, fontsize=14, img_fname='/tmp/prob_atlas_hist.png'):
+def create_histogram(p, keys, nrows=4, ncols=4, fontsize=16, img_fname='/tmp/prob_atlas_hist.png'):
     """
     Create a cumulative histogram for each label in a probabilistic atlas
 
@@ -101,8 +101,8 @@ def create_histogram(p, keys, nrows=4, ncols=4, fontsize=14, img_fname='/tmp/pro
     -------
 
     """
-    
-    fig, axs = plt.subplots(nrows, ncols)
+
+    fig, axs = plt.subplots(nrows, ncols, figsize=(12,9))
     axs = np.array(axs).reshape(-1)
 
     im = []
@@ -122,18 +122,24 @@ def create_histogram(p, keys, nrows=4, ncols=4, fontsize=14, img_fname='/tmp/pro
             ax.axis('off')
 
         if aa == lower_left:
+
+            ax.set_xlabel('Label Probability', fontsize=fontsize)
+            ax.set_ylabel('CRF', fontsize=fontsize)
+
             for tick in ax.xaxis.get_major_ticks():
-                tick.label.set_fontsize(fontsize)
+                tick.label.set_fontsize(int(fontsize * 0.9))
             for tick in ax.yaxis.get_major_ticks():
-                tick.label.set_fontsize(fontsize)
+                tick.label.set_fontsize(int(fontsize * 0.9))
+
         else:
+
             ax.get_xaxis().set_visible(False)
             ax.get_yaxis().set_visible(False)
 
     # Tidy up spacing
     plt.tight_layout()
 
-    print('  Saving image to %s' % img_fname)
+    print('Saving image to %s' % img_fname)
     plt.savefig(os.path.join(img_fname), bbox_inches='tight')
 
 
@@ -167,37 +173,45 @@ def print_vol_info(p_file, keys, latex=False):
     if latex:
 
         # Print latex header (depends on booktabs package)
-        print("\\begin{tabular}{l c c c }")
+        print("")
+        print("\\begin{tabular}{l c c c c}")
         print("\\hline\\\\")
-        print("\\multicolumn{2}{c}{} & \\multicolumn{2}{c}{Volume (\$\\mu l\$)} \\\\")
+        print("\\multicolumn{2}{c}{} & \\multicolumn{2}{c}{Volume ($\\mu l$)} \\\\")
         print("\\cmidrule{3-4}")
-        print("Label & Acronym & Left & Right \\\\")
+        print("Label & Acronym & Left & Right & Laterality (\\%) \\\\")
         print("\\hline \\\\")
 
     else:
 
-        print('%s\t%s\t%s' % ("Label", "Vol_Left_ul", "Vol_Right_ul"))
+        print("")
+        print('%s\t%s\t%s\t%s' % ("Label", "Vol_Left_ul", "Vol_Right_ul", "LI_perc"))
 
     for t in range(0,nt):
 
         label = keys[t]
 
+        # Split at underscores and retain final acronym
+        acronym = label.rsplit('_')[-1]
+
         # Right and left integrated volumes
         # x-dimension is assumed to run R-L, so right hemisphere is lower x half-space
-        Vr = np.sum(p[:hx, :, :, t]) * atlas_vox_vol_ul
-        Vl = np.sum(p[hx:, :, :, t]) * atlas_vox_vol_ul
+        Vr = np.sum(p[0:hx, :, :, t]) * atlas_vox_vol_ul
+        Vl = np.sum(p[hx:-1, :, :, t]) * atlas_vox_vol_ul
+
+        # Laterality Index (%)
+        LIp = (Vl - Vr) / (Vl + Vr) * 100.0
 
         if latex:
-            print('%s & & %s & %0.0f & %0.0f \\\\' % (label.replace('_','\_'), 'Acro', Vl, Vr))
+            print('%s & %s & %0.0f & %0.0f & %+0.1f \\\\' % ("LABEL", acronym, Vl, Vr, LIp))
         else:
-            print('%s\t%0.3f\t%0.3f' % (label, Vl, Vr))
+            print('%s\t%0.0f\t%0.0f\t%0.1f' % (acronym, Vl, Vr, LIp))
 
     if latex:
         print("\\hline \\\\")
         print("\\end{tabular}")
 
     # Final newline
-    print('')
+    print("")
     
     return p
 
@@ -207,26 +221,24 @@ def main():
     # Parse command line arguments
     parser = argparse.ArgumentParser(description='Probabilistic label volumes in microliters')
     parser.add_argument('-d', '--atlas_dir', required=False, help="Directory of probabilistic atlas and label file")
-    parser.add_argument('-f', '--p_file', required=False, nargs='+', help="List of 4D prob label images")
-    parser.add_argument('-l', '--l_file', required=False, nargs='+', help='List of (itksnap) label files')
     parser.add_argument('--latex', dest='latex', action='store_true')
 
     # Parse command line arguments
     args = parser.parse_args()
-    atlas_dir = args.atlas_dir
-    if not atlas_dir is None:
-        print("atlas_dir: %s" % atlas_dir)
-        p_file = os.path.join(atlas_dir, 'prob_atlas.nii.gz')
-        l_file = os.path.join(atlas_dir, 'labels.txt')
+
+    if args.atlas_dir:
+        atlas_dir = args.atlas_dir
     else:
-        print("atlas_dir: not specified")
-        p_file = args.p_file
-        l_file = args.l_file
+        atlas_dir = os.getcwd()
+
+    print("Atlas Directory : %s" % atlas_dir)
+    p_file = os.path.join(atlas_dir, 'prob_atlas_bilateral.nii.gz')
+    l_file = os.path.join(atlas_dir, 'labels.txt')
 
     if os.path.exists(p_file):
-        print("Probabilistic atlas file: %s" % p_file)
+        print("Prob Atlas File : %s" % p_file)
     if os.path.exists(l_file):
-        print("Label file: %s" % l_file)        
+        print("Label Text File : %s" % l_file)
 
     latex = args.latex
     
