@@ -358,9 +358,10 @@ def do_strip_prefix(label_name):
     # print("Stripping atlas label name, from %s to %s" % (label_name, stripped_label_name))
     return stripped_label_name
 
+
 def overlay_montage(atlas_dir, report_dir, overlay_fname):
     """
-    Construct an montage of colored label overlays on a T1w background
+    Construct a montage of colored label overlays on a T1w background
     - Each label is colored according to the ITK-SNAP label key
     - Calculate coronal slice skip from minimum BB for 4 x 4 montage (16 slices)
 
