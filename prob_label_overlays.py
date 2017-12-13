@@ -79,6 +79,9 @@ def main():
         print('Atlas directory does not exist (%s) - exiting' % atlas_dir)
         sys.exit(1)
 
+    # 4D probabilistic label file
+    prob_fname = os.path.join(atlas_dir, 'prob_atlas_bilat.nii.gz')
+
     # Create overlay directory within atlas directory
     overlay_dir = os.path.join(atlas_dir, 'overlays')
     if not os.path.isdir(overlay_dir):
@@ -115,7 +118,7 @@ def main():
 
     # Load the 4D probabilistic atlas
     print('  Loading probabilistic image')
-    p_nii = nib.load(os.path.join(atlas_dir, overlay_fname))
+    p_nii = nib.load(os.path.join(atlas_dir, prob_fname))
     p_atlas = p_nii.get_data()
 
     # Count prob labels
@@ -124,19 +127,19 @@ def main():
     # Loop over all rois
     for roi in rois:
 
-        # Create montage of coronal sections through cropped bg image
-        bg_mont = coronal_montage(bg_crop, n_rows, n_cols)
+        # Extract background ROI
+        bg_roi = extract_roi(bg_img, roi)
 
-        bg_mont_rgb = tint(bg_mont, hue=0.0, saturation=0.0)
+        bg_roi_rgb = tint(bg_roi, hue=0.0, saturation=0.0)
 
         # Initialize the all-label overlay
-        overlay_mont_rgb = np.zeros_like(bg_mont_rgb)
+        overlay_roi_rgb = np.zeros_like(bg_roi_rgb)
 
         # Create equivalent montage for all prob labels with varying hues
         for lc in range(0, n_labels):
 
             # Construct prob label montage
-            p_mont = coronal_montage(p_crop[:, :, :, lc], n_rows, n_cols)
+            p_mont = extract_roi(p_atlas[:, :, :, lc], roi)
 
             # Hue and saturation for label overlay
             if atlas_color:
@@ -151,10 +154,10 @@ def main():
             p_mont_rgb = tint(p_mont, hue=hue, saturation=sat, value=val)
 
             # Add tinted overlay to running total
-            overlay_mont_rgb += p_mont_rgb
+            overlay_roi_rgb += p_mont_rgb
 
         # Composite prob atlas overlay on bg image
-        mont_rgb = composite(overlay_mont_rgb, bg_mont_rgb)
+        mont_rgb = composite(overlay_roi_rgb, bg_roi_rgb)
 
         # Create figure and render montage
         fig = plt.figure(figsize=(15, 10), dpi=100)
@@ -163,12 +166,17 @@ def main():
         plt.legend()
 
         # Save figure to PNG
-        montage_fname = overlay_fname.replace('.nii.gz', '_montage.png')
-        print('  Saving image to %s' % montage_fname)
-        plt.savefig(os.path.join(report_dir, montage_fname), bbox_inches='tight')
+        # montage_fname = overlay_fname.replace('.nii.gz', '_montage.png')
+        # print('  Saving image to %s' % montage_fname)
+        # plt.savefig(os.path.join(report_dir, montage_fname), bbox_inches='tight')
 
     # Clean exit
     sys.exit(0)
+
+
+def load_rois(roi_specfile):
+
+    return []
 
 
 def label_rgb2hsv(label_key):
@@ -193,16 +201,18 @@ def label_rgb2hsv(label_key):
     return hsv
 
 
-def coronal_montage(img, n_rows=4, n_cols=4, flip_x=False, flip_y=True, flip_z=True):
+def extract_roi(img, roi, flip_x=False, flip_y=True, flip_z=True):
     """
     Create a montage of all coronal (XZ) slices from a 3D image
 
     Parameters
     ----------
-    img: 3D image to montage
-    n_rows: number of montage rows
-    n_cols: number of montage columns
-    rot: CCW 90deg rotations to apply to each section
+    img: numpy array
+        3D image to montage
+    roi: tuple
+    flip_x: bool
+    flip_y: bool
+    flip_z: bool
 
     Returns
     -------
@@ -210,15 +220,11 @@ def coronal_montage(img, n_rows=4, n_cols=4, flip_x=False, flip_y=True, flip_z=T
     cor_mont: coronal slice montage of img
     """
 
-    # Total number of sections to extract
-    n = n_rows * n_cols
-
     # Source image dimensions
     nx, ny, nz = img.shape
 
     # Coronal (XZ) sections
-    yy = np.linspace(0, ny-1, n).astype(int)
-    cors = img[:,yy,:]
+    cors = img[:, 0, :]
 
     if flip_x:
         cors = np.flip(cors, axis=0)
@@ -231,9 +237,7 @@ def coronal_montage(img, n_rows=4, n_cols=4, flip_x=False, flip_y=True, flip_z=T
     img = np.transpose(cors, (1,2,0))
 
     # Construct montage of coronal sections
-    cor_mont = montage2d(img, fill=0, grid_shape=(n_rows, n_cols))
-
-    return cor_mont
+    return img
 
 
 def tint(image, hue=0.0, saturation=1.0, value=1.0):
