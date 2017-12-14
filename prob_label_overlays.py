@@ -41,15 +41,11 @@ Copyright
 import os
 import sys
 import argparse
-import jinja2
-import colorsys
+import pandas as pd
 import numpy as np
 import nibabel as nib
 import matplotlib.pyplot as plt
-from datetime import datetime
-from skimage.util.montage import montage2d
 from skimage import color
-from atlas import get_label_name
 
 __version__ = '0.1'
 
@@ -58,29 +54,37 @@ def main():
 
     # Parse command line arguments
     parser = argparse.ArgumentParser(description='Create series of prob label color overlays')
-    parser.add_argument('-a', '--atlasdir', required=True, help='Directory containing probabilistic atlas')
-    parser.add_argument('-r', '--rois', required=True, help='ROI specification file')
+    parser.add_argument('-a', '--atlasdir', required=False, help='Directory containing probabilistic atlas [.]')
+    parser.add_argument('-r', '--rois', required=False, help='ROI specification file [<atlasdir>/rois.txt]')
 
     # Parse command line arguments
     args = parser.parse_args()
-    atlas_dir = args.atlasdir
-    roi_specfile = args.rois
+
+    if args.atlasdir:
+        atlas_dir = args.atlasdir
+    else:
+        atlas_dir = '.'
+
+    if args.rois:
+        roi_specfile = args.rois
+    else:
+        roi_specfile = os.path.join(atlas_dir, 'rois.txt')
+
+    label_keyfile = os.path.join(atlas_dir, 'labels.txt')
 
     # Use ITK-SNAP label key colors
-    atlas_color = False
+    atlas_color = True
     
     print('')
     print('----------------------------')
     print('Probabilistic label overlays')
     print('----------------------------')
+    print('')
 
     # Check for atlas directory existence
     if not os.path.isdir(atlas_dir):
         print('Atlas directory does not exist (%s) - exiting' % atlas_dir)
         sys.exit(1)
-
-    # 4D probabilistic label file
-    prob_fname = os.path.join(atlas_dir, 'prob_atlas_bilat.nii.gz')
 
     # Create overlay directory within atlas directory
     overlay_dir = os.path.join(atlas_dir, 'overlays')
@@ -89,6 +93,8 @@ def main():
 
     print('Atlas directory   : %s' % atlas_dir)
     print('Overlay directory : %s' % overlay_dir)
+    print('Label key         : %s' % label_keyfile)
+    print('ROI spec file     : %s' % roi_specfile)
     print('')
 
     # Load ROI specs
@@ -98,18 +104,15 @@ def main():
         print('* ROI specification file %s does not exist' % roi_specfile)
         sys.exit(1)
 
-    # CIT atlas directory from shell environment
-    cit_dir = os.environ['CIT168_DIR']
-
     # Load label key from atlas directory
-    label_key = load_key(os.path.join(atlas_dir, 'labels.txt'))
+    label_key = load_key(label_keyfile)
 
     # Extract HSV label colors (n_labels x 3 array)
     hsv = label_rgb2hsv(label_key)
 
     # Load background image
-    print('  Loading background image')
-    bg_fname = os.path.join(cit_dir, 'CIT168_700um', 'CIT168_T1w_700um.nii.gz')
+    print('< Loading background image')
+    bg_fname = os.path.join(atlas_dir, 'template.nii.gz')
     bg_nii = nib.load(bg_fname)
     bg_img = bg_nii.get_data()
 
@@ -117,66 +120,103 @@ def main():
     bg_img = bg_img / np.max(bg_img)
 
     # Load the 4D probabilistic atlas
-    print('  Loading probabilistic image')
-    p_nii = nib.load(os.path.join(atlas_dir, prob_fname))
+    print('< Loading probabilistic image')
+    prob_fname = os.path.join(atlas_dir, 'prob_atlas_bilateral.nii.gz')
+    p_nii = nib.load(prob_fname)
     p_atlas = p_nii.get_data()
+
+    print('')
 
     # Count prob labels
     n_labels = p_atlas.shape[3]
 
-    # Loop over all rois
-    for roi in rois:
+    # Loop over all ROIs
+    for index, roi in rois.iterrows():
 
         # Extract background ROI
         bg_roi = extract_roi(bg_img, roi)
 
-        bg_roi_rgb = tint(bg_roi, hue=0.0, saturation=0.0)
+        # Colorize the background ROI
+        bg_rgb = tint(bg_roi, hue=0.0, saturation=0.0)
 
         # Initialize the all-label overlay
-        overlay_roi_rgb = np.zeros_like(bg_roi_rgb)
+        all_prob_rgb = np.zeros_like(bg_rgb)
 
         # Create equivalent montage for all prob labels with varying hues
         for lc in range(0, n_labels):
 
-            # Construct prob label montage
-            p_mont = extract_roi(p_atlas[:, :, :, lc], roi)
+            # Extract prob label ROI
+            prob_roi = extract_roi(p_atlas[:, :, :, lc], roi)
 
             # Hue and saturation for label overlay
             if atlas_color:
                 # Pull HSV from ITK-SNAP label key
-                hue, sat, val = hsv[lc, 0], hsv[lc, 1], hsv[lc, 2]
+                hue, sat, val = hsv[lc+1, 0], hsv[lc+1, 1], hsv[lc+1, 2]
             else:
                 # Calculate rotating hue
-                hue = float(np.mod(lc * 3, n_labels)) / n_labels
+                cyc_freq = 0.99
+                hue = float(np.mod(lc * cyc_freq, n_labels)) / n_labels
                 sat, val = 1.0, 1.0
 
-            # Tint the montage
-            p_mont_rgb = tint(p_mont, hue=hue, saturation=sat, value=val)
+            # print('  %d | %0.2f | %0.2f | %0.2f' % (lc, hue, sat, val))
+
+            # Tint the prob label ROI
+            prob_rgb = tint(prob_roi, hue=hue, saturation=sat, value=val)
 
             # Add tinted overlay to running total
-            overlay_roi_rgb += p_mont_rgb
+            all_prob_rgb += prob_rgb
 
-        # Composite prob atlas overlay on bg image
-        mont_rgb = composite(overlay_roi_rgb, bg_roi_rgb)
+        # Overlay prob atlas on bg image
+        overlay_rgb = composite(all_prob_rgb, bg_rgb)
 
-        # Create figure and render montage
-        fig = plt.figure(figsize=(15, 10), dpi=100)
-        plt.imshow(mont_rgb, interpolation='none')
-        plt.axis('off')
-        plt.legend()
-
-        # Save figure to PNG
-        # montage_fname = overlay_fname.replace('.nii.gz', '_montage.png')
-        # print('  Saving image to %s' % montage_fname)
-        # plt.savefig(os.path.join(report_dir, montage_fname), bbox_inches='tight')
+        # Save bg, prob labels and composite images of the ROI
+        save_png(overlay_dir, roi.roiname + '_bg.png', bg_rgb)
+        save_png(overlay_dir, roi.roiname + '_prob.png', all_prob_rgb)
+        save_png(overlay_dir, roi.roiname + '_overlay.png', overlay_rgb)
 
     # Clean exit
     sys.exit(0)
 
 
-def load_rois(roi_specfile):
+def save_png(overlay_dir, png_fname, img_rgb):
 
-    return []
+    # Create figure and render montage
+    fig = plt.figure(figsize=(15, 10), dpi=100)
+    plt.imshow(img_rgb, interpolation='none')
+    plt.axis('off')
+    plt.legend()
+
+    # Save figure to PNG
+    png_path = os.path.join(overlay_dir, png_fname)
+    print('> Saving image to %s' % png_path)
+    plt.savefig(png_path, bbox_inches='tight')
+
+
+def load_rois(roi_specfile):
+    """
+    Load ROI specs from specfile
+
+    Header row: roiname x y z dx dy dz
+    Row format: %s %d %d %d %d %d %d
+
+    x,y,z is the ROI corner closest to the origin
+    dx,dy,dz are the ROI dimensions
+
+    Each ROI should have exactly one of dx,dy or dz = 1 (slice)
+
+    Parameters
+    ----------
+    roi_specfile
+
+    Returns
+    -------
+
+    """
+
+    with open(roi_specfile) as fd:
+        rois = pd.read_table(roi_specfile, sep=" ")
+
+    return rois
 
 
 def label_rgb2hsv(label_key):
@@ -209,7 +249,7 @@ def extract_roi(img, roi, flip_x=False, flip_y=True, flip_z=True):
     ----------
     img: numpy array
         3D image to montage
-    roi: tuple
+    roi: pandas table row
     flip_x: bool
     flip_y: bool
     flip_z: bool
@@ -217,27 +257,25 @@ def extract_roi(img, roi, flip_x=False, flip_y=True, flip_z=True):
     Returns
     -------
 
-    cor_mont: coronal slice montage of img
+    img_roi: numpy array
     """
 
     # Source image dimensions
     nx, ny, nz = img.shape
 
-    # Coronal (XZ) sections
-    cors = img[:, 0, :]
+    # Create slices for each axis
+    xx = slice(roi.x, roi.x + roi.dx)
+    yy = slice(roi.y, roi.y + roi.dy)
+    zz = slice(roi.z, roi.z + roi.dz)
 
-    if flip_x:
-        cors = np.flip(cors, axis=0)
-    if flip_y:
-        cors = np.flip(cors, axis=1)
-    if flip_z:
-        cors = np.flip(cors, axis=2)
+    # Extract ROI from volume
+    img_roi = img[xx,yy,zz]
 
-    # Permute image axes for montage2d: original y becomes new x
-    img = np.transpose(cors, (1,2,0))
+    # Squeeze out singlet dimensions
+    img_roi = img_roi.squeeze()
 
     # Construct montage of coronal sections
-    return img
+    return img_roi
 
 
 def tint(image, hue=0.0, saturation=1.0, value=1.0):
@@ -249,6 +287,7 @@ def tint(image, hue=0.0, saturation=1.0, value=1.0):
     image: numpy array
     hue: float
     saturation: float
+    value: float
 
     Returns
     -------
@@ -282,6 +321,9 @@ def composite(overlay_rgb, background_rgb):
     alpha_rgb = np.dstack((value, value, value))
 
     composite_rgb = overlay_rgb * alpha_rgb + background_rgb * (1.0 - alpha_rgb)
+
+    # Clamp values [0..1)
+    composite_rgb = composite_rgb.clip(0.0, 1.0)
 
     return composite_rgb
 
