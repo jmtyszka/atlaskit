@@ -1,0 +1,24 @@
+#!/bin/bash
+#
+# Convert VTK polymesh to Wavefront object file
+# - ITK-SNAP export to Blender import
+# - requires Freesurfer's mris_convert command
+#
+# AUTHOR : Mike Tyszka
+# PLACE  : Caltech
+# DATES  : 2014-03-18 JMT From scratch
+
+if [ $# -lt 1 ]
+then
+  echo "USAGE : vtk2obj <VTK scene file>"
+  exit
+fi
+
+vtk_file=$1
+stub=${vtk_file%%.vtk}
+
+asc_file=${stub}.asc
+obj_file=${stub}.obj
+
+mris_convert $vtk_file $asc_file
+

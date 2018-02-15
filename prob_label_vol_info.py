@@ -77,9 +77,12 @@ def load_labels(filename):
 
     for e in range(0, len(entries)):
         entry = entries[e]
-        start = entry.find('"') + 1
-        end = entry.find('"', start)
-        keys.append(entry[start:end])
+        if not entry[0].startswith('#'):
+            start = entry.find('"') + 1
+            end = entry.find('"', start)
+            label_name = entry[start:end]
+            if not 'Clear Label' in label_name:
+                keys.append(label_name)
 
     return keys
 
@@ -140,7 +143,7 @@ def create_histogram(p, keys, nrows=4, ncols=4, fontsize=16, img_fname='prob_atl
     plt.tight_layout()
 
     print('Saving image to %s' % img_fname)
-    plt.savefig(os.path.join(img_fname), bbox_inches='tight')
+    plt.savefig(os.path.join(img_fname), dpi=300, bbox_inches='tight')
 
 
 def print_vol_info(p_file, keys, latex=False):
