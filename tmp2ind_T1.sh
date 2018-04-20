@@ -2,7 +2,7 @@
 #
 # Perform SyN warping from individual to template space using T1 cost function only
 #
-# USAGE  : tmp2ind_T1T2.sh --T1ind=<Individual T1w> --T1tmp=<Template T1w image> --Atmp=<(Probabilistic) atlas> --nthreads=<nthreads>"
+# USAGE  : tmp2ind_T1.sh --T1ind=<Individual T1w> --T1tmp=<Template T1w image> --Atmp=<(Probabilistic) atlas> --nthreads=<nthreads>"
 #
 # AUTHOR : Mike Tyszka
 # PLACE  : Caltech
