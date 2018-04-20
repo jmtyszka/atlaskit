@@ -2,7 +2,7 @@
 #
 # Perform SyN multimodal warping from individual to template space using joint T1 and T2 cost function
 #
-# USAGE  : tmp2ind_T1T2.sh <Individual T1w> <Individual T2w> <Template T1w image> <Template T2w image> <Prob atlas>"
+# USAGE  : tmp2ind_T1T2.sh --T1ind=<Individual T1w> --T2ind=<Individual T2w> --T1tmp=<Template T1w image> --T2tmp=<Template T2w image> --Atmp=<(Probabilistic) atlas> --nthreads=<nthreads>"
 #
 # AUTHOR : Mike Tyszka
 # PLACE  : Caltech
@@ -10,6 +10,7 @@
 #          2017-04-10 JMT Fixed dimensions bug in pAtlas resampling
 #          2017-04-11 JMT Duplicated Adam Meher's fixes from T1 to T1T2 version
 #          2017-06-13 JMT Simplied argument handling
+#	       2018-04-20 JD  added names for arguments; added nthreads as argument; using antsApplyTransforms instead of WarpImageMultiTransform; made atlas argument optional
 #
 # MIT License
 #
@@ -33,42 +34,64 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-if [ $# -lt 5 ]
+# function for parsing options
+getopt1() {
+    sopt="$1"
+    shift 1
+    for fn in $@ ; do
+    if [ `echo $fn | grep -- "^${sopt}=" | wc -w` -gt 0 ] ; then
+        echo $fn | sed "s/^${sopt}=//"
+        return 0
+    fi
+    done
+}
+
+if [ $# -lt 4 ]
 then
-	echo "USAGE : tmp2ind_T1T2.sh <Individual T1w> <Individual T2w> <Template T1w image> <Template T2w image> <Probabilistic atlas>"
+	echo "USAGE : tmp2ind_T1T2.sh" 
+    echo "        [REQUIRED ARGS] --T1ind=<Individual T1w> --T2ind=<Individual T2w> --T1tmp=<Template T1w image> --T2tmp=<Template T2w image>"
+    echo "        [OPTIONAL ARGS] --Atmp=<(Probabilistic) atlas=''> --nthreads=<nthreads=4>"
 	echo "All images are Nifti-1 format, compressed or uncompressed"
+    echo "This script should be called from within the directory that you wish transforms to be saved to"
 	exit
 fi
 
 
-T1ind=$1
+T1ind=`getopt1 "--T1ind" $@`
 if [ ! -s $T1ind ]; then
-    echo "* $T1ind does not exist or is empty"
+    echo "*T1ind: $T1ind does not exist or is empty"
     exit
 fi
 
-T2ind=$2
+T2ind=`getopt1 "--T2ind" $@`
 if [ ! -s $T2ind ]; then
-    echo "* $T2ind does not exist or is empty"
+    echo "*T2ind: $T2ind does not exist or is empty"
     exit
 fi
 
-T1tmp=$3
+T1tmp=`getopt1 "--T1tmp" $@`
 if [ ! -s $T1tmp ]; then
-    echo "* $T1tmp does not exist or is empty"
+    echo "*T1tmp: $T1tmp does not exist or is empty"
     exit
 fi
 
-T2tmp=$4
+T2tmp=`getopt1 "--T2tmp" $@`
 if [ ! -s $T2tmp ]; then
-    echo "* $T2tmp does not exist or is empty"
+    echo "*T2tmp: $T2tmp does not exist or is empty"
     exit
 fi
 
-pAtmp=$5
-if [ ! -s $pAtmp ]; then
-    echo "* $pAtmp does not exist or is empty"
-    exit
+pAtmp=`getopt1 "--Atmp" $@`
+if [ -z "$pAtmp" ]; then
+    echo "*Atmp is empty"
+elif [ ! -s $pAtmp ]; then
+    echo "*Atmp: $pAtmp does not exist"
+fi
+
+nthreads=`getopt1 "--nthreads" $@`
+if [ -z "$nthreads" ];then
+    echo "*nthreads is empty; set to default value = 4"
+    nthreads=4
 fi
 
 # Splash text
@@ -79,10 +102,12 @@ echo "Individual T1 : ${T1ind}"
 echo "Individual T2 : ${T2ind}"
 echo "  Template T1 : ${T1tmp}"
 echo "  Template T2 : ${T2tmp}"
-echo "   Prob Atlas : ${pAtmp}"
+if [ ! -z "$pAtmp" ] && [ -s ${pAtmp} ]
+then
+    echo "   Prob Atlas : ${pAtmp}"
+fi
+echo "using ${nthreads} threads"
 
-# Fixed ANTs parameters
-nthreads=4
 
 # Registration files
 prefix=TMP2IND_
@@ -112,14 +137,13 @@ fi
 if [ ! -s ${T2tmp2ind} ]
 then
     echo "Warping T2w template into individual space"
-	WarpImageMultiTransform	3 ${T2tmp} ${T2tmp2ind} -R ${T1ind} ${tmp2ind_warp} ${tmp2ind_affine} --use-BSpline
+	antsApplyTransforms -d 3 -e 0 -i ${T2tmp} -r ${T1ind} -o ${T2tmp2ind} -n BSpline -t ${tmp2ind_warp} -t ${tmp2ind_affine}
 fi
 
-# Resample probabilistic atlas to individual space
-if [ ! -s ${pAtmp2ind} ]
+if [ ! -z "$pAtmp" ] && [ -s ${pAtmp} ] && [ ! -s ${pAtmp2ind} ]
 then
     echo "Warping probabilistic atlas into individual space"
-	WarpImageMultiTransform	4 ${pAtmp} ${pAtmp2ind} -R ${T1ind} ${tmp2ind_warp} ${tmp2ind_affine} --use-BSpline
+    antsApplyTransforms -d 3 -e 3 -i ${pAtmp} -r ${T1ind} -o ${pAtmp2ind} -n BSpline -t ${tmp2ind_warp} -t ${tmp2ind_affine}
 fi
 
 # Report output filenames
@@ -128,4 +152,7 @@ echo " Output files"
 echo "------------------------------------------------------------"
 echo "Template T1 in individual space : ${T1tmp2ind}"
 echo "Template T2 in individual space : ${T2tmp2ind}"
-echo "Prob atlas in individual space  : ${pAtmp2ind}"
+if [ ! -z "$pAtmp" ] && [ -s ${pAtmp} ] && [ -s ${pAtmp2ind} ]
+then
+    echo "Prob atlas in individual space  : ${pAtmp2ind}"
+fi
