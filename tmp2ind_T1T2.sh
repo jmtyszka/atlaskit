@@ -8,13 +8,13 @@
 # PLACE  : Caltech
 # DATES  : 2016-09-30 JMT From scratch
 #          2017-04-10 JMT Fixed dimensions bug in pAtlas resampling
-#          2017-04-11 JMT Duplicated Adam Meher's fixes from T1 to T1T2 version
+#          2017-04-11 JMT Duplicated Adam Mezher's fixes from T1 to T1T2 version
 #          2017-06-13 JMT Simplied argument handling
 #	       2018-04-20 JD  added names for arguments; added nthreads as argument; using antsApplyTransforms instead of WarpImageMultiTransform; made atlas argument optional
 #
 # MIT License
 #
-# Copyright (c) 2017 Mike Tyszka
+# Copyright (c) 2017 Caltech
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
