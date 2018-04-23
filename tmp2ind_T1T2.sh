@@ -143,7 +143,7 @@ fi
 if [ ! -z "$pAtmp" ] && [ -s ${pAtmp} ] && [ ! -s ${pAtmp2ind} ]
 then
     echo "Warping probabilistic atlas into individual space"
-    antsApplyTransforms -d 3 -e 3 -i ${pAtmp} -r ${T1ind} -o ${pAtmp2ind} -n BSpline -t ${tmp2ind_warp} -t ${tmp2ind_affine}
+    antsApplyTransforms -d 3 -e 3 -i ${pAtmp} -r ${T1ind} -o ${pAtmp2ind} -n NearestNeighbor -t ${tmp2ind_warp} -t ${tmp2ind_affine}
 fi
 
 # Report output filenames
