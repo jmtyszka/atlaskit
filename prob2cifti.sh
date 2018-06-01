@@ -50,7 +50,9 @@ dlabel_nii=${prob_atlas%%.nii.gz}.dlabel.nii
 # Main actions
 #
 
-# Resample probabilistic atlas to same space as HCP atlas mesh template (FSL MNI152, *not* ICMB152 2009c)
+# Resample probabilistic atlas to same space as HCP atlas mesh template
+# Note that the mesh template is in MNI152 Gen6/FSL space *not* ICMB152 2009c
+# The prob atlas must also be in MNI152 Gen6/FSL space
 echo "Resampling MNI152 probabilistic atlas to HCP mesh space"
 flirt -in ${prob_atlas} -out ${tmp_prob_atlas} -ref ${atlas_mesh_hcp} ${FLIRT_opts}
 

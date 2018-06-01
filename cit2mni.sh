@@ -32,12 +32,15 @@
 # 2018 California Institute of Technology.
 
 # Key directories (edit as needed)
-cit_dir="${HOME}/Box/CIT_SubCortical_Atlas/+Release+/CIT168_Amygdala_v1.0.3/CIT168_700um"
+cit_dir="${HOME}/Box/CIT_SubCortical_Atlas/Labeling/reinf_learn_atlas"
 icmb_dir="${HOME}/Box/Atlases/MNI_ICBM152_2009c/mni_icbm152_nlin_asym_09c"
 
-# CIT168 700 um templates
+# CIT168 700 um templates and prob atlas
 cit_t1=${cit_dir}/CIT168_T1w_head_700um.nii.gz
 cit_t2=${cit_dir}/CIT168_T2w_head_700um.nii.gz
+
+# Reinforcement learning prob atlas
+RL_prob="${HOME}/Box
 
 if [ $# -lt 1 ]
 then
@@ -119,3 +122,6 @@ if [ ! -s ${cit2mni_t2} ]; then
     echo "Warping CIT168 T2 to ${out_space} space"
     WarpImageMultiTransform 3 ${cit_t2} ${cit2mni_t2} ${cit2mni_warp} ${cit2mni_affine} --use-BSpline
 fi
+
+# Apply warp to CIT168 probabilistic atlas
+
