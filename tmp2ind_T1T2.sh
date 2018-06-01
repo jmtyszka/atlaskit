@@ -36,6 +36,7 @@
 
 # function for parsing options
 getopt1() {
+
     sopt="$1"
     shift 1
     for fn in $@ ; do
@@ -107,7 +108,6 @@ then
     echo "   Prob Atlas : ${pAtmp}"
 fi
 echo "using ${nthreads} threads"
-
 
 # Registration files
 prefix=TMP2IND_

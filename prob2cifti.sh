@@ -21,9 +21,9 @@ if [ "x${HCPPIPEDIR}" == "x" ]; then
 fi
 
 # Temporary intermediate filenames
-tmp_caret=`mktemp`.nii.gz
-tmp_prob_atlas=`mktemp`.nii.gz
-tmp_det_atlas=`mktemp`.nii.gz
+tmp_caret=tmp_caret.nii.gz
+tmp_prob_atlas=tmp_prob_atlas.nii.gz
+tmp_det_atlas=tmp_det_atlas.nii.gz
 
 # FLIRT resampling options
 FLIRT_opts="-init ${FSLDIR}/etc/flirtsch/ident.mat -applyxfm -interp sinc -sincwindow hanning"
@@ -50,7 +50,7 @@ dlabel_nii=${prob_atlas%%.nii.gz}.dlabel.nii
 # Main actions
 #
 
-# Resample probabilistic atlas to same space as HCP atlas mesh template
+# Resample probabilistic atlas to same space as HCP atlas mesh template (FSL MNI152, *not* ICMB152 2009c)
 echo "Resampling MNI152 probabilistic atlas to HCP mesh space"
 flirt -in ${prob_atlas} -out ${tmp_prob_atlas} -ref ${atlas_mesh_hcp} ${FLIRT_opts}
 
@@ -67,5 +67,5 @@ echo "Creating CIFTI dlabel file: ${dlabel_nii}"
 wb_command -cifti-create-label ${dlabel_nii} -volume ${tmp_caret} ${atlas_mesh_hcp}
 
 # Clean up
-echo "Cleaning up"
-rm -rf ${tmp_caret} ${tmp_prob_atlas} ${tmp_det_atlas}
+# echo "Cleaning up"
+# rm -rf ${tmp_caret} ${tmp_prob_atlas} ${tmp_det_atlas}
