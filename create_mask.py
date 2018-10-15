@@ -61,6 +61,13 @@ def main():
     threshold = args.threshold
     labels = args.labels
 
+    # sanity check on threshold value
+    if 0.0 < threshold < 1.0:
+        pass
+    else:
+        print("Please provide a threshold value between 0 and 1")
+        return False
+        
     # Load the source atlas image
     print('Opening %s' % in_file)
     in_nii = nib.load(in_file)
@@ -68,10 +75,13 @@ def main():
     # Load label image
     print('Loading labels')
     in_data = in_nii.get_data()
-    
+
+    # prepare output data, all zeros at first
     mask_data = np.zeros((in_data.shape[0:3]))
 
+    # loop over provided label numbers
     for label in labels:
+        # test, to make sure that the label number is actually not larger than the number of labels in the atlas
         if label <= in_data.shape[3]:
             print("Pulling out label: %s" % label)
             label_image = in_data[:, :, :, label]
@@ -79,7 +89,7 @@ def main():
             
     # Save smoothed labels image
     print('Saving mask to %s' % out_file)
-    out_nii = nib.Nifti1Image(mask_data, in_nii.get_affine())
+    out_nii = nib.Nifti1Image(mask_data, in_nii.affine)
     out_nii.to_filename(out_file)
     
     print('Done')
@@ -91,4 +101,6 @@ def main():
 
 # This is the standard boilerplate that calls the main() function.
 if __name__ == '__main__':
-    main()
+    success = main()
+    if success:
+        print("Done.")
