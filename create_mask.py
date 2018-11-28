@@ -51,6 +51,7 @@ def main():
     parser.add_argument('-i','--in_file', help="probabilistic atlas file")
     parser.add_argument('-o','--out_file', help="binary mask image")
     parser.add_argument('-t','--threshold', help="threshold to apply to probabilistic atlas", type=float)
+    parser.add_argument('-s','--hemisphere', help="which hemisphere(s) to include", type=str)
     parser.add_argument('labels', metavar='N', type=int, nargs='+',
                         help='label numbers to smooth')
 
@@ -60,7 +61,8 @@ def main():
     out_file = args.out_file
     threshold = args.threshold
     labels = args.labels
-
+    hemisphere = args.hemisphere
+    
     # sanity check on threshold value
     if 0.0 < threshold < 1.0:
         pass
@@ -76,6 +78,7 @@ def main():
     print('Loading labels')
     in_data = in_nii.get_data()
 
+    
     # prepare output data, all zeros at first
     mask_data = np.zeros((in_data.shape[0:3]))
 
@@ -86,7 +89,12 @@ def main():
             print("Pulling out label: %s" % label)
             label_image = in_data[:, :, :, label]
             mask_data[np.where(label_image > threshold)] = 1
-            
+
+    if hemisphere == 'right':
+        mask_data[:int(mask_data.shape[0]/2),:,:] = 0
+    elif hemisphere == 'left':
+        mask_data[int(mask_data.shape[0]/2):,:,:] = 0
+        
     # Save smoothed labels image
     print('Saving mask to %s' % out_file)
     out_nii = nib.Nifti1Image(mask_data, in_nii.affine)
