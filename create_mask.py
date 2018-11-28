@@ -51,7 +51,7 @@ def main():
     parser.add_argument('-i','--in_file', help="probabilistic atlas file")
     parser.add_argument('-o','--out_file', help="binary mask image")
     parser.add_argument('-t','--threshold', help="threshold to apply to probabilistic atlas", type=float)
-    parser.add_argument('-s','--hemisphere', help="which hemisphere(s) to include", type=str)
+    parser.add_argument('-s','--hemisphere', help="which hemisphere(s) to include (left/right/both)", type=str)
     parser.add_argument('labels', metavar='N', type=int, nargs='+',
                         help='label numbers to smooth')
 
