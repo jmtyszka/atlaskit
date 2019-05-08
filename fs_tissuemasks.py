@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 """
 Create GM, WM and CSF tissue masks from Freesurfer output
  - requires Freesurfer reconstructed subject directory
