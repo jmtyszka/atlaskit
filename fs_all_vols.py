@@ -100,7 +100,7 @@ def main():
     # Write grand CSV to output directory
     out_fname = os.path.join(out_dir, 'fs_volumes.csv')
     print('Writing all volumes to {}'.format(out_fname))
-    all_vols.to_csv(out_fname, index=False, float_format='%0.1f')
+    all_vols.to_csv(out_fname, index=True, float_format='%0.1f')
 
     # Clean exit
     sys.exit(0)
