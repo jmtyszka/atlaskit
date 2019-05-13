@@ -44,6 +44,9 @@ __version__ = '0.1.0'
 import os
 import sys
 import argparse
+import numpy as np
+import pandas as pd
+from glob import glob
 
 
 def main():
@@ -51,6 +54,7 @@ def main():
     # Parse command line arguments
     parser = argparse.ArgumentParser(description='Extract Freesurfer aseg volumes')
     parser.add_argument('-f', '--fs_dir', help="Freesurfer subjects directory")
+    parser.add_argument('-o', '--out_dir', help="Output volumes directory")
 
     args = parser.parse_args()
 
@@ -59,52 +63,117 @@ def main():
     else:
         fs_dir = os.getcwd()
 
+    if args.out_dir:
+        out_dir = args.out_dir
+    else:
+        out_dir = os.path.join(os.getcwd(), 'volumes')
+
+    if not os.path.isdir(out_dir):
+        os.makedirs(out_dir, exist_ok=True)
+
+    subj_vols = []
+
     # Loop over all subjects in FS directory
-    for subj_dir in os.listdir(fs_dir):
+    for subj_dir in glob(os.path.join(fs_dir, '*')):
 
-        # ASEG stats filename
-        aseg_fname = os.path.join(fs_dir, subj_dir, 'stats', 'aseg.stats')
+        subj_id = os.path.basename(subj_dir)
+        print('Processing subject : {}'.format(subj_id))
 
-        if os.path.isfile(aseg_fname):
+        lh_cort_vols = load_fs_cort_vols(subj_dir, 'lh')
+        rh_cort_vols = load_fs_cort_vols(subj_dir, 'rh')
+        subcort_vols = load_fs_subcort_vols(subj_dir)
 
-            # Subject ID from directory name
-            sid = subj_dir.replace('sub-','')
+        if not (lh_cort_vols.empty or rh_cort_vols.empty or subcort_vols.empty):
 
-            # Load volume stats
-            vol_stats = load_stats(aseg_fname)
+            # Concatenate volume dfs and transpose - regions become columns
+            vols = pd.concat([lh_cort_vols, rh_cort_vols, subcort_vols], sort=False).T
 
+            # Replace index with subject ID
+            vols.index = [subj_id]
+
+            # Append to subject volumes list
+            subj_vols.append(vols)
+
+    # Create grand volume dataframe for all subjects
+    all_vols = pd.concat(subj_vols)
+
+    # Write grand CSV to output directory
+    out_fname = os.path.join(out_dir, 'fs_volumes.csv')
+    print('Writing all volumes to {}'.format(out_fname))
+    all_vols.to_csv(out_fname, index=False, float_format='%0.1f')
 
     # Clean exit
     sys.exit(0)
 
 
-def load_stats(aseg_fname):
+def load_fs_cort_vols(subj_dir, hemi='lh'):
 
-    import numpy as np
+    fname = os.path.join(subj_dir, 'stats', '{}.aparc.a2009s.stats'.format(hemi))
 
-    # Extract eTIV from comment line
-    with open(aseg_fname, 'r') as fd:
+    if os.path.isfile(fname):
 
-        for line in fd.readlines():
-            if "EstimatedTotalIntraCranialVol" in line:
-                chunks = line.split(',')
-                eTIV = float(chunks[3])
+        print('Loading {}'.format(fname))
 
-    print('eTIV : %0.1f ul' % eTIV)
+        vols = pd.read_csv(fname,
+                           sep=" ",
+                           header=None,
+                           names=['label', 'vol_mm3'],
+                           usecols=[0, 3],
+                           skipinitialspace=True,
+                           comment='#')
 
-    # Load all data from non-commented lines in aseg.stats
-    stats = np.genfromtxt(aseg_fname,
-                          dtype="u4,u4,u4,f8,U32,f8,f8,u4,u4,u4",
-                          names=['Index','Seg_ID','N_vox','Vol_ul','Name','Imean','Istd','Imin','Imax','Irng'])
+        # Prefix labels with 'Left-' or 'Right-'
+        prefix = 'Left-' if hemi == 'lh' else 'Right-'
+        vols['label'] = prefix + vols['label']
 
-    # Parse stats, create hemisphere column, normalize to eTIV, discard intensity stats
-    for label in stats:
-        index, id, n, v, name, _, _, _, _, _ = label
-        if 'Left' in name:
-            name = name.replace('Left','')
-            hemi = 'Left'
+        # Set label as row index
+        vols = vols.set_index(['label'])
 
-    return stats
+    else:
+
+        print('{} not found - skipping'.format(fname))
+        vols = pd.DataFrame()
+
+    return vols
+
+
+def load_fs_subcort_vols(subj_dir):
+
+    fname = os.path.join(subj_dir, 'stats', 'aseg.stats')
+
+    if os.path.isfile(fname):
+
+        print('Loading {}'.format(fname))
+
+        vols = pd.read_csv(fname,
+                           sep=" ",
+                           header=None,
+                           names=['vol_mm3', 'label'],
+                           usecols=[3, 4],
+                           skipinitialspace=True,
+                           comment='#')
+
+        # Set label as row index
+        vols = vols.set_index(['label'])
+
+        # Extract eTIV from header comments
+        eTIV = np.nan
+        with open(fname, 'r') as fd:
+            for line in fd.readlines():
+                if 'EstimatedTotalIntraCranialVol' in line:
+                    chunks = line.split(',')
+                    eTIV = float(chunks[3])
+                    break
+
+        # Append eTIV to dataframe
+        vols.loc['eTIV'] = eTIV
+
+    else:
+
+        print('{} not found - skipping'.format(fname))
+        vols = pd.DataFrame()
+
+    return vols
 
 
 # This is the standard boilerplate that calls the main() function.
