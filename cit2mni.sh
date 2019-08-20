@@ -3,12 +3,14 @@
 # - currently supports FSL MNI152 1 mm or MNI ICBM152 asym nonlin 2009c 1 mm spaces
 # - uses whole head templates for warping
 # - T2w templates used if available (eg with 2009c)
+# - Gray matter probabilistic tissue mask
 #
 # USAGES
 # AUTHOR : Mike Tyszka
 # PLACE  : Caltech
 # DATES  : 2017-10-31 JMT Adapt from mirror_warp_calc.sh
 #          2018-05-30 JMT Generalize to other MNI spaces
+#          2019-08-20 JMT Add gm mask
 #
 # License
 # ----
@@ -29,21 +31,22 @@
 #
 # Copyright
 # ----
-# 2018 California Institute of Technology.
+# 2018-2019 California Institute of Technology.
 
 # Key directories (edit as needed)
-cit_dir="${HOME}/Box/CIT168_SubCortical_Atlas/Templates"
+root_dir="${HOME}/Box/CIT168_SubCortical_Atlas"
+template_dir="${root_dir}/Templates"
 icmb_dir="${HOME}/Box/Atlases/MNI_ICBM152_2009c/mni_icbm152_nlin_asym_09c"
 
 # CIT168 700 um templates and tissue masks
-cit_t1_brain=${cit_dir}/CIT168_T1w_700um.nii.gz
-cit_t2_brain=${cit_dir}/CIT168_T2w_700um.nii.gz
-cit_t1_head=${cit_dir}/CIT168_T1w_head_700um.nii.gz
-cit_t2_head=${cit_dir}/CIT168_T2w_head_700um.nii.gz
-cit_gm=${cit_dir}/CIT168_gm_700um.nii.gz
+cit_t1_brain=${template_dir}/CIT168_T1w_700um.nii.gz
+cit_t2_brain=${template_dir}/CIT168_T2w_700um.nii.gz
+cit_t1_head=${template_dir}/CIT168_T1w_head_700um.nii.gz
+cit_t2_head=${template_dir}/CIT168_T2w_head_700um.nii.gz
+cit_gm=${template_dir}/CIT168_gm_700um.nii.gz
 
 # Reinforcement learning prob atlas
-cit_prob="${HOME}/Box/CIT_SubCortical_Atlas/Labeling/reinf_learn_atlas/prob_atlas_bilateral.nii.gz"
+cit_prob="${root_dir}/Labeling/reinf_learn_atlas/prob_atlas_bilateral.nii.gz"
 
 if [ $# -lt 1 ]
 then
