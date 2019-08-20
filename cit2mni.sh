@@ -32,14 +32,15 @@
 # 2018 California Institute of Technology.
 
 # Key directories (edit as needed)
-cit_dir="${HOME}/Box/CIT_SubCortical_Atlas/Templates"
+cit_dir="${HOME}/Box/CIT168_SubCortical_Atlas/Templates"
 icmb_dir="${HOME}/Box/Atlases/MNI_ICBM152_2009c/mni_icbm152_nlin_asym_09c"
 
-# CIT168 700 um templates and prob atlas
+# CIT168 700 um templates and tissue masks
 cit_t1_brain=${cit_dir}/CIT168_T1w_700um.nii.gz
 cit_t2_brain=${cit_dir}/CIT168_T2w_700um.nii.gz
 cit_t1_head=${cit_dir}/CIT168_T1w_head_700um.nii.gz
 cit_t2_head=${cit_dir}/CIT168_T2w_head_700um.nii.gz
+cit_gm=${cit_dir}/CIT168_gm_700um.nii.gz
 
 # Reinforcement learning prob atlas
 cit_prob="${HOME}/Box/CIT_SubCortical_Atlas/Labeling/reinf_learn_atlas/prob_atlas_bilateral.nii.gz"
@@ -119,6 +120,7 @@ cit2mni_t1_brain=${out_dir}/CIT168to${out_space}_T1w_brain.nii.gz
 cit2mni_t2_brain=${out_dir}/CIT168to${out_space}_T2w_brain.nii.gz
 cit2mni_t1_head=${out_dir}/CIT168to${out_space}_T1w.nii.gz
 cit2mni_t2_head=${out_dir}/CIT168to${out_space}_T2w.nii.gz
+cit2mni_gm=${out_dir}/CIT168to${out_space}_gm.nii.gz
 cit2mni_prob=${out_dir}/CIT168to${out_space}_prob.nii.gz
 cit2mni_det=${out_dir}/CIT168to${out_space}_det.nii.gz
 
@@ -137,6 +139,10 @@ WarpImageMultiTransform 3 ${cit_t1_head} ${cit2mni_t1_head} -R ${mni_t1_head} ${
 echo "----------------"
 echo "T2w head"
 WarpImageMultiTransform 3 ${cit_t2_head} ${cit2mni_t2_head} -R ${mni_t1_head} ${cit2mni_warp} ${cit2mni_affine} --use-BSpline
+
+echo "----------------"
+echo "Gray matter mask"
+WarpImageMultiTransform 3 ${cit_gm} ${cit2mni_gm} -R ${mni_t1_head} ${cit2mni_warp} ${cit2mni_affine} --use-BSpline
 
 echo "----------------"
 echo "Probabilistic labels"
