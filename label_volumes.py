@@ -1,24 +1,12 @@
 #!/usr/bin/env python3
 """
-Output volumes of each label in an atlas in microliters.
-- largely superseded by ITK-SNAP volume output
+Output summary statistics for each label in an integer-valued atlas
+- volume in voxels and microliters
+- center of mass
 
-Usage
-----
-label_volumes.py <atlas_file>
-label_volumes.py -h
-
-Example
-----
->>> label_volumes.py atlas.nii.gz
-
-Authors
+Author
 ----
 Mike Tyszka, Caltech Brain Imaging Center
-
-Dates
-----
-2015-05-01 JMT From scratch
 
 License
 ----
@@ -39,21 +27,22 @@ along with atlaskit.  If not, see <http://www.gnu.org/licenses/>.
 
 Copyright
 ----
-2015 California Institute of Technology.
+2019 California Institute of Technology.
 """
 
-__version__ = '0.1.0'
+__version__ = '0.2.0'
 
 import sys
 import argparse
 import nibabel as nib
 import numpy as np
+from scipy.ndimage.measurements import center_of_mass
 
 
 def main():
     
     # Parse command line arguments
-    parser = argparse.ArgumentParser(description='Atlas label volumes in microliters')
+    parser = argparse.ArgumentParser(description='Atlas label statistics')
     parser.add_argument('atlas_file', help="source atlas labels filename")
 
     args = parser.parse_args()
@@ -71,7 +60,7 @@ def main():
     labels = np.unique(atlas_labels)
 
     # Column headers
-    print('%6s %10s %10s' % ('Label', 'Voxels', 'ul'))
+    print('{:6s} {:10s} {:10s}'.format('Label', 'Voxels', 'ul'))
     
     for label in labels:
 
@@ -80,6 +69,9 @@ def main():
 
             # Extract target label as a boolean mask        
             label_mask = (atlas_labels == label)
+
+            # Center of mass
+            com = center_of_mass(label_mask)
             
             # Integrate volume of current label
             label_vol_vox = np.sum(label_mask)
@@ -87,12 +79,8 @@ def main():
             
             # Only output non-empty labels with index > 0
             if label_vol_ul > 0.0:
-                print('%6d %10d %10.1f' % (label, label_vol_vox, label_vol_ul))
-    
-    # Clean exit
-    sys.exit(0)
+                print('%6d %10d %10.1f'.format(label, label_vol_vox, label_vol_ul))
 
 
-# This is the standard boilerplate that calls the main() function.
 if __name__ == '__main__':
     main()
