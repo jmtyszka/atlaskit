@@ -14,4 +14,46 @@ echo "Original image       : $1"
 echo "Resampled image      : $2"
 echo "Isotropic resolution : $3 mm"
 
-${FSLDIR}/bin/flirt -in $1 -out $2 -ref $1 -init ${FSLDIR}/etc/flirtsch/ident.mat -applyisoxfm $3 -interp sinc -sincwindow hanning
+# FLIRT options
+flirt_opts="-init ${FSLDIR}/etc/flirtsch/ident.mat -applyisoxfm ${3} -interp sinc -sincwindow hanning"
+
+# Get image dimensions
+ndim=`fslinfo $1 | awk '{ if ($1 == "dim4") { if ($2 > 1) {print "4"} else {print "3"} } }'`
+
+echo "Original image has ${ndim} dimensions"
+
+if [ ${ndim} -eq "3" ]
+then
+
+    ${FSLDIR}/bin/flirt -in $1 -out $2 -ref $1 ${flirt_opts}
+
+elif [ ${ndim} -eq "4" ]
+then
+
+    tmp_dir="./tmp"
+    mkdir -p ${tmp_dir}
+
+    echo "Splitting 4D volume into $tmp_dir"
+    fslsplit $1 ${tmp_dir}/vol -t
+
+    for vol in ${tmp_dir}/vol*
+    do
+
+        echo "  Resampling ${vol}"
+
+        out_vol=${vol/.nii.gz/_resamp.nii.gz}
+
+        ${FSLDIR}/bin/flirt -in ${vol} -out ${out_vol} -ref ${vol} ${flirt_opts}
+
+    done
+
+    fslmerge -t $2 ${tmp_dir}/*_resamp.nii.gz
+
+    rm -rf ${tmp_dir}
+
+else
+
+    echo "Unsupported image dimensions : ${ndim}"
+    exit
+
+fi
