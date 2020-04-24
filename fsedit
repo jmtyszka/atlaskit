@@ -1,0 +1,28 @@
+#!/bin/bash
+#
+# Open Freeview to edit a given subject
+#
+
+if [ $# -lt 1 ]
+then
+    echo "* Please provide a Freesurfer subject ID"
+    echo "Example : fsedit sub-CC0076_core1"
+    exit
+fi
+
+subj_id=$1
+
+echo "SUBJECTS_DIR : ${SUBJECTS_DIR}"
+echo "Editing $subj_id"
+
+sdir=${SUBJECTS_DIR}/${subj_id}
+
+freeview -v ${sdir}/mri/brainmask.mgz \
+	${sdir}/mri/T1.mgz \
+	${sdir}/mri/wm.mgz \
+	${sdir}/mri/aseg.mgz \
+	-f ${sdir}/surf/lh.white:edgecolor=yellow \
+	${sdir}/surf/lh.pial:edgecolor=blue \
+	${sdir}/surf/rh.white:edgecolor=yellow \
+	${sdir}/surf/rh.pial:edgecolor=blue &
+
