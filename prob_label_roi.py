@@ -68,7 +68,7 @@ def main():
 
     # Load the prob label image
     p_nii = nib.load(plabel_fname)
-    p = p_nii.get_data()
+    p = p_nii.get_fdata()
 
     # Original affine tx and voxel dimensions
     p_affine = p_nii.affine
@@ -108,7 +108,7 @@ def main():
     for img_fname in args.infiles:
 
         img_nii = nib.load(img_fname)
-        img = img_nii.get_data()
+        img = img_nii.get_fdata()
         ndims = np.ndim(img)
 
         if ndims == 3:
