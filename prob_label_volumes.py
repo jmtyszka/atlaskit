@@ -1,24 +1,10 @@
 #!/usr/bin/env python3
 """
-Output volumes of each probabilistic label in an atlas in microliters.
-Accepts multiple 4D prob atlas files
-
-Usage
-----
-prob_label_volumes.py <atlas_file>
-prob_label_volumes.py -h
-
-Example
-----
->>> prob_label_volumes.py *_probs.nii.gz
+Calculate probability-weighted metrics given a metric image and a probabilistic atlas
 
 Authors
 ----
 Mike Tyszka, Caltech Brain Imaging Center
-
-Dates
-----
-2015-05-31 JMT Adapt from label_volumes.py
 
 License
 ----
@@ -60,7 +46,7 @@ def main():
     # Parse command line arguments
     args = parser.parse_args()
     prob_files = args.prob_files
-    
+
     for p_file in prob_files:
         
         # Force absolute path
@@ -70,7 +56,7 @@ def main():
         p_nii = nib.load(p_file)
         p = p_nii.get_data()
         nd = p.ndim
-        
+
         # Atlas voxel volume in mm^3 (microliters)
         atlas_vox_vol_ul = np.array(p_nii.header.get_zooms()).prod()
         
@@ -90,8 +76,8 @@ def main():
                 print('%0.3f' % V),
 
             # Final newline
-            print          
-    
+            print
+
     # Clean exit
     sys.exit(0)
 
