@@ -17,12 +17,14 @@ echo "Editing $subj_id"
 
 sdir=${SUBJECTS_DIR}/${subj_id}
 
-freeview -v ${sdir}/mri/brainmask.mgz \
-	${sdir}/mri/T1.mgz \
-	${sdir}/mri/wm.mgz \
-	${sdir}/mri/aseg.mgz \
-	-f ${sdir}/surf/lh.white:edgecolor=yellow \
-	${sdir}/surf/lh.pial:edgecolor=blue \
-	${sdir}/surf/rh.white:edgecolor=yellow \
-	${sdir}/surf/rh.pial:edgecolor=blue &
+freeview \
+  --layout 4 \
+  -v ${sdir}/mri/aseg.mgz \
+     ${sdir}/mri/T1.mgz \
+     ${sdir}/mri/wm.mgz:colormap=heat \
+     ${sdir}/mri/brainmask.mgz:colormap=heat \
+  -f ${sdir}/surf/lh.white:edgecolor=yellow \
+     ${sdir}/surf/rh.white:edgecolor=yellow \
+     ${sdir}/surf/lh.pial:edgecolor=blue \
+     ${sdir}/surf/rh.pial:edgecolor=blue &
 
