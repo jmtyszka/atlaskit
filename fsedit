@@ -19,8 +19,7 @@ sdir=${SUBJECTS_DIR}/${subj_id}
 
 freeview \
   --layout 4 \
-  -v ${sdir}/mri/aseg.mgz \
-     ${sdir}/mri/T1.mgz \
+  -v ${sdir}/mri/T1.mgz \
      ${sdir}/mri/wm.mgz:colormap=heat \
      ${sdir}/mri/brainmask.mgz:colormap=heat \
   -f ${sdir}/surf/lh.white:edgecolor=yellow \
