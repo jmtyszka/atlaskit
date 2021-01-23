@@ -12,10 +12,9 @@ fi
 
 subj_id=$1
 
-echo "SUBJECTS_DIR : ${SUBJECTS_DIR}"
 echo "Editing $subj_id"
 
-sdir=${SUBJECTS_DIR}/${subj_id}
+sdir=${subj_id}
 
 freeview \
   --layout 4 \
