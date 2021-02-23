@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """
-Calculate probability-weighted metrics given a metric image and a probabilistic atlas
+Calculate probability-weighted label volumes given a 4D probabilistic atlas
+- assumes empirical probability is a good proxy for partial volume occupancy
+- can handle a list of 4D prob atlas files
 
 Authors
 ----
@@ -25,10 +27,10 @@ along with atlaskit.  If not, see <http://www.gnu.org/licenses/>.
 
 Copyright
 ----
-2015 California Institute of Technology.
+2021 California Institute of Technology.
 """
 
-__version__ = '0.1.0'
+__version__ = '0.2.0'
 
 import os
 import sys
