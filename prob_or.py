@@ -9,7 +9,7 @@ prob_or.py -h
 
 Example
 ----
->>> prob_or.py -i prob_atlas.nii.gz prob_label.nii.gz 1 2 5 10
+>>> prob_or.py -i prob_atlas.nii.gz -o merged_labels.nii.gz 1 2 5 10
 
 Authors
 ----
@@ -19,6 +19,7 @@ Dates
 ----
 2015-07-29 JMT From scratch
 2016-09-27 JMT Clarify argparse help
+2023-02-21 JMT Update to python 3.9
 
 License
 ----
@@ -53,46 +54,30 @@ import numpy as np
 def main():
     
     # Parse command line arguments
-    parser = argparse.ArgumentParser(description='Probabilistic OR of multiple labels in a 4D probabilistic atlas')
+    parser = argparse.ArgumentParser(description='Probabilistic OR multiple labels from a 4D probabilistic atlas')
     parser.add_argument('-i', '--input', help='Input 4D prob atlas')
     parser.add_argument('-o', '--output', help='Output 3D prob map')
     parser.add_argument('labels', nargs='+', help='Space-separated list of label indices (zero-indexed)')
 
     # Parse command line arguments
     args = parser.parse_args()
-    
-    if args.output:
-        out_file = args.output
-    else:
-        out_file = 'Probabilistic_OR.nii.gz'
-        
-    if args.input:
-        in_file = args.input
-    else:
-        in_file = 'Probabilistic_Atlas.nii.gz'
-    
-    # List of label indices to add
-    labels = args.labels
-    
+
+    in_file = args.input if args.input else 'Probabilistic_Atlas.nii.gz'
+    out_file = args.output if args.output else 'Probabilistic_OR.nii.gz'
+
     # Load probabilistic atlas
     print('Loading probabilistic atlas from %s' % in_file)
     in_nii = nib.load(in_file)
-    p = in_nii.get_data()
-    
-    # Grab affine transform from first label volume
-    T = in_nii.get_affine()
+    p = in_nii.get_fdata()
 
     # Probabilistic OR of selected labels
     print('Probabilistic OR of selected labels')
-    pOR = np.sum(p[:,:,:,labels], axis=3)
+    p_or = np.sum(p[..., args.labels], axis=3)
     
     # Write 4D probabilistic atlas
     print('Saving result to %s' % out_file)
-    prob_nii = nib.Nifti1Image(pOR, T)
+    prob_nii = nib.Nifti1Image(p_or, in_nii.affine)
     prob_nii.to_filename(out_file)
-    
-    # Clean exit
-    sys.exit(0)
 
 
 # This is the standard boilerplate that calls the main() function.

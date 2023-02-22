@@ -66,7 +66,7 @@ def main():
         if nd == 3:
 
             V = np.sum(p) * atlas_vox_vol_ul
-            print('%0.3f' % V) 
+            print(f'{V:0.3f}')
 
         elif nd == 4:
 
@@ -75,10 +75,10 @@ def main():
             for t in range(0,nt):
 
                 V = np.sum(p[:,:,:,t]) * atlas_vox_vol_ul
-                print('%0.3f' % V),
+                print(f'{V:0.3f}')
 
             # Final newline
-            print
+            print()
 
     # Clean exit
     sys.exit(0)

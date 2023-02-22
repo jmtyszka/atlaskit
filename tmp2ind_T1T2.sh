@@ -2,15 +2,14 @@
 #
 # Perform SyN multimodal warping from individual to template space using joint T1 and T2 cost function
 #
-# USAGE  : tmp2ind_T1T2.sh --T1ind=<Individual T1w> --T2ind=<Individual T2w> --T1tmp=<Template T1w image> --T2tmp=<Template T2w image> --Atmp=<(Probabilistic) atlas> --nthreads=<nthreads>"
-#
 # AUTHOR : Mike Tyszka
 # PLACE  : Caltech
 # DATES  : 2016-09-30 JMT From scratch
 #          2017-04-10 JMT Fixed dimensions bug in pAtlas resampling
 #          2017-04-11 JMT Duplicated Adam Mezher's fixes from T1 to T1T2 version
 #          2017-06-13 JMT Simplied argument handling
-#	       2018-04-20 JD  added names for arguments; added nthreads as argument; using antsApplyTransforms instead of WarpImageMultiTransform; made atlas argument optional
+#	   2018-04-20 JD  added names for arguments; added nthreads as argument;
+#                         using antsApplyTransforms instead of WarpImageMultiTransform; made atlas argument optional
 #
 # MIT License
 #
@@ -49,12 +48,12 @@ getopt1() {
 
 if [ $# -lt 4 ]
 then
-	echo "USAGE : tmp2ind_T1T2.sh" 
+    echo "USAGE : tmp2ind_T1T2.sh" 
     echo "        [REQUIRED ARGS] --T1ind=<Individual T1w> --T2ind=<Individual T2w> --T1tmp=<Template T1w image> --T2tmp=<Template T2w image>"
-    echo "        [OPTIONAL ARGS] --Atmp=<(Probabilistic) atlas=''> --nthreads=<nthreads=4>"
-	echo "All images are Nifti-1 format, compressed or uncompressed"
+    echo "        [OPTIONAL ARGS] --Atmp=<(Probabilistic) atlas=''> --outdir=<output directory> --nthreads=<nthreads=4>"
+    echo "All images are Nifti-1 format, compressed or uncompressed"
     echo "This script should be called from within the directory that you wish transforms to be saved to"
-	exit
+    exit
 fi
 
 
@@ -89,6 +88,12 @@ elif [ ! -s $pAtmp ]; then
     echo "*Atmp: $pAtmp does not exist"
 fi
 
+outdir=`getopt1 "--outdir" $@`
+if [ -z "$outdir" ];then
+    echo "*outdir is empty"
+    outdir=TMP2IND
+fi
+
 nthreads=`getopt1 "--nthreads" $@`
 if [ -z "$nthreads" ];then
     echo "*nthreads is empty; set to default value = 4"
@@ -96,6 +101,7 @@ if [ -z "$nthreads" ];then
 fi
 
 # Splash text
+echo ""
 echo "------------------------------------------------------------"
 echo " SyN Warp T1 and T2 templates to individual space"
 echo "------------------------------------------------------------"
@@ -107,18 +113,23 @@ if [ ! -z "$pAtmp" ] && [ -s ${pAtmp} ]
 then
     echo "   Prob Atlas : ${pAtmp}"
 fi
-echo "using ${nthreads} threads"
+echo "Output directory : ${outdir}"
+echo "Using ${nthreads} threads"
+
+# Create output directory
+mkdir -p ${outdir}
 
 # Registration files
-prefix=TMP2IND_
+prefix=${outdir}/TMP2IND
 tmp2ind_affine=${prefix}0GenericAffine.mat
 tmp2ind_warp=${prefix}1Warp.nii.gz
-logfile=${prefix}Warp.log
+logfile=${prefix}_Warp.log
 
 # Output filenames
-T1tmp2ind=T1w_tmp2ind.nii.gz
-T2tmp2ind=T2w_tmp2ind.nii.gz
-pAtmp2ind=pA_tmp2ind.nii.gz
+T1tmp2ind=${outdir}/T1w_tmp2ind.nii.gz
+T2tmp2ind=${outdir}/T2w_tmp2ind.nii.gz
+pAtmp2ind=${outdir}/pA_tmp2ind.nii.gz
+dAtmp2ind=${outdir}/dA_tmp2ind.nii.gz
 
 # Calculate affine and SyN warp
 if [ ! -s ${tmp2ind_warp} ]
@@ -146,13 +157,26 @@ then
     antsApplyTransforms -d 3 -e 3 -i ${pAtmp} -r ${T1ind} -o ${pAtmp2ind} -n NearestNeighbor -t ${tmp2ind_warp} -t ${tmp2ind_affine}
 fi
 
+if [ ! -s ${dAtmp2ind} ]
+then
+    echo "Creating deterministic labels in individual space (p > 0.25)"
+    prob2det.sh ${pAtmp2ind} ${dAtmp2ind} 0.25
+fi
+
 # Report output filenames
+echo ""
 echo "------------------------------------------------------------"
 echo " Output files"
 echo "------------------------------------------------------------"
 echo "Template T1 in individual space : ${T1tmp2ind}"
 echo "Template T2 in individual space : ${T2tmp2ind}"
+
 if [ ! -z "$pAtmp" ] && [ -s ${pAtmp} ] && [ -s ${pAtmp2ind} ]
 then
     echo "Prob atlas in individual space  : ${pAtmp2ind}"
+fi
+
+if [ -s ${dAtmp2ind} ]
+then
+    echo "Det atlas in individual space   : ${dAtmp2ind}"
 fi
