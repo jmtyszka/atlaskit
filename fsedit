@@ -20,6 +20,7 @@ freeview \
   --layout 4 \
   -v ${sdir}/mri/T1.mgz \
      ${sdir}/mri/wm.mgz:colormap=heat \
+     ${sdir}/mri/brain.finalsurfs.mgz \
      ${sdir}/mri/brainmask.mgz:colormap=heat \
   -f ${sdir}/surf/lh.white:edgecolor=yellow \
      ${sdir}/surf/rh.white:edgecolor=yellow \

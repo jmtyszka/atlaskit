@@ -57,7 +57,7 @@ def main():
     parser = argparse.ArgumentParser(description='Probabilistic OR multiple labels from a 4D probabilistic atlas')
     parser.add_argument('-i', '--input', help='Input 4D prob atlas')
     parser.add_argument('-o', '--output', help='Output 3D prob map')
-    parser.add_argument('labels', nargs='+', help='Space-separated list of label indices (zero-indexed)')
+    parser.add_argument('labels', nargs='+', type=int, help='Space-separated list of label indices (zero-indexed)')
 
     # Parse command line arguments
     args = parser.parse_args()
