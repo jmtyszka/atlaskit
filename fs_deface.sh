@@ -69,7 +69,7 @@ for mgz_fname in ${mri_dir}/T?.mgz ${mri_dir}/nu.mgz ${mri_dir}/orig*mgz ${mri_d
 do
 
   echo ""
-  $(basename ${mgz_fname})
+  echo "$(basename ${mgz_fname})"
 
   nii_fname=${mgz_fname/.mgz/.nii.gz}
   bak_fname=${mgz_fname/.mgz/_faced.mgz}
