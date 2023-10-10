@@ -64,32 +64,32 @@ subj_id=$(basename ${subj_dir})
 # All identifiable images are in <subj_dir>/mri
 mri_dir=${subj_dir}/mri
 
-# Convert everything that needs defacing to nii.gz
+# Loop over all structural images that potentially contain face information
 for mgz_fname in ${mri_dir}/T?.mgz ${mri_dir}/nu.mgz ${mri_dir}/orig*mgz ${mri_dir}/rawavg.mgz ${mri_dir}/orig/*.mgz
 do
 
   echo ""
-  echo "$(basename ${mgz_fname})"
+  $(basename ${mgz_fname})
 
   nii_fname=${mgz_fname/.mgz/.nii.gz}
-  bak_fname=${mgz_fname/.mgz/.mgz.bak}
+  bak_fname=${mgz_fname/.mgz/_faced.mgz}
   defac_fname=${nii_fname/.nii.gz/_defaced.nii.gz}
 
   # Backup original image
-  echo "  Backing up"
-  cp ${mgz_fname} ${bak_fname}
+  echo "  Back up ${mgz_fname} to ${bak_fname}"
+  cp "${mgz_fname}" "${bak_fname}"
 
-  echo "  Converting faced image from .mgz to .nii.gz"
-  mri_convert ${mgz_fname} ${nii_fname} > /dev/null
+  echo "  Converting ${mgz_fname} to ${nii_fname}"
+  mri_convert "${mgz_fname}" "${nii_fname}" > /dev/null
 
-  echo "  Defacing .nii.gz"
-  voxface -i ${nii_fname}
+  echo "  Defacing ${nii_fname}"
+  voxface -i "${nii_fname}"
 
-  echo "  Copying defaced .nii.gz to .mgz"
-  mri_convert ${defac_fname} ${mgz_fname} > /dev/null
+  echo "  Copying ${defac_fname} to ${mgz_fname}"
+  mri_convert "${defac_fname}" "${mgz_fname}" > /dev/null
 
-  # Cleanup .nii.gz images
-  echo "  Cleaning up .nii.gz images"
-  rm -rf ${nii_fname} ${defac_fname}
+  # Cleanup .nii.gz image
+  echo "  Removing intermediate Nifti images"
+  rm -rf "${nii_fname}" "${defac_fname}"
 
 done
