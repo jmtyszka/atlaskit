@@ -76,14 +76,14 @@ do
   defac_fname=${nii_fname/.nii.gz/_defaced.nii.gz}
 
   # Backup original image
-  echo "  Back up ${mgz_fname} to ${bak_fname}"
+  echo "  Backing up ${mgz_fname} to ${bak_fname}"
   cp "${mgz_fname}" "${bak_fname}"
 
   echo "  Converting ${mgz_fname} to ${nii_fname}"
   mri_convert "${mgz_fname}" "${nii_fname}" > /dev/null
 
   echo "  Defacing ${nii_fname}"
-  voxface -i "${nii_fname}"
+  voxface -v -i "${nii_fname}"
 
   echo "  Copying ${defac_fname} to ${mgz_fname}"
   mri_convert "${defac_fname}" "${mgz_fname}" > /dev/null
