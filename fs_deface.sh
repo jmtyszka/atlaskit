@@ -71,9 +71,8 @@ do
   echo ""
   echo "$(basename ${mgz_fname})"
 
+  # Nifti version of MGZ image (defaced in place)
   nii_fname=${mgz_fname/.mgz/.nii.gz}
-  bak_fname=${mgz_fname/.mgz/_faced.mgz}
-  defac_fname=${nii_fname/.nii.gz/_defaced.nii.gz}
 
   # Backup original image
   echo "  Backing up ${mgz_fname} to ${bak_fname}"
@@ -82,14 +81,14 @@ do
   echo "  Converting ${mgz_fname} to ${nii_fname}"
   mri_convert "${mgz_fname}" "${nii_fname}" > /dev/null
 
-  echo "  Defacing ${nii_fname}"
+  echo "  Defacing ${nii_fname} in place"
   voxface -v -i "${nii_fname}"
 
-  echo "  Copying ${defac_fname} to ${mgz_fname}"
-  mri_convert "${defac_fname}" "${mgz_fname}" > /dev/null
+  echo "  Converting defaced ${nii_fname} to ${mgz_fname}"
+  mri_convert "${nii_fname}" "${mgz_fname}" > /dev/null
 
   # Cleanup .nii.gz image
   echo "  Removing intermediate Nifti images"
-  rm -rf "${nii_fname}" "${defac_fname}"
+  rm -rf "${nii_fname}"
 
 done
