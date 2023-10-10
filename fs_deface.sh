@@ -74,10 +74,6 @@ do
   # Nifti version of MGZ image (defaced in place)
   nii_fname=${mgz_fname/.mgz/.nii.gz}
 
-  # Backup original image
-  echo "  Backing up ${mgz_fname} to ${bak_fname}"
-  cp "${mgz_fname}" "${bak_fname}"
-
   echo "  Converting ${mgz_fname} to ${nii_fname}"
   mri_convert "${mgz_fname}" "${nii_fname}" > /dev/null
 
