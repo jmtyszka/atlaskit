@@ -65,7 +65,13 @@ subj_id=$(basename ${subj_dir})
 mri_dir=${subj_dir}/mri
 
 # Loop over all structural images that potentially contain face information
-for mgz_fname in ${mri_dir}/T?.mgz ${mri_dir}/nu.mgz ${mri_dir}/orig*mgz ${mri_dir}/rawavg.mgz ${mri_dir}/orig/*.mgz
+for mgz_fname in \
+  ${mri_dir}/T1*.mgz \
+  ${mri_dir}/T2*.mgz \
+  ${mri_dir}/nu.mgz \
+  ${mri_dir}/orig*mgz \
+  ${mri_dir}/rawavg.mgz \
+  ${mri_dir}/orig/*.mgz
 do
 
   echo ""
